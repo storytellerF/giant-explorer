@@ -4,10 +4,11 @@ buildscript {
         def nav_version = "2.7.5"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath("com.github.storytellerF.common-ui-list:version-manager:1240b9dcdf")
+        def songVersion = "2.0"
         if (songFolder == "remote")
-            classpath("com.github.storytellerF.song:com.storyteller_f.song.gradle.plugin:2.0")
+            classpath("com.github.storytellerF.song:com.storyteller_f.song.gradle.plugin:$songVersion")
         else if (songFolder == "local" || songFolder == "custom") {
-            classpath("com.storyteller_f.song:plugin:2.0")
+            classpath("com.storyteller_f.song:plugin:$songVersion")
         }
     }
 }
