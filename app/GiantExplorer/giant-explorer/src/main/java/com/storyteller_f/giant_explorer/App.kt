@@ -37,7 +37,7 @@ import com.storyteller_f.giant_explorer.dialog.activeFilters
 import com.storyteller_f.giant_explorer.dialog.activeSortChains
 import com.storyteller_f.giant_explorer.dialog.buildFilters
 import com.storyteller_f.giant_explorer.dialog.buildSorts
-import com.storyteller_f.giant_explorer.utils.TorrentFile
+import com.storyteller_f.giant_explorer.utils.getTorrentName
 import com.storyteller_f.multi_core.StoppableTask
 import com.storyteller_f.sort_core.config.SortConfig
 import com.storyteller_f.sort_core.config.SortConfigItem
@@ -306,9 +306,8 @@ class TorrentWorker(context: Context, workerParams: WorkerParameters) :
         context: Context,
         child: Uri
     ) {
-        TorrentFile.getTorrentName(
+        getTorrentName(
             fileInstance.toChild(it.name, FileCreatePolicy.NotCreate)!!,
-            closeable
         ).takeIf { it.isNotEmpty() }?.let { torrentName ->
             context.requireDatabase.torrentDao()
                 .save(
