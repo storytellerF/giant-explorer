@@ -1,9 +1,13 @@
 package com.storyteller_f.giant_explorer.control
 
 import android.content.Intent
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.Menu
 import android.view.SubMenu
+import android.widget.Toast
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import com.storyteller_f.common_ui.scope
@@ -44,17 +48,19 @@ class DocumentProviderMenuProvider(
         val savedUris = FileSystemUriStore.instance.savedUris(activity)
         info.forEach { resolveInfo ->
             val authority = resolveInfo.providerInfo.authority
-            val menuItem = menu.addSubMenu(resolveInfo.loadLabel(packageManager).toString())
-            menuItem.inflateTree(authority, savedUris)
+            val menuItem = menu.addSubMenu(resolveInfo.loadLabel(packageManager))
+            menuItem.inflateTree(authority, savedUris, resolveInfo.providerInfo.loadIcon(packageManager))
         }
     }
 
     private fun SubMenu.inflateTree(
         authority: String,
-        savedUris: Map<String, List<String>>
+        savedUris: Map<String, List<String>>,
+        iconResource: Drawable
     ) {
-        add(authority).setIcon(R.drawable.baseline_info_24).run {
-            isEnabled = false
+        add(authority).setIcon(iconResource).setOnMenuItemClickListener {
+            Toast.makeText(activity, authority, Toast.LENGTH_SHORT).show()
+            true
         }
         add("ADD").setIcon(R.drawable.baseline_add_circle_24)
             .setOnMenuItemClickListener {

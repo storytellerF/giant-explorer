@@ -1,14 +1,5 @@
 # 文件管理器
 
-## 兼容性对比
-
-```kotlin
-val androidVersion = "8.2.0"
-val kotlinVersion = "1.9.10"
-val kspVersion = "1.9.10-1.0.13"
-val navVersion = "2.7.5"
-```
-
 ## 功能
 
 1. 插件

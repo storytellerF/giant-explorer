@@ -106,6 +106,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         ActionBarDrawerToggle(this, binding.drawer, 0, 0)
     }
     private val menuProvider by lazy {
+        binding.navView.itemIconTintList = null
         DocumentProviderMenuProvider(binding.navView.menu, this, ::switchDocumentProvider, ::switchUriRoot)
     }
 
