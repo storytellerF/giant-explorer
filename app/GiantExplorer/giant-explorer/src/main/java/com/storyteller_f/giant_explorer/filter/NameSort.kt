@@ -1,15 +1,15 @@
 package com.storyteller_f.giant_explorer.filter
 
 import android.view.View
-import com.storyteller_f.file_system.model.FileSystemModel
+import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.sort_core.config.SortChain
 import com.storyteller_f.sort_core.config.SortConfigItem
 import com.storyteller_f.sort_ui.adapter.SortItemContainer
 import com.storyteller_f.sort_ui.adapter.SortItemViewHolder
 import com.storyteller_f.sort_ui.adapter.SortViewHolderFactory
 
-class NameSort(item: SortConfigItem) : SortChain<FileSystemModel>("name sort", item) {
-    override fun compare(o1: FileSystemModel, o2: FileSystemModel): Int {
+class NameSort(item: SortConfigItem) : SortChain<FileInfo>("name sort", item) {
+    override fun compare(o1: FileInfo, o2: FileInfo): Int {
         return o1.name.compareTo(o2.name)
     }
 
@@ -22,7 +22,7 @@ class NameSort(item: SortConfigItem) : SortChain<FileSystemModel>("name sort", i
             return 1
         }
 
-    class ViewHolder(itemView: View) : SortItemViewHolder.Simple<FileSystemModel>(itemView)
+    class ViewHolder(itemView: View) : SortItemViewHolder.Simple<FileInfo>(itemView)
 
     class Item(sortDirection: Int = up) : SortConfigItem(sortDirection) {
 
@@ -33,11 +33,11 @@ class NameSort(item: SortConfigItem) : SortChain<FileSystemModel>("name sort", i
     }
 }
 
-class SortFactory : SortViewHolderFactory<FileSystemModel>() {
+class SortFactory : SortViewHolderFactory<FileInfo>() {
     override fun create(
         viewType: Int,
         container: SortItemContainer
-    ): SortItemViewHolder<FileSystemModel> {
+    ): SortItemViewHolder<FileInfo> {
         SortItemViewHolder.Simple.create(container)
         return NameSort.ViewHolder(container.view)
     }

@@ -1,16 +1,12 @@
 package com.storyteller_f.giant_explorer.database
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.storyteller_f.ext_func_definition.ExtFuncFlat
 import com.storyteller_f.ext_func_definition.ExtFuncFlatType
-import com.storyteller_f.file_system_remote.RemoteAccessDao
-import com.storyteller_f.file_system_remote.RemoteAccessSpec
 
 @Database(
     entities = [FileSizeRecord::class, FileMDRecord::class, FileTorrentRecord::class, BigTimeTask::class, RemoteAccessSpec::class],

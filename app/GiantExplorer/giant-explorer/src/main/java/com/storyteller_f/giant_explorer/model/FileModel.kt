@@ -1,10 +1,10 @@
 package com.storyteller_f.giant_explorer.model
 
-import com.storyteller_f.file_system.model.FileSystemModel
+import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.ui_list.core.Model
 
 data class FileModel(
-    val item: FileSystemModel,
+    val item: FileInfo,
     val name: String,
     val fullPath: String,
     /**
@@ -15,6 +15,7 @@ data class FileModel(
     val isSymLink: Boolean,
     val torrentName: String?,
     val md: String?,
+    val formattedSize: String,
 ) : Model {
     override fun commonId() = fullPath
 }

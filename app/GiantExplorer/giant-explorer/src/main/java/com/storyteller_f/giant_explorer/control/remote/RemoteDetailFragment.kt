@@ -18,14 +18,15 @@ import com.storyteller_f.common_vm_ktx.buildExtras
 import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.file_system_remote.FtpInstance
 import com.storyteller_f.file_system_remote.FtpsInstance
-import com.storyteller_f.file_system_remote.RemoteAccessSpec
 import com.storyteller_f.file_system_remote.RemoteAccessType
 import com.storyteller_f.file_system_remote.RemoteSpec
 import com.storyteller_f.file_system_remote.ShareSpec
 import com.storyteller_f.file_system_remote.WebDavInstance
 import com.storyteller_f.file_system_remote.checkSftp
 import com.storyteller_f.file_system_remote.checkSmb
+import com.storyteller_f.giant_explorer.database.RemoteAccessSpec
 import com.storyteller_f.giant_explorer.database.requireDatabase
+import com.storyteller_f.giant_explorer.database.toRemote
 import com.storyteller_f.giant_explorer.databinding.FragmentRemoteDetailBinding
 import com.storyteller_f.giant_explorer.defaultFactory
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +51,7 @@ class RemoteDetailFragment : Fragment() {
     //is smb
     private val mode by vm({}) {
         GenericValueModel<String>().apply {
-            data.value = RemoteAccessType.smb
+            data.value = RemoteAccessType.SMB
         }
     }
 
@@ -70,15 +71,15 @@ class RemoteDetailFragment : Fragment() {
         mode.data.state {
             Log.i(TAG, "onViewCreated: mode $it")
             binding.shareInput.isVisible =
-                it == RemoteAccessType.smb || it == RemoteAccessType.webDav
-            val i = RemoteAccessType.list.indexOf(it)
+                it == RemoteAccessType.SMB || it == RemoteAccessType.WEB_DAV
+            val i = RemoteAccessType.EXCLUDE_HTTP_PROTOCOL.indexOf(it)
             if (binding.typeGroup.checkedRadioButtonId != i) {
                 binding.typeGroup.check(i)
             }
         }
         binding.typeGroup.setOnCheckedChangeListener { _, checkedId ->
             Log.i(TAG, "onViewCreated: $checkedId")
-            mode.data.value = RemoteAccessType.list[checkedId]
+            mode.data.value = RemoteAccessType.EXCLUDE_HTTP_PROTOCOL[checkedId]
             if (binding.portInput.text.isEmpty()) {
                 binding.portInput.setText(
                     when (checkedId - 1) {
@@ -95,11 +96,11 @@ class RemoteDetailFragment : Fragment() {
                 waitingDialog {
                     withContext(Dispatchers.IO) {
                         when (mode.data.value) {
-                            RemoteAccessType.smb -> shareSpec().checkSmb()
-                            RemoteAccessType.ftp -> FtpInstance(spec()).open()
-                            RemoteAccessType.ftpes -> FtpsInstance(spec()).open()
-                            RemoteAccessType.ftps -> FtpsInstance(spec()).open()
-                            RemoteAccessType.webDav -> WebDavInstance(shareSpec()).list("/")
+                            RemoteAccessType.SMB -> shareSpec().checkSmb()
+                            RemoteAccessType.FTP -> FtpInstance(spec()).open()
+                            RemoteAccessType.FTP_ES -> FtpsInstance(spec()).open()
+                            RemoteAccessType.FTPS -> FtpsInstance(spec()).open()
+                            RemoteAccessType.WEB_DAV -> WebDavInstance(shareSpec()).list("/")
                             else -> spec().checkSftp()
                         }
                     }
@@ -111,7 +112,7 @@ class RemoteDetailFragment : Fragment() {
         }
         binding.buttonSecond.setOnClickListener {
             scope.launch {
-                val isSmb = mode.data.value == RemoteAccessType.smb
+                val isSmb = mode.data.value == RemoteAccessType.SMB
                 withContext(Dispatchers.IO) {
                     val dao = requireDatabase.remoteAccessDao()
                     if (isSmb) dao.add(shareSpec().toRemote()) else dao.add(spec().toRemote())

@@ -84,7 +84,7 @@ class DocumentProviderMenuProvider(
     private fun inflateRemote(menu: Menu) {
         scope.launch {
             activity.requireDatabase.remoteAccessDao().listAsync().forEach {
-                if (it.type == RemoteAccessType.smb || it.type == RemoteAccessType.webDav) {
+                if (it.type == RemoteAccessType.SMB || it.type == RemoteAccessType.WEB_DAV) {
                     val toUri = it.toShareSpec().toUri()
                     menu.add(toUri.toString()).setOnMenuItemClickListener {
                         switchUriRoot(toUri)

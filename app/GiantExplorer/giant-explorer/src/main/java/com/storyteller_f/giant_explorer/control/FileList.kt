@@ -40,10 +40,12 @@ import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.common_vm_ktx.wait5
 import com.storyteller_f.file_system.checkFilePermission
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system.model.FileSystemModel
+import com.storyteller_f.file_system.instance.FileKind
+import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system.requestFilePermission
 import com.storyteller_f.file_system_ktx.fileIcon
 import com.storyteller_f.file_system_ktx.isDirectory
+import com.storyteller_f.file_system_ktx.isFile
 import com.storyteller_f.filter_core.Filter
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.database.LocalDatabase
@@ -69,7 +71,6 @@ import com.storyteller_f.ui_list.ui.toggle
 import com.storyteller_f.ui_list.ui.valueContains
 import kotlinx.coroutines.launch
 import java.util.Locale
-import com.storyteller_f.file_system.model.FileModel as FileInfo
 
 class FileListViewModel(stateHandle: SavedStateHandle) : ViewModel() {
     val displayGrid = stateHandle.getLiveData("display", false)
@@ -233,8 +234,8 @@ private val <T> LiveData<List<T>>.same
 class FileItemHolder(
     val file: FileModel,
     val selected: List<Pair<DataItemHolder, Int>>,
-    override val variant: String
-) : DataItemHolder {
+    variant: String
+) : DataItemHolder(variant) {
     override fun areItemsTheSame(other: DataItemHolder) =
         (other as FileItemHolder).file.fullPath == file.fullPath
 
@@ -259,38 +260,39 @@ class FileGridViewHolder(private val binding: ViewHolderFileGridBinding) :
 class FileViewHolder(private val binding: ViewHolderFileBinding) :
     BindingViewHolder<FileItemHolder>(binding) {
     override fun bindData(itemHolder: FileItemHolder) {
-        binding.fileName.text = itemHolder.file.name
-        binding.fileIcon.fileIcon(itemHolder.file.item)
-        val item = itemHolder.file.item
+        val file = itemHolder.file
+        binding.fileName.text = file.name
+        binding.fileIcon.fileIcon(file.item)
+        val item = file.item
         binding.root.isSelected = itemHolder.selected.valueContains(
             Pair(itemHolder, 0)
         ) == true
         binding.root.setBackgroundResource(
-            if (itemHolder.file.item is FileInfo) R.drawable.background_file else R.drawable.background_folder
+            if (file.item.isFile) R.drawable.background_file else R.drawable.background_folder
         )
-        binding.fileSize.setVisible(item.size != -1L) {
-            it.text = item.formattedSize
+        binding.fileSize.setVisible(file.size != -1L) {
+            it.text = file.formattedSize
         }
-        binding.fileMD.setVisible(itemHolder.file.md.valid()) {
-            it.text = itemHolder.file.md
-        }
-
-        binding.torrentName.setVisible(itemHolder.file.torrentName.valid()) {
-            it.text = itemHolder.file.torrentName
+        binding.fileMD.setVisible(file.md.valid()) {
+            it.text = file.md
         }
 
-        val fileTime = item.fileTime
+        binding.torrentName.setVisible(file.torrentName.valid()) {
+            it.text = file.torrentName
+        }
+
+        val fileTime = item.time
         val lastModified = fileTime.lastModified ?: 0
         val formattedLastModifiedTime = fileTime.formattedLastModifiedTime
         binding.modifiedTime.setVisible(lastModified > 0 && formattedLastModifiedTime.valid()) {
             it.text = formattedLastModifiedTime
         }
 
-        binding.detail.text = item.permissions
+        binding.detail.text = item.permissions.toString()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            itemHolder.file.item.dragSupport(binding.root)
+            file.item.dragSupport(binding.root)
         }
-        binding.symLink.isVisible = itemHolder.file.isSymLink
+        binding.symLink.isVisible = file.isSymLink
 
     }
 
@@ -298,7 +300,7 @@ class FileViewHolder(private val binding: ViewHolderFileBinding) :
 }
 
 @RequiresApi(Build.VERSION_CODES.N)
-private fun FileSystemModel.dragSupport(root: ConstraintLayout) {
+private fun FileInfo.dragSupport(root: ConstraintLayout) {
     DragStartHelper(root) { view: View, _: DragStartHelper ->
         val clipData = ClipData.newPlainText(FileListFragment.CLIP_DATA_KEY, uri.toString())
         val flags = View.DRAG_FLAG_GLOBAL or View.DRAG_FLAG_GLOBAL_URI_READ
@@ -353,8 +355,8 @@ fun format1024(args: Long): String {
 data class FileExplorerSearch(
     val path: FileInstance,
     val filterHiddenFile: Boolean,
-    val filters: List<Filter<FileSystemModel>>,
-    val sort: List<SortChain<FileSystemModel>>,
+    val filters: List<Filter<FileInfo>>,
+    val sort: List<SortChain<FileInfo>>,
     val display: String
 )
 
@@ -367,7 +369,7 @@ fun fileSearchService(
         val filterList = searchQuery.filters
         val sortChains = searchQuery.sort
 
-        val filterPredicate: (FileSystemModel) -> Boolean = {
+        val filterPredicate: (FileInfo) -> Boolean = {
             (!searchQuery.filterHiddenFile || !it.kind.isHidden) && (filterList.isEmpty() || filterList.any { f ->
                 f.filter(it)
             })
@@ -405,14 +407,15 @@ fun fileSearchService(
 }
 
 private suspend fun fileModelBuilder(
-    model: FileSystemModel,
+    model: FileInfo,
     database: LocalDatabase
 ): FileModel {
-    val fileTime = model.fileTime
+    val fileTime = model.time
     val lastModified = fileTime.lastModified ?: 0
     var md = ""
     var torrentName = ""
-    val length = if (model is FileInfo) {
+    val kind = model.kind
+    val length = if (kind is FileKind.File) {
         database.mdDao().search(model.uri)?.let {
             if (it.lastUpdateTime > lastModified)
                 md = it.data
@@ -422,7 +425,7 @@ private suspend fun fileModelBuilder(
                 if (it.lastUpdateTime > lastModified)
                     torrentName = it.torrent
             }
-        model.size
+        kind.size
     } else {
         //从数据库中查找
         val directory = database.sizeDao().search(model.uri)
@@ -430,8 +433,6 @@ private suspend fun fileModelBuilder(
             directory.size
         } else -1
     }
-    model.formattedSize = format1024(length)
-    model.size = length
     val fileKind = model.kind
     return FileModel(
         model,
@@ -441,6 +442,7 @@ private suspend fun fileModelBuilder(
         fileKind.isHidden,
         fileKind.linkType != null,
         torrentName,
-        md
+        md,
+        format1024(length)
     )
 }

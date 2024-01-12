@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "deac1918929ff6f95e01bc908fa3b2d2",
+    "identityHash": "1098f6b8c9e39b1a2ea5d54392f98b85",
     "entities": [
       {
         "tableName": "file-size-record",
@@ -135,7 +135,7 @@
       },
       {
         "tableName": "remote-access",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`server` TEXT NOT NULL, `port` INTEGER NOT NULL, `user` TEXT NOT NULL, `password` TEXT NOT NULL, `share` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL DEFAULT 'ftp', PRIMARY KEY(`server`, `port`, `user`, `password`, `share`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`server` TEXT NOT NULL, `port` INTEGER NOT NULL, `user` TEXT NOT NULL, `password` TEXT NOT NULL, `share` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL DEFAULT 'ftp', PRIMARY KEY(`server`, `port`, `user`, `password`, `share`, `type`))",
         "fields": [
           {
             "fieldPath": "server",
@@ -183,7 +183,8 @@
             "port",
             "user",
             "password",
-            "share"
+            "share",
+            "type"
           ]
         },
         "indices": [],
@@ -193,7 +194,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'deac1918929ff6f95e01bc908fa3b2d2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1098f6b8c9e39b1a2ea5d54392f98b85')"
     ]
   }
 }

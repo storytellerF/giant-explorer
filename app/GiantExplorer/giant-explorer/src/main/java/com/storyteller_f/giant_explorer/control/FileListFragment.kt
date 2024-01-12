@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.storyteller_f.annotation_defination.BindClickEvent
 import com.storyteller_f.common_ktx.safeLet
 import com.storyteller_f.common_pr.dipToInt
-import com.storyteller_f.common_pr.observe
+import com.storyteller_f.common_pr.response
 import com.storyteller_f.common_ui.SimpleFragment
 import com.storyteller_f.common_ui.observeResponse
 import com.storyteller_f.common_ui.owner
@@ -48,7 +48,10 @@ import com.storyteller_f.common_vm_ktx.keyPrefix
 import com.storyteller_f.common_vm_ktx.pvm
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system.model.FileSystemModelLite
+import com.storyteller_f.file_system.instance.FileKind
+import com.storyteller_f.file_system.instance.FilePermissions
+import com.storyteller_f.file_system.instance.FileTime
+import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.giant_explorer.BuildConfig
@@ -111,7 +114,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
                 outRect: Rect,
                 view: View,
                 parent: RecyclerView,
-                state: RecyclerView.State
+                state: RecyclerView.State,
             ) {
                 super.getItemOffsets(outRect, view, parent, state)
                 if (parent.getChildAdapterPosition(view) != 0) {
@@ -198,9 +201,10 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     fun pasteFiles(data: ClipData, destDirectory: Uri? = null) {
         val key = uuid.data.value ?: return
         Log.i(TAG, "handleClipData: key $key")
+        val context = context ?: return
         viewLifecycleOwner.lifecycleScope.launch {
             val dest = destDirectory.safeLet {
-                getFileInstance(requireContext(), it)
+                getFileInstance(context, it)
             } ?: observer.fileInstance ?: kotlin.run {
                 Toast.makeText(requireContext(), "无法确定目的地", Toast.LENGTH_LONG).show()
                 return@launch
@@ -246,13 +250,14 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         return uriList
     }
 
-    private fun startPasteFiles(
+    private suspend fun startPasteFiles(
         uriList: List<Uri>,
         dest: FileInstance,
-        key: String
+        key: String,
     ) {
+        val context = context ?: return
         val items = uriList.map {
-            FileSystemModelLite(it.path!!, it)
+            getFileInstance(context, it).getFileInfo()
         }
         shareTarget.replace(uriList, dest)
         val fileOperateBinderLocal = fileOperateBinder ?: kotlin.run {
@@ -264,8 +269,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
                 Activity.MODE_PRIVATE
             )?.getBoolean("notify_before_paste", true) == true
         ) {
-            val requestKey = request(TaskConfirmDialog::class.java)
-            requestKey.observe(TaskConfirmDialog.Result::class.java) { result ->
+            request(TaskConfirmDialog::class.java).response(TaskConfirmDialog.Result::class.java) { result ->
                 if (result.confirm) fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
             }
         } else {
@@ -290,7 +294,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
                 findNavController().request(
                     R.id.action_fileListFragment_to_openFileDialog,
                     OpenFileDialogArgs(uri).toBundle()
-                ).observe(OpenFileDialog.OpenFileResult::class.java) { r ->
+                ).response(OpenFileDialog.OpenFileResult::class.java) { r ->
                     openUri(uri, r, itemHolder.file)
                 }
             }
@@ -300,7 +304,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     private fun openUri(
         uri: Uri,
         result: OpenFileDialog.OpenFileResult,
-        fileModel: FileModel
+        fileModel: FileModel,
     ) {
         val sharedUri = if (uri.scheme == ContentResolver.SCHEME_FILE) {
             val file = File(fileModel.fullPath)
@@ -318,7 +322,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     private fun openUri(
         sharedUri: Uri?,
         mimeType: String,
-        fileName: String
+        fileName: String,
     ) {
         Intent("android.intent.action.VIEW").apply {
             addCategory("android.intent.category.DEFAULT")
@@ -353,7 +357,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         fullPath: String,
         itemHolder: FileItemHolder,
         key: String,
-        uri: Uri
+        uri: Uri,
     ) {
         PopupMenu(requireContext(), view).apply {
             inflate(R.menu.item_context_menu)
@@ -379,7 +383,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
 
     private fun PopupMenu.resolveModulePlugin(
         key: String,
-        fullPath: String
+        fullPath: String,
     ) {
         val liPlugin = try {
             javaClass.classLoader?.loadClass("com.storyteller_f.li.plugin.LiPlugin")
@@ -409,10 +413,9 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
             override suspend fun requestPath(initUri: String?): String {
                 val completableDeferred = CompletableDeferred<String>()
                 val requestPathDialogArgs = RequestPathDialog.bundle(requireContext())
-                val requestKey = request(
+                request(
                     RequestPathDialog::class.java, requestPathDialogArgs
-                )
-                requestKey.observe(
+                ).response(
                     RequestPathDialog.RequestPathResult::class.java
                 ) { result ->
                     completableDeferred.complete(result.path)
@@ -435,7 +438,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
 
     private fun delete(
         itemHolder: FileItemHolder,
-        key: String
+        key: String,
     ) {
         fileOperateBinder?.delete(
             itemHolder.file.item,
@@ -465,7 +468,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     private fun PopupMenu.resolveNoInstalledPlugins(
         mimeTypeFromExtension: String?,
         fullPath: String,
-        uri: Uri
+        uri: Uri,
     ) {
         pluginManagerRegister.pluginsName().forEach { pluginName: String ->
             val pluginFile = File(pluginName)
@@ -481,7 +484,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         pluginFile: File,
         mimeTypeFromExtension: String?,
         fullPath: String,
-        uri: Uri
+        uri: Uri,
     ): Boolean {
         if (pluginFile.name.endsWith("apk")) startActivity(
             Intent(
@@ -505,7 +508,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     private fun PopupMenu.resolveInstalledPlugins(
         itemHolder: FileItemHolder,
         mimeTypeFromExtension: String?,
-        uri: Uri
+        uri: Uri,
     ) {
         val intent = Intent("com.storyteller_f.action.giant_explorer.PLUGIN")
         intent.addCategory("android.intent.category.DEFAULT")
@@ -523,7 +526,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
 
     private fun PopupMenu.addToMenu(
         it: ResolveInfo,
-        intent: Intent
+        intent: Intent,
     ) {
         val activityInfo = it.activityInfo ?: return
         val groups = activityInfo.metaData?.getString("group")?.split("/") ?: return
@@ -538,8 +541,10 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
 
     private fun moveOrCopy(move: Boolean, itemHolder: FileItemHolder) {
         val requestPathDialogArgs = RequestPathDialog.bundle(requireContext())
-        val requestKey = request(RequestPathDialog::class.java, requestPathDialogArgs)
-        requestKey.observe(RequestPathDialog.RequestPathResult::class.java) { result ->
+        request(
+            RequestPathDialog::class.java,
+            requestPathDialogArgs
+        ).response(RequestPathDialog.RequestPathResult::class.java) { result ->
             scope.launch {
                 result.path.safeLet {
                     getFileInstance(requireContext(), File(it).toUri())
@@ -553,7 +558,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     private fun moveOrCopy(
         itemHolder: FileItemHolder,
         dest: FileInstance,
-        move: Boolean
+        move: Boolean,
     ) {
         val key = uuid.data.value ?: return
         val detectSelected = detectSelected(itemHolder)

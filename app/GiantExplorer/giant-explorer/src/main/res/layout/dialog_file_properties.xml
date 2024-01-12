@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/default_click"
                     android:padding="5dp"
-                    android:text="@{`access:` + model.item.fileTime.formattedLastAccessTime}"
+                    android:text="@{`access:` + model.item.time.formattedLastAccessTime}"
                     tools:text="2022" />
 
                 <TextView
@@ -63,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/default_click"
                     android:padding="5dp"
-                    android:text="@{`modified:` + model.item.fileTime.formattedLastModifiedTime}"
+                    android:text="@{`modified:` + model.item.time.formattedLastModifiedTime}"
                     tools:text="2022" />
 
                 <TextView
@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/default_click"
                     android:padding="5dp"
-                    android:text="@{`created:` + model.item.fileTime.formattedCreatedTime}"
+                    android:text="@{`created:` + model.item.time.formattedCreatedTime}"
                     tools:text="2022" />
 
                 <TextView

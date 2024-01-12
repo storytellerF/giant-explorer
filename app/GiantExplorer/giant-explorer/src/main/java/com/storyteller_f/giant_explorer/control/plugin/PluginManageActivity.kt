@@ -9,7 +9,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.storyteller_f.common_ktx.safeLet
-import com.storyteller_f.common_pr.observe
+import com.storyteller_f.common_pr.response
 import com.storyteller_f.common_ui.CommonActivity
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.file_system.ensureFile
@@ -19,7 +19,6 @@ import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.ActivityPluginManageBinding
 import com.storyteller_f.giant_explorer.dialog.RequestPathDialog
-import com.storyteller_f.multi_core.StoppableTask
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
@@ -47,8 +46,10 @@ class PluginManageActivity : CommonActivity() {
         val pluginRoot = File(filesDir, "plugins")
         binding.fab.setOnClickListener {
             val requestPathDialogArgs = RequestPathDialog.bundle(this)
-            val requestKey = request(RequestPathDialog::class.java, requestPathDialogArgs)
-            requestKey.observe(RequestPathDialog.RequestPathResult::class.java) { result ->
+            request(
+                RequestPathDialog::class.java,
+                requestPathDialogArgs
+            ).response(RequestPathDialog.RequestPathResult::class.java) { result ->
                 lifecycleScope.launch {
                     result.path.safeLet {
                         getFileInstance(this@PluginManageActivity, File(it).toUri())
@@ -81,13 +82,5 @@ class PluginManageActivity : CommonActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_plugin_manage)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-}
-
-fun CoroutineScope.stoppable(): StoppableTask {
-    return object : StoppableTask {
-        override fun needStop(): Boolean {
-            return !this@stoppable.isActive
-        }
     }
 }

@@ -19,6 +19,7 @@ import com.storyteller_f.common_ui.setVisible
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.giant_explorer.R
+import com.storyteller_f.giant_explorer.control.format1024
 import com.storyteller_f.giant_explorer.databinding.DialogFilePropertiesBinding
 import com.storyteller_f.giant_explorer.model.FileModel
 import kotlinx.coroutines.launch
@@ -39,7 +40,7 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
             val fileKind = fileInstance.fileKind()
             val length = if (fileKind.isFile) fileInstance.getFileLength()
             else 0
-            val model = if (fileKind.isFile) fileInstance.getFile() else fileInstance.getDirectory()
+            val model = fileInstance.getFileInfo()
             binding.model = FileModel(
                 model,
                 fileInstance.name,
@@ -48,13 +49,14 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
                 fileKind.isHidden,
                 fileKind.linkType != null,
                 null,
-                null
+                null,
+                formattedSize = format1024(length)
             )
-            binding.videoInfo.setVisible(fileInstance.getFile().extension == "mp4" && fileKind.isFile) {
+            binding.videoInfo.setVisible(model.extension == "mp4" && fileKind.isFile) {
                 val trimIndent = videoInfo(fileInstance)
                 binding.videoInfo.text = trimIndent
             }
-            binding.audioInfo.setVisible(fileInstance.getFile().extension == "mp3" && fileKind.isFile) {
+            binding.audioInfo.setVisible(model.extension == "mp3" && fileKind.isFile) {
                 val mediaMetadataRetriever = MediaMetadataRetriever()
                 mediaMetadataRetriever.setDataSource(fileInstance.path)
                 val duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)

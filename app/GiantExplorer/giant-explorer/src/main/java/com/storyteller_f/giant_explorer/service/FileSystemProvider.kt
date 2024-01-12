@@ -10,6 +10,7 @@ import android.provider.DocumentsContract
 import android.util.Log
 import android.webkit.MimeTypeMap
 import com.storyteller_f.file_system.instance.FileInstance
+import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.giant_explorer.control.plugin.FileSystemProviderResolver
 import com.storyteller_f.plugin_core.FileSystemProviderConstant
@@ -45,7 +46,7 @@ class FileSystemProvider : ContentProvider() {
         return runBlocking {
             if (fileInstance.fileKind().isFile) {
                 MatrixCursor(fileProjection).apply {
-                    val file = fileInstance.getFile()
+                    val file = fileInstance.getFileInfo()
                     addRow(arrayOf(file.name, file.fullPath, fileInstance.getFileLength()))
                 }
             } else {
@@ -78,7 +79,7 @@ class FileSystemProvider : ContentProvider() {
                 arrayOf(
                     it.name,
                     it.fullPath,
-                    it.size,
+                    (it.kind as FileKind.File).size,
                     singleton.getMimeTypeFromExtension(it.extension)
                 )
             )
@@ -91,7 +92,7 @@ class FileSystemProvider : ContentProvider() {
         return runBlocking {
             if (current.fileKind().isDirectory) DocumentsContract.Document.MIME_TYPE_DIR
             else
-                singleton.getMimeTypeFromExtension(current.getFile().extension)
+                singleton.getMimeTypeFromExtension(current.getFileInfo().extension)
         }
     }
 

@@ -26,7 +26,6 @@ plugins {
     id("com.starter.easylauncher") version ("6.2.0")
 }
 
-baseApp()
 
 android {
 
@@ -50,9 +49,10 @@ android {
 
     buildTypes {
         debug {
-            registerProviderKey("file-provider", id, applicationIdSuffix)
-            registerProviderKey("file-system-provider", id, applicationIdSuffix)
-            registerProviderKey("file-system-encrypted-provider", id, applicationIdSuffix)
+            val suffix = ".$name"
+            registerProviderKey("file-provider", id, suffix)
+            registerProviderKey("file-system-provider", id, suffix)
+            registerProviderKey("file-system-encrypted-provider", id, suffix)
         }
         release {
             registerProviderKey("file-provider", id)
@@ -98,6 +98,8 @@ dependencies {
         implementation(liPluginModule)
     }
 }
+baseApp()
+
 constraintCommonUIListVersion(versionManager)
 fileSystemDependency()
 setupGeneric()

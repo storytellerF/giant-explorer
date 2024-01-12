@@ -5,8 +5,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.message.Message
-import com.storyteller_f.file_system.model.FileSystemModel
-import com.storyteller_f.file_system.model.FileSystemModelLite
+import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system.operate.FileDeleteOp
 import com.storyteller_f.file_system.operate.FileOperationForemanProgressListener
 import com.storyteller_f.file_system.operate.FileOperationListener
@@ -15,7 +14,6 @@ import com.storyteller_f.file_system.operate.ScopeFileMoveOp
 import com.storyteller_f.file_system.operate.ScopeFileMoveOpInShell
 import com.storyteller_f.file_system.operate.SuspendCallable
 import com.storyteller_f.file_system_ktx.getFileInstance
-import com.storyteller_f.multi_core.StoppableTask
 import java.io.File
 
 class TaskOverview(val fileCount: Int, val folderCount: Int, val size: Long) {
@@ -26,7 +24,7 @@ abstract class FileOperationForeman(
     val context: Context,
     val overview: TaskOverview,
     val key: String
-) : SuspendCallable<Boolean>, StoppableTask, FileOperationListener {
+) : SuspendCallable<Boolean>, FileOperationListener {
     var fileOperationForemanProgressListener: FileOperationForemanProgressListener? = null
     private var leftFileCount = overview.fileCount
     private var leftFolderCount = overview.folderCount
@@ -75,21 +73,18 @@ abstract class FileOperationForeman(
 }
 
 abstract class LocalFileOperationForeman(
-    val focused: FileSystemModelLite?, context: Context, overview: TaskOverview, key: String
+    val focused: FileInfo?, context: Context, overview: TaskOverview, key: String
 ) : FileOperationForeman(context, overview, key) {
-
-    override fun needStop() = Thread.currentThread().isInterrupted
-
     abstract val description: String?
 }
 
 class CopyForemanImpl(
-    private val items: List<FileSystemModelLite>,
+    private val items: List<FileInfo>,
     private val isMove: Boolean,
     private val target: FileInstance,
     context: Context,
     overview: TaskOverview,
-    focused: FileSystemModelLite?,
+    focused: FileInfo?,
     key: String
 ) : LocalFileOperationForeman(focused, context, overview, key) {
     override val description: String
@@ -106,10 +101,6 @@ class CopyForemanImpl(
 
     override suspend fun call(): Boolean {
         val isSuccess = !items.any {
-            if (needStop()) {
-                emitDetailMessage("已暂停", Log.WARN)
-                return false
-            }
             val fileInstance = getFileInstance(context, File(it.fullPath).toUri())
             emitStateMessage("处理${fileInstance.path}")
             val operationResult =
@@ -143,10 +134,10 @@ class CopyForemanImpl(
 }
 
 class DeleteForemanImpl(
-    private val detectorTasks: List<FileSystemModel>,
+    private val detectorTasks: List<FileInfo>,
     context: Context,
     overview: TaskOverview,
-    focused: FileSystemModel,
+    focused: FileInfo,
     key: String
 ) : LocalFileOperationForeman(focused, context, overview, key) {
 

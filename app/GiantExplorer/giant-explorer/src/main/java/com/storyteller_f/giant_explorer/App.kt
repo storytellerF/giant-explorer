@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
-import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -20,7 +19,8 @@ import com.storyteller_f.config_core.editor
 import com.storyteller_f.file_system.checkFilePermission
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system.model.FileModel
+import com.storyteller_f.file_system.instance.FileKind
+import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.filter_core.config.FilterConfig
 import com.storyteller_f.filter_core.config.FilterConfigItem
@@ -38,7 +38,6 @@ import com.storyteller_f.giant_explorer.dialog.activeSortChains
 import com.storyteller_f.giant_explorer.dialog.buildFilters
 import com.storyteller_f.giant_explorer.dialog.buildSorts
 import com.storyteller_f.giant_explorer.utils.getTorrentName
-import com.storyteller_f.multi_core.StoppableTask
 import com.storyteller_f.sort_core.config.SortConfig
 import com.storyteller_f.sort_core.config.SortConfigItem
 import com.storyteller_f.sort_core.config.sortConfigAdapterFactory
@@ -47,6 +46,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.io.File
 import java.math.BigInteger
@@ -131,9 +131,7 @@ abstract class BigTimeWorker(
     private val context: Context,
     private val workerParams: WorkerParameters
 ) :
-    CoroutineWorker(context, workerParams), StoppableTask {
-
-    override fun needStop() = isStopped
+    CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
         val uriStringArray =
@@ -178,7 +176,7 @@ class FolderWorker(context: Context, workerParams: WorkerParameters) :
             val uri = uriString.toUri()
             val fileInstance = getFileInstance(context, uri)
             val record = context.requireDatabase.sizeDao().search(uri)
-            val lastModified = fileInstance.getDirectory().fileTime.lastModified ?: 0
+            val lastModified = fileInstance.getFileInfo().time.lastModified ?: 0
             if (record != null && record.lastUpdateTime > lastModified) return WorkerResult.SizeWorker(
                 record.size
             )
@@ -196,7 +194,7 @@ class FolderWorker(context: Context, workerParams: WorkerParameters) :
             val filesSize =
                 listSafe.files.map {
                     if (isStopped) return WorkerResult.Stopped
-                    it.size
+                    (it.kind as FileKind.File).size
                 }.plus(0).reduce { acc, s ->
                     if (isStopped) return WorkerResult.Stopped
                     acc + s
@@ -239,7 +237,7 @@ class MDWorker(context: Context, workerParams: WorkerParameters) :
                 if (isStopped) return WorkerResult.Stopped
                 val child = uri.buildUpon().path(it.fullPath).build()
                 val search = context.requireDatabase.mdDao().search(child)
-                val lastModified = it.fileTime.lastModified ?: 0
+                val lastModified = it.time.lastModified ?: 0
                 if ((search?.lastUpdateTime ?: 0) <= lastModified) {
                     processAndSave(fileInstance, it, context, child)
                 }
@@ -253,12 +251,12 @@ class MDWorker(context: Context, workerParams: WorkerParameters) :
 
     private suspend fun processAndSave(
         fileInstance: FileInstance,
-        it: FileModel,
+        it: FileInfo,
         context: Context,
         child: Uri
     ) {
         getFileMD5(
-            fileInstance.toChild(it.name, FileCreatePolicy.NotCreate)!!, closeable
+            fileInstance.toChild(it.name, FileCreatePolicy.NotCreate)!!
         )?.let { data ->
             context.requireDatabase.mdDao()
                 .save(FileMDRecord(child, data, System.currentTimeMillis()))
@@ -287,7 +285,7 @@ class TorrentWorker(context: Context, workerParams: WorkerParameters) :
                 if (isStopped) return WorkerResult.Stopped
                 val child = uri.buildUpon().path(it.fullPath).build()
                 val search = context.requireDatabase.torrentDao().search(child)
-                val lastModified = it.fileTime.lastModified ?: 0
+                val lastModified = it.time.lastModified ?: 0
                 if ((search?.lastUpdateTime ?: 0) <= lastModified) {
                     processAndSave(fileInstance, it, context, child)
                 }
@@ -302,7 +300,7 @@ class TorrentWorker(context: Context, workerParams: WorkerParameters) :
 
     private suspend fun processAndSave(
         fileInstance: FileInstance,
-        it: FileModel,
+        it: FileInfo,
         context: Context,
         child: Uri
     ) {
@@ -354,14 +352,14 @@ inline fun <T, R> List<T>.mapNullNull(
 
 const val pc_end_on = 1024
 
-suspend fun getFileMD5(fileInstance: FileInstance, mdWorker: StoppableTask): String? {
+suspend fun getFileMD5(fileInstance: FileInstance): String? {
     val buffer = ByteArray(pc_end_on)
     return try {
         var len: Int
         val digest = MessageDigest.getInstance("MD5")
         fileInstance.getFileInputStream().buffered().use { stream ->
             while (stream.read(buffer).also { len = it } != -1) {
-                if (mdWorker.needStop()) return null
+                yield()
                 digest.update(buffer, 0, len)
             }
         }
@@ -371,11 +369,5 @@ suspend fun getFileMD5(fileInstance: FileInstance, mdWorker: StoppableTask): Str
         null
     }
 }
-
-class WorkerStoppableTask(private val worker: ListenableWorker) : StoppableTask {
-    override fun needStop() = worker.isStopped
-}
-
-val ListenableWorker.closeable get() = WorkerStoppableTask(this)
 
 fun <T> Collection<T>?.valid(): Boolean = !isNullOrEmpty()

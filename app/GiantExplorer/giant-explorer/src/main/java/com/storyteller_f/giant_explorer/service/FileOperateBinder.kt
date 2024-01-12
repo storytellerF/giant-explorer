@@ -9,11 +9,11 @@ import androidx.annotation.WorkerThread
 import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system.model.FileModel
-import com.storyteller_f.file_system.model.FileSystemModel
-import com.storyteller_f.file_system.model.FileSystemModelLite
+import com.storyteller_f.file_system.instance.FileKind
+import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system.operate.FileOperationForemanProgressListener
 import com.storyteller_f.file_system_ktx.getFileInstance
+import com.storyteller_f.file_system_ktx.isFile
 import com.storyteller_f.giant_explorer.service.FileOperateService.FileOperateResultContainer
 import com.storyteller_f.plugin_core.GiantExplorerService
 import kotlinx.coroutines.runBlocking
@@ -62,9 +62,9 @@ class FileOperateBinder(val context: Context) : Binder() {
     /**
      * 删除文件或者文件夹
      * @param selected  要删除的多个文件
-     * @param focused     内存卡根部tree FileSystemModel
+     * @param focused     内存卡根部tree FileInfo
      */
-    fun delete(focused: FileSystemModel, selected: List<FileSystemModel>, key: String) {
+    fun delete(focused: FileInfo, selected: List<FileInfo>, key: String) {
         whenStart(key)
         thread {
             runBlocking {
@@ -75,8 +75,8 @@ class FileOperateBinder(val context: Context) : Binder() {
 
     fun moveOrCopy(
         dest: FileInstance,
-        selected: List<FileSystemModelLite>,
-        focused: FileSystemModel?,
+        selected: List<FileInfo>,
+        focused: FileInfo?,
         deleteOrigin: Boolean,
         key: String
     ) {
@@ -106,7 +106,7 @@ class FileOperateBinder(val context: Context) : Binder() {
 
     @WorkerThread
     private suspend fun startDeleteTask(
-        focused: FileSystemModel, selected: List<FileSystemModel>, key: String
+        focused: FileInfo, selected: List<FileInfo>, key: String
     ) {
         state.postValue(state_computing)
         val assessResult = runBlocking {
@@ -132,9 +132,9 @@ class FileOperateBinder(val context: Context) : Binder() {
     @WorkerThread
     private suspend fun startCopyTask(
         dest: FileInstance,
-        focused: FileSystemModelLite?,
+        focused: FileInfo?,
         deleteOrigin: Boolean,
-        selected: List<FileSystemModelLite>,
+        selected: List<FileInfo>,
         key: String
     ) {
         state.postValue(state_computing)
@@ -268,7 +268,7 @@ data class TaskAssessResult(val fileCount: Int, val folderCount: Int, val size: 
  * 任务评估。
  */
 class TaskAssessor(
-    private val detectorTasks: List<FileSystemModelLite>,
+    private val detectorTasks: List<FileInfo>,
     val context: Context,
     private val dest: FileInstance?
 ) {
@@ -284,7 +284,7 @@ class TaskAssessor(
             if (!fileInstance.exists()) {
                 throw FileNotFoundException(fileInstance.path)
             }
-            if (it is FileModel) {
+            if (it.isFile) {
                 count++
                 getFileInstance(context, File(it.fullPath).toUri()).getFileLength()
             } else {
@@ -295,14 +295,14 @@ class TaskAssessor(
         return TaskAssessResult(count, folderCount, size)
     }
 
-    private suspend fun getDirectorySize(file: FileSystemModelLite): Long {
+    private suspend fun getDirectorySize(file: FileInfo): Long {
         folderCount++
         val fileInstance = getFileInstance(context, File(file.fullPath).toUri())
         val listSafe = fileInstance.list()
 
         val fileSize = listSafe.files.map {
             count++
-            it.size
+            (it.kind as FileKind.File).size
         }.plus(0).reduce { acc, l -> acc + l }
         val directorySize = listSafe.directories.map {
             getDirectorySize(it)

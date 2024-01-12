@@ -62,7 +62,7 @@ class PluginListFragment : SimpleFragment<FragmentPluginListBinding>(FragmentPlu
 
 }
 
-class PluginHolder(val name: String) : DataItemHolder {
+class PluginHolder(val name: String) : DataItemHolder() {
     override fun areItemsTheSame(other: DataItemHolder): Boolean {
         return (other as PluginHolder).name == name
     }

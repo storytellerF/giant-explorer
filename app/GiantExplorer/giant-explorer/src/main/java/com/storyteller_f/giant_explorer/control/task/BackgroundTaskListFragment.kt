@@ -78,12 +78,10 @@ class BackgroundTaskListFragment : SimpleFragment<FragmentTaskListBinding>(Fragm
         }
     }
 
-    companion object {
-        private const val TAG = "FirstFragment"
-    }
+    companion object
 }
 
-class TaskTypeHolder(val title: String) : DataItemHolder {
+class TaskTypeHolder(val title: String) : DataItemHolder() {
     override fun areItemsTheSame(other: DataItemHolder) = title == (other as TaskTypeHolder).title
 }
 
@@ -116,7 +114,7 @@ fun TaskType(@PreviewParameter(TaskTypeProvider::class) itemHolder: TaskTypeHold
     }
 }
 
-class BigTimeTaskItemHolder(val bigTimeWorker: BigTimeTask) : DataItemHolder {
+class BigTimeTaskItemHolder(val bigTimeWorker: BigTimeTask) : DataItemHolder() {
     val id = "${bigTimeWorker.uri}:${bigTimeWorker.category}"
     override fun areItemsTheSame(other: DataItemHolder) = id == (other as BigTimeTaskItemHolder).id
 }
