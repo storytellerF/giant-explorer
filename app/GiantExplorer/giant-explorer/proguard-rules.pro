@@ -36,3 +36,9 @@
 -dontwarn sun.security.x509.X509Key
 
 -dontwarn android.content.res.XmlResourceParser
+
+-dontwarn org.simpleframework.xml.Serializer
+-dontwarn org.simpleframework.xml.convert.Registry
+-dontwarn org.simpleframework.xml.convert.RegistryStrategy
+-dontwarn org.simpleframework.xml.core.Persister
+-dontwarn org.simpleframework.xml.strategy.Strategy

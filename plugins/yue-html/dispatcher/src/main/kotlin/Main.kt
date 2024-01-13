@@ -12,21 +12,26 @@ fun main(args: Array<String>) {
     val adbPath = if (androidHome != null) {
         File(androidHome, name)
     } else {
+        //如果没有设置环境变量，使用默认路径
         val userHome = System.getProperty("user.home")
-       File(userHome, "Library/Android/sdk/$name")
+        File(userHome, "Library/Android/sdk/$name")
     }.absolutePath
 
     // Try adding program arguments via Run/Debug configuration.
     // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
-    logger.info("Program arguments: ${args.size} -> ${args.joinToString(", ")}")
+    logger.info("Program arguments: count:${args.size} -> [${args.joinToString(", ")}]")
     val path = args.firstOrNull() ?: "../"
     logger.debug(File(path).absolutePath)
+    val suffix = listOf(".debug")
+
     SongAction(
-        listOf(File(path, "build/yue-html.zip")),
-        listOf("com.storyteller_f.giant_explorer" to "files/plugins"),
-        listOf(),
-        adbPath,
+        transferFiles = listOf(File(path, "build/yue-html.zip")),
+        packageTargets = suffix.map {
+            "com.storyteller_f.giant_explorer$it" to "files/plugins"
+        },
+        pathTargets = listOf(),
+        adbPath = adbPath,
         "yue-html.zip",
-        logger
+        logger = logger
     ).dispatchToMultiDevices()
 }
