@@ -19,6 +19,6 @@ cd yue-html
 printStartLabel yue-html
 sh dispatch.sh $1
 checkLastResult yue-html $?
-cp -r build ../../build/yue-html/
+cp -r build/* ../../build/yue-html/
 
 printEndLabel plugin

@@ -1,12 +1,18 @@
 package com.storyteller_f.giant_explorer.control
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import com.storyteller_f.giant_explorer.R
 
 class SettingsActivity : AppCompatActivity() {
 
+    @SuppressLint("CommitTransaction")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
@@ -22,6 +28,23 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+            preferenceManager.findPreference<ListPreference>(getString(R.string.setting_key_open_window_mode))
+                ?.let {
+                    it.title = getString(R.string.open_window_mode, it.value)
+                    it.setOnPreferenceChangeListener { preference, newValue ->
+                        preference.title = getString(R.string.open_window_mode, newValue)
+                        true
+                    }
+                }
         }
     }
 }
+
+val Fragment.defaultSettings
+    get() = activity?.defaultSettings
+
+val Activity.defaultSettings: SharedPreferences
+    get() = getSharedPreferences(
+        "${packageName}_preferences",
+        Activity.MODE_PRIVATE
+    )

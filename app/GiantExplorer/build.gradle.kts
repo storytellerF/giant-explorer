@@ -10,7 +10,7 @@ buildscript {
     }
 }
 plugins {
-    val androidVersion = "8.2.1"
+    val androidVersion = "8.2.2"
     val kotlinVersion = "1.9.20"
     val kspVersion = "1.9.20-1.0.14"
     id("com.android.application") version androidVersion apply false

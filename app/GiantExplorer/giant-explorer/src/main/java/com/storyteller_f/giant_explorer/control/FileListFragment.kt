@@ -1,6 +1,5 @@
 package com.storyteller_f.giant_explorer.control
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ComponentName
@@ -48,10 +47,6 @@ import com.storyteller_f.common_vm_ktx.keyPrefix
 import com.storyteller_f.common_vm_ktx.pvm
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system.instance.FileKind
-import com.storyteller_f.file_system.instance.FilePermissions
-import com.storyteller_f.file_system.instance.FileTime
-import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.giant_explorer.BuildConfig
@@ -264,11 +259,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
             Toast.makeText(requireContext(), "未连接服务", Toast.LENGTH_LONG).show()
             return
         }
-        if (activity?.getSharedPreferences(
-                "${requireContext().packageName}_preferences",
-                Activity.MODE_PRIVATE
-            )?.getBoolean("notify_before_paste", true) == true
-        ) {
+        if (defaultSettings?.getBoolean("notify_before_paste", true) == true) {
             request(TaskConfirmDialog::class.java).response(TaskConfirmDialog.Result::class.java) { result ->
                 if (result.confirm) fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
             }
@@ -276,7 +267,6 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
             fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
         }
     }
-
 
     @BindClickEvent(FileItemHolder::class)
     fun toChild(itemHolder: FileItemHolder) {

@@ -43,4 +43,8 @@
     <string name="type_audio">music</string>
     <string name="type_hex">hex binary</string>
     <string name="type_any">any</string>
+    <string name="symlink_indicator_desc">indicate this file is symlink</string>
+    <string name="open_window_mode">Open window mode %s</string>
+    <string name="prompt_before_drag_drop">Prompt before drag&amp;drop</string>
+    <string name="open_window_mode_dialog_title">Open window mode</string>
 </resources>

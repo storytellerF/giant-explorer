@@ -44,5 +44,9 @@
     <string name="type_hex">十六进制</string>
     <string name="type_any">任意类型</string>
     <string name="symlink_indicator_desc">indicate this file is symlink</string>
-    <string name="file_icon_desc">file icon</string>
+    <string name="file_icon_desc" translatable="false">file icon</string>
+    <string name="open_window_mode">打开新窗口的模式 %s</string>
+    <string name="open_window_mode_dialog_title">打开新窗口的模式</string>
+    <string name="setting_key_open_window_mode" translatable="false">open_window_mode</string>
+    <string name="prompt_before_drag_drop">粘贴和拖拽之前需要手动同意</string>
 </resources>

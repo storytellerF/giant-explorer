@@ -107,7 +107,12 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     }
     private val menuProvider by lazy {
         binding.navView.itemIconTintList = null
-        DocumentProviderMenuProvider(binding.navView.menu, this, ::switchDocumentProvider, ::switchUriRoot)
+        DocumentProviderMenuProvider(
+            binding.navView.menu,
+            this,
+            ::switchDocumentProvider,
+            ::switchUriRoot
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -263,8 +268,18 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     }
 
     private fun newWindow() {
+        val openMode = defaultSettings.getString(
+            getString(R.string.setting_key_open_window_mode),
+            getString(R.string.default_open_window_mode)
+        )
+        val flag =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && openMode == getString(R.string.adjacent_open_window_mode)) {
+                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT
+            } else {
+                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+            }
         startActivity(Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            addFlags(flag)
         })
     }
 
