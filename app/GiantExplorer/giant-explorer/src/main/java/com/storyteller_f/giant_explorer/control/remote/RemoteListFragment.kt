@@ -35,13 +35,12 @@ class RemoteListFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentRemoteListBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,10 +52,14 @@ class RemoteListFragment : Fragment() {
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle)
                 .shareIn(scope, SharingStarted.WhileSubscribed())
                 .collectLatest {
-                    binding.content.flash(ListWithState.UIState(false, it.isNotEmpty(), empty = false, progress = false, null, null))
-                    adapter.submitList(it.map { spec ->
-                        RemoteAccessSpecHolder(spec)
-                    })
+                    binding.content.flash(
+                        ListWithState.UIState(false, it.isNotEmpty(), empty = false, progress = false, null, null)
+                    )
+                    adapter.submitList(
+                        it.map { spec ->
+                            RemoteAccessSpecHolder(spec)
+                        }
+                    )
                 }
         }
     }
@@ -76,10 +79,12 @@ class RemoteAccessSpecHolder(val spec: RemoteAccessSpec) : DataItemHolder() {
 }
 
 @BindItemHolder(RemoteAccessSpecHolder::class)
-class RemoteAccessSpecViewHolder(private val binding: ViewHolderRemoteAccessSpecBinding) : BindingViewHolder<RemoteAccessSpecHolder>(binding) {
+class RemoteAccessSpecViewHolder(
+    private val binding: ViewHolderRemoteAccessSpecBinding
+) : BindingViewHolder<RemoteAccessSpecHolder>(
+    binding
+) {
     override fun bindData(itemHolder: RemoteAccessSpecHolder) {
         binding.url.text = itemHolder.spec.toFtpSpec().toUri().toString()
-
     }
-
 }

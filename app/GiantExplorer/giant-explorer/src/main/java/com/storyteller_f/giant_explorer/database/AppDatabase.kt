@@ -9,12 +9,16 @@ import com.storyteller_f.ext_func_definition.ExtFuncFlat
 import com.storyteller_f.ext_func_definition.ExtFuncFlatType
 
 @Database(
-    entities = [FileSizeRecord::class, FileMDRecord::class, FileTorrentRecord::class, BigTimeTask::class, RemoteAccessSpec::class],
+    entities = [FileSizeRecord::class,
+        FileMDRecord::class,
+        FileTorrentRecord::class,
+        BigTimeTask::class,
+        RemoteAccessSpec::class],
     version = 1,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
-abstract class LocalDatabase : RoomDatabase() {
+abstract class AppDatabase : RoomDatabase() {
 
     abstract fun sizeDao(): FileSizeRecordDao
     abstract fun mdDao(): FileMDRecordDao
@@ -25,9 +29,9 @@ abstract class LocalDatabase : RoomDatabase() {
     companion object {
 
         @Volatile
-        private var INSTANCE: LocalDatabase? = null
+        private var INSTANCE: AppDatabase? = null
 
-        fun getInstance(context: Context): LocalDatabase =
+        fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
             }
@@ -35,7 +39,8 @@ abstract class LocalDatabase : RoomDatabase() {
         private fun buildDatabase(context: Context) =
             Room.databaseBuilder(
                 context.applicationContext,
-                LocalDatabase::class.java, "file-record.db"
+                AppDatabase::class.java,
+                "file-record.db"
             )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -44,4 +49,4 @@ abstract class LocalDatabase : RoomDatabase() {
 
 @ExtFuncFlat(type = ExtFuncFlatType.V2)
 val Context.requireDatabase
-    get() = LocalDatabase.getInstance(this)
+    get() = AppDatabase.getInstance(this)

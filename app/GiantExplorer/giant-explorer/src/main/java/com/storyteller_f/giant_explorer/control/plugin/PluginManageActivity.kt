@@ -19,9 +19,7 @@ import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.ActivityPluginManageBinding
 import com.storyteller_f.giant_explorer.dialog.RequestPathDialog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -57,7 +55,6 @@ class PluginManageActivity : CommonActivity() {
                         lifecycleScope.launch {
                             addPlugin(pluginFile, pluginRoot)
                         }
-
                     }
                 }
             }

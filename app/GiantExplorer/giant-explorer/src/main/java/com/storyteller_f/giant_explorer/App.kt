@@ -58,6 +58,10 @@ val pluginManagerRegister = PluginManager()
 val defaultFactory = object : ViewModelProvider.Factory {
 }
 
+const val DEFAULT_DEBOUNCE = 200L
+const val DEFAULT_WEBVIEW_HEIGHT = 0.7f
+const val DEFAULT_BUFFER_SIZE = 1024
+
 object WorkCategory {
     const val MESSAGE_DIGEST = "message-digest"
     const val FOLDER_SIZE = "folder-size"
@@ -82,12 +86,15 @@ class App : Application() {
                         WorkCategory.FOLDER_SIZE -> OneTimeWorkRequestBuilder<FolderWorker>()
                         else -> OneTimeWorkRequestBuilder<TorrentWorker>()
                     }.setInputData(
-                        Data.Builder().putStringArray("folders", entry.value.mapNotNull {
-                            when {
-                                !it.enable -> null
-                                else -> it.uri.toString()
-                            }
-                        }.toTypedArray())
+                        Data.Builder().putStringArray(
+                            "folders",
+                            entry.value.mapNotNull {
+                                when {
+                                    !it.enable -> null
+                                    else -> it.uri.toString()
+                                }
+                            }.toTypedArray()
+                        )
                             .build()
                     ).build()
                 )
@@ -116,12 +123,11 @@ class App : Application() {
         Security.removeProvider("BC")
         Security.insertProviderAt(BouncyCastleProvider(), 1)
     }
-
 }
 
 fun refreshPlugin(context: Context) {
-    File(context.filesDir, "plugins").listFiles { it ->
-        it.extension == "apk" || it.extension == "zip"
+    File(context.filesDir, "plugins").listFiles { file ->
+        file.extension == "apk" || file.extension == "zip"
     }?.forEach {
         pluginManagerRegister.foundPlugin(it)
     }
@@ -151,18 +157,22 @@ abstract class BigTimeWorker(
                     else -> doWork(context, uriString)
                 }
             }
-            if (results.none { it is WorkerResult.Failure || it is WorkerResult.Stopped }) Result.success()
-            else Result.failure(
-                Data.Builder().putString(
-                    "error",
-                    results.joinToString(",") {
-                        when (it) {
-                            is WorkerResult.Stopped -> "stop"
-                            is WorkerResult.Failure -> it.exception.exceptionMessage
-                            else -> ""
+            if (results.none { it is WorkerResult.Failure || it is WorkerResult.Stopped }) {
+                Result.success()
+            } else {
+                Result.failure(
+                    Data.Builder().putString(
+                        "error",
+                        results.joinToString(",") {
+                            when (it) {
+                                is WorkerResult.Stopped -> "stop"
+                                is WorkerResult.Failure -> it.exception.exceptionMessage
+                                else -> ""
+                            }
                         }
-                    }).build()
-            )
+                    ).build()
+                )
+            }
         }
     }
 
@@ -177,48 +187,45 @@ class FolderWorker(context: Context, workerParams: WorkerParameters) :
             val fileInstance = getFileInstance(context, uri)
             val record = context.requireDatabase.sizeDao().search(uri)
             val lastModified = fileInstance.getFileInfo().time.lastModified ?: 0
-            if (record != null && record.lastUpdateTime > lastModified) return WorkerResult.SizeWorker(
-                record.size
-            )
-            val listSafe = fileInstance.list()
-            val mapNullNull = listSafe.directories.map {
-                if (isStopped) return WorkerResult.Stopped
-                doWork(context, it.fullPath)
-            }
-            val filter =
-                mapNullNull.filter { it is WorkerResult.Failure || it is WorkerResult.Stopped }
-            if (filter.valid()) {
-                return filter.first()
-            }
-
-            val filesSize =
-                listSafe.files.map {
-                    if (isStopped) return WorkerResult.Stopped
-                    (it.kind as FileKind.File).size
-                }.plus(0).reduce { acc, s ->
-                    if (isStopped) return WorkerResult.Stopped
-                    acc + s
+            if (record != null && record.lastUpdateTime > lastModified) {
+                WorkerResult.SizeWorker(
+                    record.size
+                )
+            } else {
+                val listSafe = fileInstance.list()
+                val mapNullNull = listSafe.directories.map {
+                    doWork(context, it.fullPath)
                 }
-            val size =
-                filesSize + mapNullNull.map { (it as WorkerResult.SizeWorker).size }.plus(0)
-                    .reduce { acc, s ->
-                        if (isStopped) return WorkerResult.Stopped
+                val filter =
+                    mapNullNull.filter { it is WorkerResult.Failure || it is WorkerResult.Stopped }
+                if (filter.valid()) {
+                    return filter.first()
+                }
+
+                val filesSize =
+                    listSafe.files.map {
+                        (it.kind as FileKind.File).size
+                    }.plus(0).reduce { acc, s ->
                         acc + s
                     }
-            context.requireDatabase.sizeDao()
-                .save(FileSizeRecord(uri, size, System.currentTimeMillis()))
-            WorkerResult.SizeWorker(size)
+                val size =
+                    filesSize + mapNullNull.map { (it as WorkerResult.SizeWorker).size }.plus(0)
+                        .reduce { acc, s ->
+                            acc + s
+                        }
+                context.requireDatabase.sizeDao()
+                    .save(FileSizeRecord(uri, size, System.currentTimeMillis()))
+                WorkerResult.SizeWorker(size)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "work: ", e)
             WorkerResult.Failure(e)
         }
-
     }
 
     companion object {
         private const val TAG = "App"
     }
-
 }
 
 class MDWorker(context: Context, workerParams: WorkerParameters) :
@@ -230,11 +237,9 @@ class MDWorker(context: Context, workerParams: WorkerParameters) :
             val fileInstance = getFileInstance(context, uri)
             val listSafe = fileInstance.list()
             listSafe.directories.mapNullNull {
-                if (isStopped) return WorkerResult.Stopped
                 doWork(context, it.fullPath)
             }
             listSafe.files.forEach {
-                if (isStopped) return WorkerResult.Stopped
                 val child = uri.buildUpon().path(it.fullPath).build()
                 val search = context.requireDatabase.mdDao().search(child)
                 val lastModified = it.time.lastModified ?: 0
@@ -246,7 +251,6 @@ class MDWorker(context: Context, workerParams: WorkerParameters) :
         } catch (e: Exception) {
             WorkerResult.Failure(e)
         }
-
     }
 
     private suspend fun processAndSave(
@@ -264,7 +268,6 @@ class MDWorker(context: Context, workerParams: WorkerParameters) :
     }
 
     companion object
-
 }
 
 class TorrentWorker(context: Context, workerParams: WorkerParameters) :
@@ -276,13 +279,11 @@ class TorrentWorker(context: Context, workerParams: WorkerParameters) :
             val fileInstance = getFileInstance(context, uri)
             val listSafe = fileInstance.list()
             listSafe.directories.mapNullNull {
-                if (isStopped) return WorkerResult.Stopped
                 doWork(context, it.fullPath)
             }
             listSafe.files.filter {
                 it.extension == "torrent"
             }.forEach {
-                if (isStopped) return WorkerResult.Stopped
                 val child = uri.buildUpon().path(it.fullPath).build()
                 val search = context.requireDatabase.torrentDao().search(child)
                 val lastModified = it.time.lastModified ?: 0
@@ -295,7 +296,6 @@ class TorrentWorker(context: Context, workerParams: WorkerParameters) :
             Log.e(TAG, "work: ", e)
             WorkerResult.Failure(e)
         }
-
     }
 
     private suspend fun processAndSave(
@@ -321,7 +321,6 @@ class TorrentWorker(context: Context, workerParams: WorkerParameters) :
     companion object {
         private const val TAG = "App"
     }
-
 }
 
 sealed class WorkerResult {
@@ -350,10 +349,11 @@ inline fun <T, R> List<T>.mapNullNull(
     return if (hasNull) null else destination
 }
 
-const val pc_end_on = 1024
+const val PC_END_ON = 1024
+const val RADIX = 16
 
 suspend fun getFileMD5(fileInstance: FileInstance): String? {
-    val buffer = ByteArray(pc_end_on)
+    val buffer = ByteArray(PC_END_ON)
     return try {
         var len: Int
         val digest = MessageDigest.getInstance("MD5")
@@ -364,8 +364,8 @@ suspend fun getFileMD5(fileInstance: FileInstance): String? {
             }
         }
         val bigInt = BigInteger(1, digest.digest())
-        bigInt.toString(16)
-    } catch (e: Exception) {
+        bigInt.toString(RADIX)
+    } catch (_: Exception) {
         null
     }
 }

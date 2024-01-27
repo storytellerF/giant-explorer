@@ -12,38 +12,40 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import com.storyteller_f.common_ui.SimpleFragment
+import com.storyteller_f.giant_explorer.DEFAULT_WEBVIEW_HEIGHT
 import com.storyteller_f.giant_explorer.databinding.FragmentRootIntroBinding
 
-const val MagiskUrl = "https://github.com/topjohnwu/Magisk"
-const val kernelSuUrl = "https://github.com/tiann/KernelSU"
+const val MAGISK_URL = "https://github.com/topjohnwu/Magisk"
+const val KERNEL_SU_URL = "https://github.com/tiann/KernelSU"
 
 class RootIntroFragment : SimpleFragment<FragmentRootIntroBinding>(FragmentRootIntroBinding::inflate) {
 
     override fun onBindViewEvent(binding: FragmentRootIntroBinding) {
-
         binding.button.setOnClickListener {
-            open(MagiskUrl)
+            open(MAGISK_URL)
         }
         binding.kernelSu.setOnClickListener {
-            open(kernelSuUrl)
+            open(KERNEL_SU_URL)
         }
     }
 
     private fun open(url: String) {
         val newSession = (requireActivity() as RootAccessActivity).newSession
         val height = ScreenMetricsCompat.getScreenSize(requireContext()).height
-        val builder = CustomTabsIntent.Builder().setInitialActivityHeightPx((height * 0.7).toInt())
+        val builder = CustomTabsIntent.Builder().setInitialActivityHeightPx((height * DEFAULT_WEBVIEW_HEIGHT).toInt())
         if (newSession != null) builder.setSession(newSession)
         val customTabsIntent = builder.build()
         customTabsIntent.launchUrl(requireContext(), Uri.parse(url))
     }
-
 }
 
 object ScreenMetricsCompat {
     private val api: Api =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) ApiLevel30()
-        else Api()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ApiLevel30()
+        } else {
+            Api()
+        }
 
     /**
      * Returns screen size in pixels.

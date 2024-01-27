@@ -49,13 +49,17 @@ class BackgroundTaskListFragment : SimpleFragment<FragmentTaskListBinding>(Fragm
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle)
                 .shareIn(scope, SharingStarted.WhileSubscribed())
                 .collectLatest {
-                    binding.content.flash(ListWithState.UIState(false, it.isNotEmpty(), empty = false, progress = false, null, null))
+                    binding.content.flash(
+                        ListWithState.UIState(false, it.isNotEmpty(), empty = false, progress = false, null, null)
+                    )
                     val list = mutableListOf<DataItemHolder>()
                     it.forEach { (category, result) ->
                         list.add(TaskTypeHolder(category))
-                        list.addAll(result.map { task ->
-                            BigTimeTaskItemHolder(task)
-                        })
+                        list.addAll(
+                            result.map { task ->
+                                BigTimeTaskItemHolder(task)
+                            }
+                        )
                     }
                     adapter.submitList(list)
                 }
@@ -68,7 +72,13 @@ class BackgroundTaskListFragment : SimpleFragment<FragmentTaskListBinding>(Fragm
             val waitingDialog = waitingDialog()
             try {
                 withContext(Dispatchers.IO) {
-                    requireDatabase.bigTimeDao().update(BigTimeTask(itemHolder.bigTimeWorker.uri, !itemHolder.bigTimeWorker.enable, itemHolder.bigTimeWorker.category))
+                    requireDatabase.bigTimeDao().update(
+                        BigTimeTask(
+                            itemHolder.bigTimeWorker.uri,
+                            !itemHolder.bigTimeWorker.enable,
+                            itemHolder.bigTimeWorker.category
+                        )
+                    )
                 }
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), e.exceptionMessage, Toast.LENGTH_SHORT).show()
@@ -92,7 +102,6 @@ class TaskTypeViewHolder(edComposeView: EDComposeView) : ComposeViewHolder<TaskT
             TaskType(itemHolder = itemHolder)
         }
     }
-
 }
 
 class TaskTypeProvider : PreviewParameterProvider<TaskTypeHolder> {
@@ -126,7 +135,6 @@ class BigTimeTaskViewHolder(edComposeView: EDComposeView) : ComposeViewHolder<Bi
             BigTimeTaskView(itemHolder = itemHolder, edComposeView)
         }
     }
-
 }
 
 class BigTimeTaskProvider : PreviewParameterProvider<BigTimeTaskItemHolder> {
@@ -134,12 +142,14 @@ class BigTimeTaskProvider : PreviewParameterProvider<BigTimeTaskItemHolder> {
         get() = sequence {
             yield(BigTimeTaskItemHolder(BigTimeTask(File("/storage/emulated/0/Download").toUri(), true, "md")))
         }
-
 }
 
 @Preview
 @Composable
-fun BigTimeTaskView(@PreviewParameter(BigTimeTaskProvider::class) itemHolder: BigTimeTaskItemHolder, edComposeView: EdComposeViewEventEmitter = EdComposeViewEventEmitter.default) {
+fun BigTimeTaskView(
+    @PreviewParameter(BigTimeTaskProvider::class) itemHolder: BigTimeTaskItemHolder,
+    edComposeView: EdComposeViewEventEmitter = EdComposeViewEventEmitter.default
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -147,6 +157,9 @@ fun BigTimeTaskView(@PreviewParameter(BigTimeTaskProvider::class) itemHolder: Bi
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = itemHolder.bigTimeWorker.uri.toString(), modifier = Modifier.weight(1f))
-        Checkbox(checked = itemHolder.bigTimeWorker.enable, onCheckedChange = { edComposeView.notifyClickEvent("check") })
+        Checkbox(
+            checked = itemHolder.bigTimeWorker.enable,
+            onCheckedChange = { edComposeView.notifyClickEvent("check") }
+        )
     }
 }

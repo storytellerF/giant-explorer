@@ -32,15 +32,13 @@ class RootAccessActivity : AppCompatActivity() {
                 val warmup = client.warmup(0)
                 Log.i(TAG, "onCustomTabsServiceConnected: warmup $warmup")
                 newSession = client.newSession(object : CustomTabsCallback() {
-
                 })
-                newSession?.mayLaunchUrl(Uri.parse(MagiskUrl), null, null)
-                newSession?.mayLaunchUrl(Uri.parse(kernelSuUrl), null, null)
+                newSession?.mayLaunchUrl(Uri.parse(MAGISK_URL), null, null)
+                newSession?.mayLaunchUrl(Uri.parse(KERNEL_SU_URL), null, null)
             }
-
         }
 
-        override fun onServiceDisconnected(name: ComponentName) {}
+        override fun onServiceDisconnected(name: ComponentName) = Unit
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,8 +70,8 @@ class RootAccessActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_root_access)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
+        return navController.navigateUp(appBarConfiguration) ||
+            super.onSupportNavigateUp()
     }
 
     companion object {

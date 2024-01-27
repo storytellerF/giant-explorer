@@ -2,7 +2,6 @@ package com.storyteller_f.giant_explorer.service
 
 import android.content.ContentResolver
 import android.content.Context
-import android.net.Uri
 import android.os.Binder
 import android.util.Log
 import androidx.annotation.WorkerThread
@@ -46,7 +45,10 @@ class FileOperateBinder(val context: Context) : Binder() {
         override fun onLeft(fileCount: Int, folderCount: Int, size: Long, key: String) {
             fileOperationProgressListener[key]?.forEach {
                 it.onLeft(
-                    fileCount, folderCount, size, key
+                    fileCount,
+                    folderCount,
+                    size,
+                    key
                 )
             }
         }
@@ -54,7 +56,6 @@ class FileOperateBinder(val context: Context) : Binder() {
         override fun onComplete(dest: String?, isSuccess: Boolean, key: String) {
             fileOperationProgressListener[key]?.forEach { it.onComplete(dest, isSuccess, key) }
         }
-
     }
     val state = MutableLiveData(state_null)
     var fileOperateResultContainer: WeakReference<FileOperateResultContainer> = WeakReference(null)
@@ -106,7 +107,9 @@ class FileOperateBinder(val context: Context) : Binder() {
 
     @WorkerThread
     private suspend fun startDeleteTask(
-        focused: FileInfo, selected: List<FileInfo>, key: String
+        focused: FileInfo,
+        selected: List<FileInfo>,
+        key: String
     ) {
         state.postValue(state_computing)
         val assessResult = runBlocking {
@@ -114,7 +117,11 @@ class FileOperateBinder(val context: Context) : Binder() {
         }
         state.postValue(state_running)
         val deleteForemanImpl = DeleteForemanImpl(
-            selected, context, assessResult.toOverview(), focused, key
+            selected,
+            context,
+            assessResult.toOverview(),
+            focused,
+            key
         ).attachListener()
         if (deleteForemanImpl.call()) {
             whenEnd(key)
@@ -143,29 +150,18 @@ class FileOperateBinder(val context: Context) : Binder() {
         }
         whenRunning(key, assessResult)
         val copyForemanImpl = CopyForemanImpl(
-            selected, deleteOrigin, dest, context, assessResult.toOverview(), focused, key
+            selected,
+            deleteOrigin,
+            dest,
+            context,
+            assessResult.toOverview(),
+            focused,
+            key
         ).attachListener()
         if (copyForemanImpl.call()) {
             whenEnd(key)
             fileOperateResultContainer.get()?.onSuccess(dest.uri, focused?.uri)
         }
-    }
-
-    private fun detectUri(selected: List<Uri>, key: String): List<Uri>? {
-        state.postValue(state_detect)
-        val supportTasks = selected.filter {
-            supportUri.contains(it.scheme)
-        }
-        if (supportTasks.isEmpty()) {
-            whenError(key, "没有合法任务")
-            return null
-        }
-        val errorTasks = selected - supportTasks.toSet()
-        if (errorTasks.isNotEmpty()) {
-            whenError(key, "unrecognized uri: ${errorTasks.joinToString()}")
-            return null
-        }
-        return supportTasks
     }
 
     private fun whenRunning(key: String, computeSize: TaskAssessResult) {
@@ -186,13 +182,6 @@ class FileOperateBinder(val context: Context) : Binder() {
         Log.d(TAG, "whenEnd() called with: key = $key")
         state.postValue(state_end)
         map.remove(key)
-    }
-
-    private fun whenError(key: String, message: String) {
-        Log.d(TAG, "whenError() called with: key = $key, message = $message")
-        map[key] = TaskSession(null, message)
-        state.postValue(state_error)
-        fileOperateResultContainer.get()?.onError(message)
     }
 
     private fun FileOperationForeman.attachListener(): FileOperationForeman {
@@ -275,11 +264,16 @@ class TaskAssessor(
     private var count = 0
     private var folderCount = 0
     suspend fun assess(): TaskAssessResult {
+        dest ?: return TaskAssessResult.empty
         val size = detectorTasks.map {
-            if (dest != null && FileOperateBinder.checkOperationValid(
-                    it.fullPath, dest.path
+            require(
+                FileOperateBinder.checkOperationValid(
+                    it.fullPath,
+                    dest.path
                 )
-            ) throw Exception("不能将父文件夹移动到子文件夹")
+            ) {
+                "不能将父文件夹移动到子文件夹"
+            }
             val fileInstance = getFileInstance(context, File(it.fullPath).toUri())
             if (!fileInstance.exists()) {
                 throw FileNotFoundException(fileInstance.path)
@@ -291,7 +285,9 @@ class TaskAssessor(
                 getDirectorySize(it)
             }
         }.plus(0).reduce { acc, l -> acc + l }
-        if (count.toLong() + folderCount.toLong() + size == 0L) throw Exception("无合法任务")
+        require(count.toLong() + folderCount.toLong() + size > 0L) {
+            "无合法任务"
+        }
         return TaskAssessResult(count, folderCount, size)
     }
 
@@ -309,5 +305,4 @@ class TaskAssessor(
         }.plus(0).reduce { acc, l -> acc + l }
         return fileSize + directorySize
     }
-
 }

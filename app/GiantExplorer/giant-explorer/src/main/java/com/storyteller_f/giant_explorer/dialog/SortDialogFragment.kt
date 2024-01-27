@@ -44,9 +44,7 @@ class SortDialogFragment : CommonDialogFragment() {
                 activeSortChains.value = activeList
             }
 
-            override fun onEditingChanged(editing: List<SortChain<FileInfo>>) {
-
-            }
+            override fun onEditingChanged(editing: List<SortChain<FileInfo>>) = Unit
         }
 
     private val sortChains: List<SortChain<FileInfo>>

@@ -13,7 +13,9 @@ import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.FragmentRootAccessStatusBinding
 import com.topjohnwu.superuser.Shell
 
-class RootAccessStatusFragment : SimpleFragment<FragmentRootAccessStatusBinding>(FragmentRootAccessStatusBinding::inflate) {
+class RootAccessStatusFragment : SimpleFragment<FragmentRootAccessStatusBinding>(
+    FragmentRootAccessStatusBinding::inflate
+) {
 
     private val state by svm({}) { handle, _ ->
         StateValueModel(handle, default = false)

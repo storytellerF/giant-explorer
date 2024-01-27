@@ -16,7 +16,6 @@ import com.storyteller_f.giant_explorer.control.plugin.FileSystemProviderResolve
 import com.storyteller_f.plugin_core.FileSystemProviderConstant
 import kotlinx.coroutines.runBlocking
 
-
 class FileSystemProvider : ContentProvider() {
 
     override fun onCreate() = true
@@ -90,9 +89,11 @@ class FileSystemProvider : ContentProvider() {
     override fun getType(uri: Uri): String? {
         val current = current(uri) ?: return null
         return runBlocking {
-            if (current.fileKind().isDirectory) DocumentsContract.Document.MIME_TYPE_DIR
-            else
+            if (current.fileKind().isDirectory) {
+                DocumentsContract.Document.MIME_TYPE_DIR
+            } else {
                 singleton.getMimeTypeFromExtension(current.getFileInfo().extension)
+            }
         }
     }
 
@@ -103,7 +104,6 @@ class FileSystemProvider : ContentProvider() {
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
         TODO("Not yet implemented")
     }
-
 
     override fun update(
         uri: Uri,

@@ -27,17 +27,16 @@ rootProject.name = "GiantExplorer"
 include(":giant-explorer")
 include(":giant-explorer-plugin-core")
 
-val commonUiListModules = listOf<String>(
+val commonUiPath = File(rootDir, "../../../common-ui-list")
+
+listOf<String>(
 //    "ui-list",
 //    "common-vm-ktx",
 //    "ui-list-annotation-definition",
 //    "ext-func-definition",
 //    "ext-func-compiler",
 //    "slim-ktx"
-)
-
-val commonUiPath = File(rootDir, "../../../common-ui-list")
-commonUiListModules.forEach {
+).forEach {
     val modulePath = File(commonUiPath, it)
     if (modulePath.exists()) {
         include(it)
@@ -46,41 +45,50 @@ commonUiListModules.forEach {
 }
 
 val home: String = System.getProperty("user.home")
-val debugFilterFolder = file("$home/AndroidStudioProjects/FilterUIProject/")
-val subModuleFilterFolder = file("../../FilterUIProject")
-val currentFolder = when (filterFolder) {
-    "local" -> debugFilterFolder
-    "submodule" -> subModuleFilterFolder
+when (filterFolder) {
+    "local" -> file("$home/AndroidStudioProjects/FilterUIProject/")
+    "submodule" -> file("../../FilterUIProject")
     else -> null
-}
-
-if (currentFolder?.exists() == true) {
-    val l = listOf("config-core", "filter-core", "sort-core", "config_edit", "filter-ui", "sort-ui", "recycleview_ui_extra")
-    l.forEach {
-        include("filter:$it")
-        project(":filter:$it").projectDir = File(currentFolder, it)
+}?.let {
+    if (it.exists()) {
+        val l = listOf(
+            "config-core",
+            "filter-core",
+            "sort-core",
+            "config_edit",
+            "filter-ui",
+            "sort-ui",
+            "recycleview_ui_extra"
+        )
+        l.forEach {
+            include("filter:$it")
+            project(":filter:$it").projectDir = File(it, it)
+        }
     }
 }
 
-val debugBaoFolder = when (baoFolder) {
+
+when (baoFolder) {
     "local" -> file("$home/AndroidStudioProjects/Bao/")
     else -> null
-}
-if (debugBaoFolder?.exists() == true) {
-    val l = listOf("startup", "bao-library")
-    for (sub in l) {
-        include("bao:$sub")
-        project(":bao:$sub").projectDir = File(debugBaoFolder, sub)
+}?.let {
+    if (it.exists()) {
+        val l = listOf("startup", "bao-library")
+        for (sub in l) {
+            include("bao:$sub")
+            project(":bao:$sub").projectDir = File(it, sub)
+        }
+
     }
-
 }
 
-val debugLiFolder = when (liFolder) {
+
+when (liFolder) {
     "local" -> file("../../giant-explorer/li/plugin")
     else -> null
-}
-
-if (debugLiFolder?.exists() == true) {
-    include("li-plugin")
-    project(":li-plugin").projectDir = debugLiFolder
+}?.let {
+    if (it.exists()) {
+        include("li-plugin")
+        project(":li-plugin").projectDir = it
+    }
 }

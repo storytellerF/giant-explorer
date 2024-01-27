@@ -19,4 +19,3 @@ data class FileModel(
 ) : Model {
     override fun commonId() = fullPath
 }
-

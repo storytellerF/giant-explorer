@@ -11,9 +11,10 @@ import androidx.browser.customtabs.CustomTabsSession
 import com.bumptech.glide.Glide
 import com.storyteller_f.common_ui.CommonActivity
 import com.storyteller_f.common_ui.setOnClick
-import com.storyteller_f.giant_explorer.control.root.MagiskUrl
+import com.storyteller_f.giant_explorer.DEFAULT_WEBVIEW_HEIGHT
+import com.storyteller_f.giant_explorer.control.root.KERNEL_SU_URL
+import com.storyteller_f.giant_explorer.control.root.MAGISK_URL
 import com.storyteller_f.giant_explorer.control.root.ScreenMetricsCompat
-import com.storyteller_f.giant_explorer.control.root.kernelSuUrl
 import com.storyteller_f.giant_explorer.databinding.ActivityAboutBinding
 import com.storyteller_f.ui_list.event.viewBinding
 
@@ -24,13 +25,14 @@ class AboutActivity : CommonActivity() {
         override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
             client.warmup(0)
             newSession = client.newSession(object : CustomTabsCallback() {
-
             })
-            newSession?.mayLaunchUrl(Uri.parse(MagiskUrl), null, null)
-            newSession?.mayLaunchUrl(Uri.parse(kernelSuUrl), null, null)
+            newSession?.mayLaunchUrl(Uri.parse(MAGISK_URL), null, null)
+            newSession?.mayLaunchUrl(Uri.parse(KERNEL_SU_URL), null, null)
         }
 
-        override fun onServiceDisconnected(name: ComponentName) {}
+        override fun onServiceDisconnected(name: ComponentName) {
+            newSession = null
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +42,9 @@ class AboutActivity : CommonActivity() {
         binding.image.setOnClick {
             val newSession = newSession
             val height = ScreenMetricsCompat.getScreenSize(this).height
-            val builder = CustomTabsIntent.Builder().setInitialActivityHeightPx((height * 0.7).toInt())
+            val builder = CustomTabsIntent.Builder().setInitialActivityHeightPx(
+                (height * DEFAULT_WEBVIEW_HEIGHT).toInt()
+            )
             if (newSession != null) builder.setSession(newSession)
             val customTabsIntent = builder.build()
             customTabsIntent.launchUrl(this, Uri.parse("https://github.com/storytellerF/common-ui-list-structure"))

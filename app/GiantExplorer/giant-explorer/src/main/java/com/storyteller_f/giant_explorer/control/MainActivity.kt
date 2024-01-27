@@ -26,6 +26,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -37,6 +38,7 @@ import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.supportNavigatorBarImmersive
 import com.storyteller_f.common_vm_ktx.StateValueModel
+import com.storyteller_f.common_vm_ktx.debounce
 import com.storyteller_f.common_vm_ktx.svm
 import com.storyteller_f.common_vm_ktx.toDiffNoNull
 import com.storyteller_f.file_system.FileSystemUriStore
@@ -46,6 +48,7 @@ import com.storyteller_f.file_system.instance.local.DocumentLocalFileInstance
 import com.storyteller_f.file_system.rawTree
 import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.file_system_root.RootAccessFileInstance
+import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.plugin.PluginManageActivity
 import com.storyteller_f.giant_explorer.control.remote.RemoteManagerActivity
@@ -85,19 +88,20 @@ class FileExplorerSession(application: Application, uri: Uri) : AndroidViewModel
     }
 }
 
+data class DocumentRequestSession(val authority: String, val tree: String?)
+
 class MainActivity : CommonActivity(), FileOperateService.FileOperateResultContainer {
 
     private val binding by viewBinding(ActivityMainBinding::inflate)
-    private val filterHiddenFile by svm({}) { it, _ ->
-        StateValueModel(it, "filter-hidden-file", false)
+    private val filterHiddenFile by svm({}) { handle, _ ->
+        StateValueModel(handle, "filter-hidden-file", false)
     }
 
     private val fileListViewModel by svm({}) { handle, _ ->
         FileListViewModel(handle)
     }
 
-    private var currentRequestingAuthority: String? = null
-    private var currentRequestingTree: String? = null
+    private var currentRequesting: DocumentRequestSession? = null
     private val requestDocumentProvider =
         registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) {
             processDocumentProvider(it)
@@ -121,8 +125,9 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         supportNavigatorBarImmersive(binding.content)
+        observeBinder()
 
-        //连接服务
+        // 连接服务
         val fileOperateIntent = Intent(this, FileOperateService::class.java)
         startService(fileOperateIntent)
         bindService(fileOperateIntent, connection, 0)
@@ -130,10 +135,9 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         Shell.getShell {
             if (it.isRoot) {
                 val intent = Intent(this, FileService::class.java)
-                //连接服务
+                // 连接服务
                 RootService.bind(intent, fileConnection)
             }
-
         }
         binding.drawer.addDrawerListener(drawableToggle)
         fileListViewModel.displayGrid.distinctUntilChanged().observe(owner) {
@@ -156,18 +160,16 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     }
 
     private fun processDocumentProvider(uri: Uri?) {
-        val requestingAuthority = currentRequestingAuthority
-        val requestingTree = currentRequestingTree
+        val (requestingAuthority, requestingTree) = currentRequesting ?: return
         Log.i(TAG, "uri: $uri key: $requestingAuthority")
-        if (uri != null && requestingAuthority != null) {
+        if (uri != null) {
             val authority = uri.authority
             val tree = DocumentsContract.getTreeDocumentId(uri)
             if (requestingAuthority != authority || (requestingTree != null && requestingTree != tree)) {
                 Toast.makeText(this, "选择错误", Toast.LENGTH_LONG).show()
                 return
             }
-            currentRequestingAuthority = null
-            currentRequestingTree = null
+            this.currentRequesting = null
             saveUriAndSwitch(uri, tree, authority)
             menuProvider.flashFileSystemRootMenu()
         }
@@ -175,7 +177,8 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
 
     private fun saveUriAndSwitch(uri: Uri, tree: String, authority: String) {
         contentResolver.takePersistableUriPermission(
-            uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         )
         FileSystemUriStore.instance.saveUri(this, authority, uri, tree)
 
@@ -216,9 +219,12 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
                     val path = if (it == "/") "" else it
                     val tree = uri.rawTree
                     uri.buildUpon().path("/$tree$path").build()
-                } else uri.buildUpon().path(it).build()
+                } else {
+                    uri.buildUpon().path(it).build()
+                }
                 navController.navigate(
-                    R.id.fileListFragment, FileListFragmentArgs(build).toBundle()
+                    R.id.fileListFragment,
+                    FileListFragmentArgs(build).toBundle()
                 )
             }
         }
@@ -249,7 +255,8 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
             R.id.volume_space -> request(VolumeSpaceDialog::class)
             R.id.background_task -> startActivity(
                 Intent(
-                    this, BackgroundTaskConfigActivity::class.java
+                    this,
+                    BackgroundTaskConfigActivity::class.java
                 )
             )
         }
@@ -267,26 +274,11 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         filterHiddenFile.data.value = newState
     }
 
-    private fun newWindow() {
-        val openMode = defaultSettings.getString(
-            getString(R.string.setting_key_open_window_mode),
-            getString(R.string.default_open_window_mode)
-        )
-        val flag =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && openMode == getString(R.string.adjacent_open_window_mode)) {
-                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT
-            } else {
-                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-            }
-        startActivity(Intent(this, MainActivity::class.java).apply {
-            addFlags(flag)
-        })
-    }
-
     private fun switchUriRoot(uri: Uri) {
         closeDrawer()
         findNavControl().navigate(
-            R.id.fileListFragment, FileListFragmentArgs(uri).toBundle()
+            R.id.fileListFragment,
+            FileListFragmentArgs(uri).toBundle()
         )
     }
 
@@ -298,8 +290,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
             }
         }
         closeDrawer()
-        currentRequestingAuthority = authority
-        currentRequestingTree = tree
+        currentRequesting = DocumentRequestSession(authority, tree)
 
         val presetTreeKey = Properties().apply {
             load(assets.open("tree.keys"))
@@ -312,7 +303,9 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
                 ) == null
             ) {
                 DocumentsContract.buildRootUri(authority, presetTreeKey)
-            } else null
+            } else {
+                null
+            }
         requestDocumentProvider.launch(defaultTreeDocumentUri)
         return false
     }
@@ -334,33 +327,49 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         )
     }
 
-    var fileOperateBinder: FileOperateBinder? = null
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Toast.makeText(this@MainActivity, "服务已连接", Toast.LENGTH_SHORT).show()
-            val fileOperateBinderLocal = service as FileOperateBinder
-            Log.i(TAG, "onServiceConnected: $fileOperateBinderLocal")
-            fileOperateBinder = fileOperateBinderLocal
-            fileOperateBinderLocal.let { binder ->
-                binder.fileOperateResultContainer = WeakReference(this@MainActivity)
-                binder.state.toDiffNoNull { i, i2 ->
-                    i == i2
-                }.observe(this@MainActivity) {
-                    Toast.makeText(
-                        this@MainActivity, "${it.first} ${it.second}", Toast.LENGTH_SHORT
-                    ).show()
-                    if (it.first == FileOperateBinder.state_null) {
-                        FileOperationDialog().apply {
-                            this.binder = fileOperateBinderLocal
-                        }.show(supportFragmentManager, FileOperationDialog.DIALOG_TAG)
-                    }
+    val fileOperateBinder = MutableLiveData<FileOperateBinder?>()
+
+    private fun observeBinder() {
+        fileOperateBinder.switchMap {
+            it?.state?.toDiffNoNull { i, i2 ->
+                i == i2
+            }
+        }.debounce(DEFAULT_DEBOUNCE).observe(this) {
+            if (it == null) {
+                Toast.makeText(this@MainActivity, "服务已关闭", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@MainActivity, "服务已连接", Toast.LENGTH_SHORT).show()
+            }
+        }
+        fileOperateBinder.observe(this) { binder ->
+            binder ?: return@observe
+            binder.fileOperateResultContainer = WeakReference(this@MainActivity)
+            binder.state.toDiffNoNull { i, i2 ->
+                i == i2
+            }.observe(this@MainActivity) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "${it.first} ${it.second}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                if (it.first == FileOperateBinder.state_null) {
+                    FileOperationDialog().apply {
+                        this.binder = binder
+                    }.show(supportFragmentManager, FileOperationDialog.DIALOG_TAG)
                 }
             }
         }
+    }
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val fileOperateBinderLocal = service as FileOperateBinder
+            Log.i(TAG, "onServiceConnected: $fileOperateBinderLocal")
+            fileOperateBinder.value = fileOperateBinderLocal
+        }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            fileOperateBinder = null
-            Toast.makeText(this@MainActivity, "服务已关闭", Toast.LENGTH_SHORT).show()
+            fileOperateBinder.value = null
         }
     }
 
@@ -415,7 +424,8 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
 }
 
 fun PackageManager.queryIntentActivitiesCompat(
-    searchDocumentProvider: Intent, flags: Long
+    searchDocumentProvider: Intent,
+    flags: Long
 ): MutableList<ResolveInfo> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         queryIntentActivities(searchDocumentProvider, PackageManager.ResolveInfoFlags.of(flags))
@@ -425,11 +435,13 @@ fun PackageManager.queryIntentActivitiesCompat(
 }
 
 fun PackageManager.queryIntentContentProvidersCompat(
-    searchDocumentProvider: Intent, flags: Long
+    searchDocumentProvider: Intent,
+    flags: Long
 ): MutableList<ResolveInfo> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         queryIntentContentProviders(
-            searchDocumentProvider, PackageManager.ResolveInfoFlags.of(flags)
+            searchDocumentProvider,
+            PackageManager.ResolveInfoFlags.of(flags)
         )
     } else {
         queryIntentContentProviders(searchDocumentProvider, flags.toInt())
@@ -441,12 +453,14 @@ suspend fun Activity.documentProviderRoot(
     tree: String,
 ): Uri? {
     val savedUris = FileSystemUriStore.instance.savedUris(this)
-    return if (!savedUris.contains(authority))
+    return if (!savedUris.contains(authority)) {
         null
-    else try {
-        val uri = DocumentLocalFileInstance.uriFromAuthority(authority, tree)
-        if (getFileInstance(this, uri).exists()) uri else null
-    } catch (e: Exception) {
-        null
+    } else {
+        try {
+            val uri = DocumentLocalFileInstance.uriFromAuthority(authority, tree)
+            if (getFileInstance(this, uri).exists()) uri else null
+        } catch (_: Exception) {
+            null
+        }
     }
 }

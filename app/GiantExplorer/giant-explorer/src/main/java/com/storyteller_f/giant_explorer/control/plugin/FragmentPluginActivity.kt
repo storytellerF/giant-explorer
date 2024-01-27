@@ -2,6 +2,7 @@ package com.storyteller_f.giant_explorer.control.plugin
 
 import android.content.Context
 import android.content.res.Resources
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -19,7 +20,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-const val giantExplorerPluginIni = "META-INF/giant-explorer-plugin.ini"
+const val GIANT_EXPLORER_PLUGIN_INI = "META-INF/giant-explorer-plugin.ini"
 suspend fun Context.fileInputStream1(uriString: String) =
     getFileInstance(this, uriString.toUri()).apply {
         createFile()
@@ -46,10 +47,11 @@ abstract class DefaultPluginManager(val context: Context) : GiantExplorerPluginM
         }
     }
 
-    override fun resolveParentUri(uriString: String): String? {
-        val uri = uriString.toUri()
-        val resolvePath = FileSystemProviderResolver.resolve(uri)?.path ?: return null
-        val parent = File(resolvePath).parent ?: return null
+    override fun resolveParentUri(uriString: String) = resolveParentUri(uriString.toUri())
+
+    private fun resolveParentUri(uri: Uri): String? {
+        val path = FileSystemProviderResolver.resolve(uri)?.path ?: return null
+        val parent = File(path).parent ?: return null
         return FileSystemProviderResolver.share(false, uri.buildUpon().path(parent).build())
             .toString()
     }
@@ -86,7 +88,9 @@ class FragmentPluginActivity : AppCompatActivity() {
             applicationInfo.publicSourceDir = absolutePath
             applicationInfo.sourceDir = absolutePath
             packageManager.getResourcesForApplication(applicationInfo)
-        } else null
+        } else {
+            null
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,10 +103,7 @@ class FragmentPluginActivity : AppCompatActivity() {
                 return ""
             }
 
-            override fun runInService(block: suspend GiantExplorerService.() -> Boolean) {
-
-            }
-
+            override fun runInService(block: suspend GiantExplorerService.() -> Boolean) = Unit
         }
         lifecycleScope.launch {
             val revolvePlugin = pluginManagerRegister.resolvePluginName(
@@ -135,7 +136,8 @@ class FragmentPluginActivity : AppCompatActivity() {
         val listOf = if (this::pluginFragments.isInitialized) pluginFragments else listOf()
         if (stackTrace.any {
                 listOf.contains(it.className)
-            }) {
+            }
+        ) {
             return pluginResources!!
         }
         return super.getResources()

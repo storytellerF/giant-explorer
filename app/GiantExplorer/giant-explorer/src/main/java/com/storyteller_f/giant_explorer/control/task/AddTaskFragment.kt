@@ -21,11 +21,17 @@ class AddTaskFragment : SimpleFragment<FragmentAddTaskBinding>(FragmentAddTaskBi
 
     override fun onBindViewEvent(binding: FragmentAddTaskBinding) {
         binding.button.setOnClickListener {
-            val result = Result(binding.checkBox2.isChecked, binding.path.text.toString().toUri(), binding.selectWorkerName.selectedItem.toString())
+            val result =
+                Result(
+                    binding.checkBox2.isChecked,
+                    binding.path.text.toString().toUri(),
+                    binding.selectWorkerName.selectedItem.toString()
+                )
             scope.launch {
                 val waitingDialog = waitingDialog()
                 try {
-                    requireDatabase.bigTimeDao().add(BigTimeTask(result.uri, result.enable, result.category))
+                    requireDatabase.bigTimeDao()
+                        .add(BigTimeTask(result.uri, result.enable, result.category))
                     setFragmentResult(result)
                     findNavController().navigateUp()
                 } catch (e: Exception) {
@@ -34,9 +40,12 @@ class AddTaskFragment : SimpleFragment<FragmentAddTaskBinding>(FragmentAddTaskBi
                     waitingDialog.end()
                 }
             }
-
         }
-        binding.selectWorkerName.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, arrayOf("message digest", "torrent name", "folder size"))
+        binding.selectWorkerName.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            arrayOf("message digest", "torrent name", "folder size")
+        )
         binding.selectPath.setOnClick {
             findNavController().request(R.id.action_select_task_path)
                 .response(RequestPathDialog.RequestPathResult::class.java) { result ->
@@ -48,5 +57,4 @@ class AddTaskFragment : SimpleFragment<FragmentAddTaskBinding>(FragmentAddTaskBi
     @Parcelize
     class Result(val enable: Boolean, val uri: Uri, val category: String) : Parcelable
     companion object
-
 }

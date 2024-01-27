@@ -23,7 +23,6 @@ object Decode {
         return Pair(total, input.substring(splitIndex + 1, total))
     }
 
-
     /**
      * @return 返回消耗的字符个数
      */
@@ -62,7 +61,7 @@ object Decode {
         }
 
         else -> {
-            throw Exception()
+            error("unrecognized $firstChar")
         }
     }
 
@@ -78,7 +77,6 @@ object Decode {
                 list.add(v)
                 it.substring(l)
             }
-
         }
 
         return (string.length - rest.length + 1) to list
@@ -114,7 +112,6 @@ object Decode {
         ).buffered().readText()
         return bDecode(read)
     }
-
 }
 
 private inline fun <T> loop(init: T, block: (T) -> T?): T {

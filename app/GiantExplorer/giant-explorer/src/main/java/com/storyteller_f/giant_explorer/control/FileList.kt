@@ -47,15 +47,16 @@ import com.storyteller_f.file_system_ktx.fileIcon
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.file_system_ktx.isFile
 import com.storyteller_f.filter_core.Filter
+import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
+import com.storyteller_f.giant_explorer.PC_END_ON
 import com.storyteller_f.giant_explorer.R
-import com.storyteller_f.giant_explorer.database.LocalDatabase
+import com.storyteller_f.giant_explorer.database.AppDatabase
 import com.storyteller_f.giant_explorer.database.requireDatabase
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileBinding
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileGridBinding
 import com.storyteller_f.giant_explorer.dialog.activeFilters
 import com.storyteller_f.giant_explorer.dialog.activeSortChains
 import com.storyteller_f.giant_explorer.model.FileModel
-import com.storyteller_f.giant_explorer.pc_end_on
 import com.storyteller_f.sort_core.config.SortChain
 import com.storyteller_f.sort_core.config.SortChains
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
@@ -70,6 +71,7 @@ import com.storyteller_f.ui_list.ui.ListWithState
 import com.storyteller_f.ui_list.ui.toggle
 import com.storyteller_f.ui_list.ui.valueContains
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import java.util.Locale
 
 class FileListViewModel(stateHandle: SavedStateHandle) : ViewModel() {
@@ -100,8 +102,9 @@ class FileListObserver<T>(
             when (owner) {
                 is Fragment -> owner.requireActivity().application
                 is ComponentActivity -> owner.application
-                else -> throw Exception("unrecognized ${owner.javaClass}")
-            }, it.uri
+                else -> throw IllegalArgumentException("unrecognized ${owner.javaClass}")
+            },
+            it.uri
         )
     }
 
@@ -110,14 +113,15 @@ class FileListObserver<T>(
             when (owner) {
                 is Fragment -> owner.requireDatabase
                 is Context -> owner.requireDatabase
-                else -> throw Exception("unrecognized ${owner.javaClass}")
+                else -> throw IllegalArgumentException("unrecognized ${owner.javaClass}")
             } to session.selected
         },
         { (database, selected) ->
             SearchProducer(fileSearchService(database)) { fileModel, _, sq ->
                 FileItemHolder(fileModel, selected.value.orEmpty(), sq.display)
             }
-        })
+        }
+    )
 
     fun setup(
         listWithState: ListWithState,
@@ -128,7 +132,6 @@ class FileListObserver<T>(
         with(owner) {
             setup(listWithState, adapter, rightSwipe, updatePath)
         }
-
     }
 
     private fun T.setup(
@@ -137,7 +140,6 @@ class FileListObserver<T>(
         rightSwipe: (FileItemHolder) -> Unit,
         updatePath: (String) -> Unit
     ) {
-
         fileListViewModel.displayGrid.observe(owner) {
             listWithState.recyclerView.isVisible = false
             adapter.submitData(cycle, PagingData.empty())
@@ -177,9 +179,11 @@ class FileListObserver<T>(
                 owner,
                 plugLayoutManager = false,
                 dampingSwipe = { viewHolder, direction ->
-                    if (direction == ItemTouchHelper.LEFT)
+                    if (direction == ItemTouchHelper.LEFT) {
                         session.selected.toggle(viewHolder)
-                    else rightSwipe(viewHolder.itemHolder as FileItemHolder)
+                    } else {
+                        rightSwipe(viewHolder.itemHolder as FileItemHolder)
+                    }
                 },
                 flash = ListWithState.Companion::remote
             )
@@ -188,7 +192,7 @@ class FileListObserver<T>(
             }
             session.fileInstance.observe(owner) {
                 val path = it.uri
-                //检查权限
+                // 检查权限
                 owner.lifecycleScope.launch {
                     if (!checkFilePermission(path)) {
                         if (requestFilePermission(path)) {
@@ -203,7 +207,7 @@ class FileListObserver<T>(
                 activeFilters.same,
                 activeSortChains.same,
                 fileListViewModel.displayGrid
-            ).wait5().distinctUntilChanged().debounce(200)
+            ).wait5().distinctUntilChanged().debounce(DEFAULT_DEBOUNCE)
                 .observe(owner) { (fileInstance, filterHiddenFile, filters, sortChains, d5) ->
                     val display = if (d5) "grid" else ""
 
@@ -220,11 +224,9 @@ class FileListObserver<T>(
                         adapter.submitData(pagingData)
                     }
                 }
-
         }
     }
 }
-
 
 private val <T> LiveData<List<T>>.same
     get() = distinctUntilChangedBy { sort1, sort2 ->
@@ -242,7 +244,6 @@ class FileItemHolder(
     override fun areContentsTheSame(other: DataItemHolder): Boolean {
         return (other as FileItemHolder).file == file
     }
-
 }
 
 @BindItemHolder(FileItemHolder::class, type = "grid")
@@ -253,7 +254,6 @@ class FileGridViewHolder(private val binding: ViewHolderFileGridBinding) :
         binding.fileIcon.fileIcon(itemHolder.file.item)
         binding.symLink.isVisible = itemHolder.file.isSymLink
     }
-
 }
 
 @BindItemHolder(FileItemHolder::class)
@@ -293,10 +293,7 @@ class FileViewHolder(private val binding: ViewHolderFileBinding) :
             file.item.dragSupport(binding.root)
         }
         binding.symLink.isVisible = file.isSymLink
-
     }
-
-
 }
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -308,42 +305,43 @@ private fun FileInfo.dragSupport(root: ConstraintLayout) {
     }.apply {
         attach()
     }
-    root.setOnDragListener(if (!isDirectory) null
-    else
-        { v, event ->
-            when (event.action) {
-                DragEvent.ACTION_DRAG_STARTED -> {
-                    val clipDescription = event.clipDescription
-                    clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                            && clipDescription.label == FileListFragment.CLIP_DATA_KEY
-                }
+    root.setOnDragListener(
+        if (!isDirectory) {
+            null
+        } else {
+            { v, event ->
+                when (event.action) {
+                    DragEvent.ACTION_DRAG_STARTED -> {
+                        val clipDescription = event.clipDescription
+                        clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) &&
+                            clipDescription.label == FileListFragment.CLIP_DATA_KEY
+                    }
 
-                DragEvent.ACTION_DROP -> {
-                    v.findActionReceiverOrNull<FileListFragment>()
-                        ?.pasteFiles(event.clipData, uri)
-                    true
-                }
+                    DragEvent.ACTION_DROP -> {
+                        v.findActionReceiverOrNull<FileListFragment>()
+                            ?.pasteFiles(event.clipData, uri)
+                        true
+                    }
 
-                else -> true
+                    else -> true
+                }
             }
-        })
+        }
+    )
 }
 
 fun String?.valid() = this?.trim()?.isNotEmpty() == true
 
-
-fun format1024(args: Long): String {
+suspend fun format1024(args: Long): String {
     if (args < 0) {
         return "Error"
     }
     val flags = arrayOf("B.", "KB", "MB", "GB", "TB")
     var flag = 0
     var size = args.toDouble()
-    while (size >= pc_end_on) {
-        if (Thread.currentThread().isInterrupted) {
-            return "stopped"
-        }
-        size /= pc_end_on
+    while (size >= PC_END_ON) {
+        yield()
+        size /= PC_END_ON
         flag += 1
     }
     assert(flag < flags.size) {
@@ -361,7 +359,7 @@ data class FileExplorerSearch(
 )
 
 fun fileSearchService(
-    database: LocalDatabase
+    database: AppDatabase
 ): suspend (searchQuery: FileExplorerSearch, start: Int, count: Int) -> SimpleResponse<FileModel> {
     return { searchQuery: FileExplorerSearch, start: Int, count: Int ->
         val listSafe = searchQuery.path.list()
@@ -370,9 +368,11 @@ fun fileSearchService(
         val sortChains = searchQuery.sort
 
         val filterPredicate: (FileInfo) -> Boolean = {
-            (!searchQuery.filterHiddenFile || !it.kind.isHidden) && (filterList.isEmpty() || filterList.any { f ->
-                f.filter(it)
-            })
+            (!searchQuery.filterHiddenFile || !it.kind.isHidden) && (
+                filterList.isEmpty() || filterList.any { f ->
+                    f.filter(it)
+                }
+                )
         }
         val directories = listSafe.directories
         val files = listSafe.files
@@ -384,12 +384,15 @@ fun fileSearchService(
         }
         val listFiles = if (searchQuery.filterHiddenFile || filterList.isNotEmpty()) {
             directories.filter(filterPredicate).plus(files.filter(filterPredicate))
-        } else directories.plus(files)
+        } else {
+            directories.plus(files)
+        }
         val total = listFiles.size
         val index = start - 1
         val startPosition = index * count
-        if (startPosition > total) SimpleResponse(0)
-        else {
+        if (startPosition > total) {
+            SimpleResponse(0)
+        } else {
             val items = listFiles
                 .subList(startPosition, (startPosition + count).coerceAtMost(total))
                 .map { model ->
@@ -401,14 +404,12 @@ fun fileSearchService(
                 if (total > count * start) start + 1 else null
             )
         }
-
     }
-
 }
 
 private suspend fun fileModelBuilder(
     model: FileInfo,
-    database: LocalDatabase
+    database: AppDatabase
 ): FileModel {
     val fileTime = model.time
     val lastModified = fileTime.lastModified ?: 0
@@ -416,22 +417,27 @@ private suspend fun fileModelBuilder(
     var torrentName = ""
     val kind = model.kind
     val length = if (kind is FileKind.File) {
-        database.mdDao().search(model.uri)?.let {
-            if (it.lastUpdateTime > lastModified)
-                md = it.data
+        database.mdDao().search(model.uri)?.takeIf {
+            it.lastUpdateTime > lastModified
+        }?.let {
+            md = it.data
         }
-        if (model.extension == "torrent")
-            database.torrentDao().search(model.uri)?.let {
-                if (it.lastUpdateTime > lastModified)
-                    torrentName = it.torrent
+        if (model.extension == "torrent") {
+            database.torrentDao().search(model.uri)?.takeIf {
+                it.lastUpdateTime > lastModified
+            }?.let {
+                torrentName = it.torrent
             }
+        }
         kind.size
     } else {
-        //从数据库中查找
+        // 从数据库中查找
         val directory = database.sizeDao().search(model.uri)
         if (directory != null && directory.lastUpdateTime > lastModified) {
             directory.size
-        } else -1
+        } else {
+            -1
+        }
     }
     val fileKind = model.kind
     return FileModel(

@@ -18,41 +18,56 @@ import com.storyteller_f.common_vm_ktx.keyPrefix
 import com.storyteller_f.common_vm_ktx.to
 import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.file_system.operate.DefaultForemanProgressAdapter
+import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.DialogFileOperationBinding
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.Locale
 import java.util.UUID
 
 class FileOperationDialog :
     SimpleDialogFragment<DialogFileOperationBinding>(DialogFileOperationBinding::inflate) {
     lateinit var binder: FileOperateBinder
 
-    private val progressVM by keyPrefix({ "progress" }, vm({}) {
-        GenericValueModel<Int>()
-    })
-    private val leftVM by keyPrefix("left", vm({}) {
-        GenericValueModel<Triple<Int, Int, Long>>().apply {
-            data.value = -1 to -1 to -1
+    private val progressVM by keyPrefix(
+        { "progress" },
+        vm({}) {
+            GenericValueModel<Int>()
         }
-    })
-    private val stateVM by keyPrefix("state", vm({}) {
-        GenericValueModel<String>()
-    })
-    private val tipVM by keyPrefix("tip", vm({}) {
-        GenericValueModel<String>()
-    })
-    private val uuid by keyPrefix({ "uuid" }, avm({}) {
-        GenericValueModel<String>().apply {
-            Log.i(TAG, "uuid: new")
-            data.value = UUID.randomUUID().toString()
+    )
+    private val leftVM by keyPrefix(
+        "left",
+        vm({}) {
+            GenericValueModel<Triple<Int, Int, Long>>().apply {
+                data.value = -1 to -1 to -1
+            }
         }
-    })
+    )
+    private val stateVM by keyPrefix(
+        "state",
+        vm({}) {
+            GenericValueModel<String>()
+        }
+    )
+    private val tipVM by keyPrefix(
+        "tip",
+        vm({}) {
+            GenericValueModel<String>()
+        }
+    )
+    private val uuid by keyPrefix(
+        { "uuid" },
+        avm({}) {
+            GenericValueModel<String>().apply {
+                Log.i(TAG, "uuid: new")
+                data.value = UUID.randomUUID().toString()
+            }
+        }
+    )
 
-    override fun onBindViewEvent(binding: DialogFileOperationBinding) {
-
-    }
+    override fun onBindViewEvent(binding: DialogFileOperationBinding) = Unit
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,7 +85,9 @@ class FileOperationDialog :
             if (!binder.map.containsKey(key)) dismiss()
             bindUi(key, list, binding)
             bindListener(key, binding)
-        } else dismiss()
+        } else {
+            dismiss()
+        }
     }
 
     private fun bindListener(key: String, binding: DialogFileOperationBinding) {
@@ -91,7 +108,6 @@ class FileOperationDialog :
                     it.isVisible = true
                 }
             }
-
         })
         val callbackFlow = callbackFlow {
             val defaultProgressListener = object : DefaultForemanProgressAdapter() {
@@ -111,13 +127,14 @@ class FileOperationDialog :
     }
 
     private fun bindUi(key: String, list: List<View>, binding: DialogFileOperationBinding) {
-        binder.state.debounce(500).distinctUntilChanged().observe(owner) {
+        binder.state.distinctUntilChanged().debounce(DEFAULT_DEBOUNCE).observe(owner) {
             when (it) {
                 FileOperateBinder.state_running -> {
                     val task = binder.map[key]?.taskAssessResult
                     list.onVisible(binding.stateRunning)
                     Log.i(TAG, "onBindViewEvent: $key $task ${binder.map.keys}")
                     binding.textViewTask.text = String.format(
+                        Locale.getDefault(),
                         "total size: %d\ntotal file:%d\ntotal folder:%d",
                         task?.size,
                         task?.fileCount,
@@ -155,7 +172,7 @@ class FileOperationDialog :
     }
 
     private fun presentTaskSnapshot(it: Triple<Int, Int, Long>) =
-        String.format("size: %d\nleft file:%d\nleft folder:%d", it.third, it.first, it.second)
+        String.format(Locale.getDefault(), "size: %d\nleft file:%d\nleft folder:%d", it.third, it.first, it.second)
 
     override fun onDestroyView() {
         super.onDestroyView()

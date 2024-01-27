@@ -27,7 +27,13 @@ import kotlinx.coroutines.launch
 class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(DialogFilePropertiesBinding::inflate) {
     private val args by navArgs<PropertiesDialogArgs>()
     override fun onBindViewEvent(binding: DialogFilePropertiesBinding) {
-        listOf(binding.name, binding.fullPath, binding.accessedTime, binding.modifiedTime, binding.createdTime).forEach {
+        listOf(
+            binding.name,
+            binding.fullPath,
+            binding.accessedTime,
+            binding.modifiedTime,
+            binding.createdTime
+        ).forEach {
             it.copyTextFeature()
         }
     }
@@ -38,8 +44,11 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
         val fileInstance = getFileInstance(requireContext(), args.uri)
         scope.launch {
             val fileKind = fileInstance.fileKind()
-            val length = if (fileKind.isFile) fileInstance.getFileLength()
-            else 0
+            val length = if (fileKind.isFile) {
+                fileInstance.getFileLength()
+            } else {
+                0
+            }
             val model = fileInstance.getFileInfo()
             binding.model = FileModel(
                 model,
@@ -63,7 +72,6 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
                 binding.audioInfo.text = getString(R.string.duration_ms, duration)
             }
         }
-
     }
 
     private fun videoInfo(fileInstance: FileInstance): String {
@@ -88,7 +96,7 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
                         sample rate: $sampleRate
                         frame rate: $frameRate
                         color format: $colorFormat
-                    """.trimIndent()
+        """.trimIndent()
         mediaExtractor.release()
         return trimIndent
     }
@@ -101,7 +109,10 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
 }
 
 fun Context.copyText(text: CharSequence) {
-    ContextCompat.getSystemService(this, ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText("text", text))
+    ContextCompat.getSystemService(
+        this,
+        ClipboardManager::class.java
+    )?.setPrimaryClip(ClipData.newPlainText("text", text))
     Toast.makeText(this, "copied", Toast.LENGTH_SHORT).show()
 }
 

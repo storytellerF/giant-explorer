@@ -27,17 +27,21 @@ class SimplePlugin(val path: String) : Model {
 class PluginListFragment : SimpleFragment<FragmentPluginListBinding>(FragmentPluginListBinding::inflate) {
 
     private val adapter = SimpleSourceAdapter<PluginHolder, PluginViewHolder>()
-    private val source by search(SearchProducer<SimplePlugin, String, PluginHolder>(service = { _, startPage, count ->
-        val toList = pluginManagerRegister.pluginsName().toList()
-        val startIndex = (startPage - 1) * count
-        val toIndex = (startIndex + count).coerceAtMost(toList.size)
-        val data = toList.subList(startIndex, toIndex).map {
-            SimplePlugin(it)
-        }
-        SimpleResponse(toList.size, data)
-    }, processFactory = { p, _, _ ->
-        PluginHolder(p.path)
-    }))
+    private val source by search(
+        SearchProducer<SimplePlugin, String, PluginHolder>(service = { _, startPage, count ->
+            val toList = pluginManagerRegister.pluginsName().toList()
+            val startIndex = (startPage - 1) * count
+            val toIndex = (startIndex + count).coerceAtMost(toList.size)
+            val data = toList.subList(startIndex, toIndex).map {
+                SimplePlugin(it)
+            }
+            SimpleResponse(toList.size, data)
+        }, processFactory = { p, _, _ ->
+            PluginHolder(p.path)
+        })
+    )
+
+    override fun onBindViewEvent(binding: FragmentPluginListBinding) = Unit
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,25 +52,21 @@ class PluginListFragment : SimpleFragment<FragmentPluginListBinding>(FragmentPlu
         source.observerInScope(this, "") {
             adapter.submitData(it)
         }
-
-    }
-
-    override fun onBindViewEvent(binding: FragmentPluginListBinding) {
-
     }
 
     @BindClickEvent(PluginHolder::class)
     fun clickPlugin(itemHolder: PluginHolder) {
-        findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, PluginInfoFragmentArgs(itemHolder.name).toBundle())
+        findNavController().navigate(
+            R.id.action_FirstFragment_to_SecondFragment,
+            PluginInfoFragmentArgs(itemHolder.name).toBundle()
+        )
     }
-
 }
 
 class PluginHolder(val name: String) : DataItemHolder() {
     override fun areItemsTheSame(other: DataItemHolder): Boolean {
         return (other as PluginHolder).name == name
     }
-
 }
 
 @BindItemHolder(PluginHolder::class)
@@ -74,5 +74,4 @@ class PluginViewHolder(private val binding: ViewHolderPluginBinding) : BindingVi
     override fun bindData(itemHolder: PluginHolder) {
         binding.pluginName.text = itemHolder.name
     }
-
 }

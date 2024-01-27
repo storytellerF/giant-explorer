@@ -33,8 +33,5 @@ class PluginInfoFragment : SimpleFragment<FragmentPluginInfoBinding>(FragmentPlu
         }
     }
 
-    override fun onBindViewEvent(binding: FragmentPluginInfoBinding) {
-
-    }
-
+    override fun onBindViewEvent(binding: FragmentPluginInfoBinding) = Unit
 }

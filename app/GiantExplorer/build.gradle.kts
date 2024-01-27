@@ -1,3 +1,6 @@
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+
 buildscript {
     dependencies {
         val versionManager: String by project
@@ -18,4 +21,37 @@ plugins {
     id("org.jetbrains.kotlin.android") version kotlinVersion apply false
     id("org.jetbrains.kotlin.jvm") version kotlinVersion apply false
     id("com.google.devtools.ksp") version kspVersion apply false
+    id("io.gitlab.arturbosch.detekt") version "1.23.1"
+}
+
+subprojects {
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+    detekt {
+        source.setFrom(
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_SRC_DIR_JAVA,
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_TEST_SRC_DIR_JAVA,
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_SRC_DIR_KOTLIN,
+            io.gitlab.arturbosch.detekt.extensions.DetektExtension.DEFAULT_TEST_SRC_DIR_KOTLIN,
+        )
+        buildUponDefaultConfig = true
+        autoCorrect = true
+        config.setFrom("$rootDir/config/detekt/detekt.yml")
+        baseline = file("$rootDir/config/detekt/baseline.xml")
+    }
+    dependencies {
+        val detektVersion = "1.23.1"
+
+        detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
+        detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
+        detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors:$detektVersion")
+    }
+
+    tasks.withType<Detekt>().configureEach {
+        jvmTarget = "1.8"
+        basePath = rootDir.absolutePath
+    }
+    tasks.withType<DetektCreateBaselineTask>().configureEach {
+        jvmTarget = "1.8"
+    }
+
 }

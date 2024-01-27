@@ -29,7 +29,6 @@ class NameSort(item: SortConfigItem) : SortChain<FileInfo>("name sort", item) {
         override fun dup(): Any {
             return Item(sortDirection)
         }
-
     }
 }
 
@@ -41,5 +40,4 @@ class SortFactory : SortViewHolderFactory<FileInfo>() {
         SortItemViewHolder.Simple.create(container)
         return NameSort.ViewHolder(container.view)
     }
-
 }

@@ -20,7 +20,7 @@ object PluginType {
     const val html = 1
 }
 
-abstract class PluginConfiguration(val meta: PluginMeta): Model {
+abstract class PluginConfiguration(val meta: PluginMeta) : Model {
     override fun commonId(): String {
         return meta.path
     }
@@ -28,32 +28,51 @@ abstract class PluginConfiguration(val meta: PluginMeta): Model {
 
 data class PluginMeta(val version: String, val path: String, val name: String, val subMenu: String)
 
-class FragmentPluginConfiguration(meta: PluginMeta, val classLoader: ClassLoader, val startFragment: String, val pluginFragments: List<String>): PluginConfiguration(meta) {
+class FragmentPluginConfiguration(
+    meta: PluginMeta,
+    val classLoader: ClassLoader,
+    val startFragment: String,
+    val pluginFragments: List<String>
+) : PluginConfiguration(
+    meta
+) {
 
     companion object {
         fun resolve(meta: PluginMeta): FragmentPluginConfiguration {
-            val dexClassLoader = DexClassLoader(meta.path, null, null, meta.javaClass.classLoader)
-            val readText = dexClassLoader.getResourceAsStream(giantExplorerPluginIni).bufferedReader().readLines()
+            val classLoader = meta.javaClass.classLoader
+            val dexClassLoader = DexClassLoader(meta.path, null, null, classLoader)
+            val readText =
+                dexClassLoader.getResourceAsStream(GIANT_EXPLORER_PLUGIN_INI).bufferedReader()
+                    .readLines()
             val startFragment = readText.first()
             val pluginFragments = readText[1].split(",")
             val version = readText.last()
-            return FragmentPluginConfiguration(meta.copy(version = version), dexClassLoader, startFragment, pluginFragments)
+            return FragmentPluginConfiguration(
+                meta.copy(version = version),
+                dexClassLoader,
+                startFragment,
+                pluginFragments
+            )
         }
     }
-
 }
 
-class HtmlPluginConfiguration(meta: PluginMeta, val extractedPath: String) : PluginConfiguration(meta) {
+class HtmlPluginConfiguration(meta: PluginMeta, val extractedPath: String) :
+    PluginConfiguration(meta) {
 
     companion object {
         suspend fun resolve(meta: PluginMeta, context: Context): HtmlPluginConfiguration {
             val pluginFile = File(meta.path)
-            val extractedPath = File(context.filesDir, "plugins/${pluginFile.nameWithoutExtension}").absolutePath
+            val extractedPath =
+                File(context.filesDir, "plugins/${pluginFile.nameWithoutExtension}").absolutePath
             File(meta.path).ensureExtract(extractedPath)
             val readText = File(extractedPath, "config").readText().split("\n")
             val version = readText.first()
             val subMenu = readText.lastOrNull() ?: "other"
-            return HtmlPluginConfiguration(meta.copy(version = version, subMenu = subMenu), extractedPath)
+            return HtmlPluginConfiguration(
+                meta.copy(version = version, subMenu = subMenu),
+                extractedPath
+            )
         }
     }
 }
@@ -91,11 +110,14 @@ class PluginManager {
         val pluginType = if (extension == "apk") PluginType.fragment else PluginType.html
         if (raw.contains(name)) raw.remove(name)
         val pluginMeta = PluginMeta("1.0", path, name, "other")
-        val configuration = if (pluginType == PluginType.fragment) FragmentPluginConfiguration.resolve(
-            pluginMeta
-        )
-        else runBlocking {
-            HtmlPluginConfiguration.resolve(pluginMeta, context)
+        val configuration = if (pluginType == PluginType.fragment) {
+            FragmentPluginConfiguration.resolve(
+                pluginMeta
+            )
+        } else {
+            runBlocking {
+                HtmlPluginConfiguration.resolve(pluginMeta, context)
+            }
         }
         map[name] = configuration
         return configuration
@@ -156,8 +178,11 @@ object FileSystemProviderResolver {
     }
 
     fun share(encrypted: Boolean, uri: Uri): Uri? {
-        val authority = if (encrypted) BuildConfig.FILE_SYSTEM_ENCRYPTED_PROVIDER_AUTHORITY
-        else BuildConfig.FILE_SYSTEM_PROVIDER_AUTHORITY
+        val authority = if (encrypted) {
+            BuildConfig.FILE_SYSTEM_ENCRYPTED_PROVIDER_AUTHORITY
+        } else {
+            BuildConfig.FILE_SYSTEM_PROVIDER_AUTHORITY
+        }
         val (id, path) = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
             val rawTree = uri.rawTree
             val path = uri.path!!.substring(rawTree.length + 1)
@@ -168,7 +193,8 @@ object FileSystemProviderResolver {
         val encodeByBase64 = id.encodeByBase64()
         val newPath = encodeByBase64 + path
         Log.d(TAG, "build: $newPath $encodeByBase64")
-        return Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(authority).path(newPath).build()
+        return Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(authority)
+            .path(newPath).build()
     }
 
     private const val TAG = "FileSystemProviderReslv"

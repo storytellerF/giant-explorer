@@ -29,7 +29,7 @@ abstract class FileOperationForeman(
     private var leftFileCount = overview.fileCount
     private var leftFolderCount = overview.folderCount
     var leftSize = overview.size
-    fun emitCurrentStateMessage() {
+    private fun emitCurrentStateMessage() {
         fileOperationForemanProgressListener?.onLeft(leftFileCount, leftFolderCount, leftSize, key)
         fileOperationForemanProgressListener?.onProgress(progress, key)
     }
@@ -46,9 +46,8 @@ abstract class FileOperationForeman(
         get() {
             val sumCount = overview.sumCount
             val completedCount = sumCount - leftFolderCount - leftFileCount
-            return (completedCount * 1.0 / sumCount * 100).toInt()
+            return (completedCount * 1.0 / sumCount * PERCENT_BASE).toInt()
         }
-
 
     override fun onFileDone(fileInstance: FileInstance?, message: Message?, size: Long) {
         leftFileCount--
@@ -70,10 +69,16 @@ abstract class FileOperationForeman(
             key
         )
     }
+    companion object {
+        const val PERCENT_BASE = 100
+    }
 }
 
 abstract class LocalFileOperationForeman(
-    val focused: FileInfo?, context: Context, overview: TaskOverview, key: String
+    val focused: FileInfo?,
+    context: Context,
+    overview: TaskOverview,
+    key: String
 ) : FileOperationForeman(context, overview, key) {
     abstract val description: String?
 }
@@ -114,13 +119,15 @@ class CopyForemanImpl(
 
                     else -> ScopeFileMoveOp(fileInstance, target, context)
                 }.call()
-            !operationResult//如果失败了，提前结束
+            !operationResult // 如果失败了，提前结束
         }
         if (!isSuccess) {
             emitDetailMessage("error in copy impl", Log.ERROR)
         }
         fileOperationForemanProgressListener?.onComplete(
-            target.path, isSuccess, key
+            target.path,
+            isSuccess,
+            key
         )
         return isSuccess
     }
@@ -128,9 +135,8 @@ class CopyForemanImpl(
     override val progress: Int
         get() {
             val doneSize: Long = overview.size - leftSize
-            return (doneSize * 100.0 / overview.size).toInt()
+            return (doneSize * PERCENT_BASE / overview.size).toInt()
         }
-
 }
 
 class DeleteForemanImpl(
@@ -152,7 +158,7 @@ class DeleteForemanImpl(
         }
 
     override suspend fun call(): Boolean {
-        val isSuccess = !detectorTasks.any {//如果有一个失败了，就提前退出
+        val isSuccess = !detectorTasks.any { // 如果有一个失败了，就提前退出
             emitStateMessage("处理${it.fullPath}")
             !FileDeleteOp(
                 getFileInstance(context, File(it.fullPath).toUri()),
@@ -164,5 +170,4 @@ class DeleteForemanImpl(
         fileOperationForemanProgressListener?.onComplete(focused?.fullPath, isSuccess, key)
         return isSuccess
     }
-
 }

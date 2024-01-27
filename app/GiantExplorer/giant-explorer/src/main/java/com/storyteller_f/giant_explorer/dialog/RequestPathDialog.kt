@@ -97,9 +97,11 @@ class RequestPathDialog :
             val currentInstance = observer.fileInstance
             if (currentInstance != null) {
                 val context = requireContext()
-                if (currentInstance.path == "/" || currentInstance.path.startsWith(context.getCurrentUserEmulatedPath())) {
+                val userEmulatedPath = context.getCurrentUserEmulatedPath()
+                if (currentInstance.path == "/" || currentInstance.path.startsWith(userEmulatedPath)) {
                     isEnabled = false
-                    @Suppress("DEPRECATION") dialog?.onBackPressed()
+                    @Suppress("DEPRECATION")
+                    dialog?.onBackPressed()
                 } else {
                     scope.launch {
                         observer.update(
@@ -154,5 +156,4 @@ class RequestPathDialog :
             dismiss()
         }
     }
-
 }

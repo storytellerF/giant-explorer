@@ -46,9 +46,10 @@ class RemoteDetailFragment : Fragment() {
         extrasProducer = {
             buildExtras {
             }
-        })
+        }
+    )
 
-    //is smb
+    // is smb
     private val mode by vm({}) {
         GenericValueModel<String>().apply {
             data.value = RemoteAccessType.SMB
@@ -56,13 +57,12 @@ class RemoteDetailFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentRemoteDetailBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -92,31 +92,38 @@ class RemoteDetailFragment : Fragment() {
             }
         }
         binding.testConnection.setOnClick {
-            scope.launch {
-                waitingDialog {
-                    withContext(Dispatchers.IO) {
-                        when (mode.data.value) {
-                            RemoteAccessType.SMB -> shareSpec().checkSmb()
-                            RemoteAccessType.FTP -> FtpInstance(spec()).open()
-                            RemoteAccessType.FTP_ES -> FtpsInstance(spec()).open()
-                            RemoteAccessType.FTPS -> FtpsInstance(spec()).open()
-                            RemoteAccessType.WEB_DAV -> WebDavInstance(shareSpec()).list("/")
-                            else -> spec().checkSftp()
-                        }
-                    }
-
-                    Toast.makeText(requireContext(), "success", Toast.LENGTH_SHORT).show()
-                }
-
-            }
+            testConnection()
         }
-        binding.buttonSecond.setOnClickListener {
-            scope.launch {
-                val isSmb = mode.data.value == RemoteAccessType.SMB
+        binding.buttonOk.setOnClickListener {
+            save()
+        }
+    }
+
+    private fun save() {
+        scope.launch {
+            val isSmb = mode.data.value == RemoteAccessType.SMB
+            withContext(Dispatchers.IO) {
+                val dao = requireDatabase.remoteAccessDao()
+                if (isSmb) dao.add(shareSpec().toRemote()) else dao.add(spec().toRemote())
+            }
+            Toast.makeText(requireContext(), "success", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun testConnection() {
+        scope.launch {
+            waitingDialog {
                 withContext(Dispatchers.IO) {
-                    val dao = requireDatabase.remoteAccessDao()
-                    if (isSmb) dao.add(shareSpec().toRemote()) else dao.add(spec().toRemote())
+                    when (mode.data.value) {
+                        RemoteAccessType.SMB -> shareSpec().checkSmb()
+                        RemoteAccessType.FTP -> FtpInstance(spec()).open()
+                        RemoteAccessType.FTP_ES -> FtpsInstance(spec()).open()
+                        RemoteAccessType.FTPS -> FtpsInstance(spec()).open()
+                        RemoteAccessType.WEB_DAV -> WebDavInstance(shareSpec()).list("/")
+                        else -> spec().checkSftp()
+                    }
                 }
+
                 Toast.makeText(requireContext(), "success", Toast.LENGTH_SHORT).show()
             }
         }

@@ -31,7 +31,9 @@ class WebViewPluginActivity : AppCompatActivity() {
     private val messageChannel by lazy {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL)) {
             WebViewCompat.createWebMessageChannel(webView)
-        } else null
+        } else {
+            null
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -43,7 +45,10 @@ class WebViewPluginActivity : AppCompatActivity() {
         messageChannel
         bindApi(webView, uriData)
         scope.launch {
-            val revolvePluginName = pluginManagerRegister.resolvePluginName(pluginName, this@WebViewPluginActivity) as HtmlPluginConfiguration
+            val revolvePluginName = pluginManagerRegister.resolvePluginName(
+                pluginName,
+                this@WebViewPluginActivity
+            ) as HtmlPluginConfiguration
             setupWebView(revolvePluginName.extractedPath)
             val indexFile = File(revolvePluginName.extractedPath, "index.html")
             val toString = Uri.fromFile(indexFile).toString()
@@ -55,44 +60,88 @@ class WebViewPluginActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView(extractedPath: String) {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-            WebViewCompat.addWebMessageListener(webView, "test", setOf(BASE_URL)) { view, message, sourceOrigin, isMainFrame, replyProxy ->
-                Log.d(TAG, "onCreate() called with: view = $view, message = ${message.data}, sourceOrigin = $sourceOrigin, isMainFrame = $isMainFrame, replyProxy = $replyProxy")
+            WebViewCompat.addWebMessageListener(
+                webView,
+                "test",
+                setOf(BASE_URL)
+            ) { view, message, sourceOrigin, isMainFrame, replyProxy ->
+                Log.d(
+                    TAG,
+                    "onCreate() called with: view = $view, " +
+                        "message = ${message.data}, " +
+                        "sourceOrigin = $sourceOrigin, " +
+                        "isMainFrame = $isMainFrame, " +
+                        "replyProxy = $replyProxy"
+                )
                 replyProxy.postMessage("from android")
             }
         }
 
         webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
                 Log.i(TAG, "shouldOverrideUrlLoading: ${request?.url}")
                 return super.shouldOverrideUrlLoading(view, request)
             }
 
-            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
                 Log.d(TAG, "shouldInterceptRequest() called with: request = ${request?.url}")
                 if (request != null) {
                     val url = request.url
                     val path = url.path
                     if (url.toString().startsWith(BASE_URL) && path?.endsWith(".js") == true) {
-                        return WebResourceResponse("text/javascript", "utf-8", FileInputStream(File(extractedPath, path)))
+                        return WebResourceResponse(
+                            "text/javascript",
+                            "utf-8",
+                            FileInputStream(File(extractedPath, path))
+                        )
                     }
                 }
                 return super.shouldInterceptRequest(view, request)
             }
 
-            override fun onReceivedHttpError(view: WebView?, request: WebResourceRequest?, errorResponse: WebResourceResponse?) {
-                Log.d(TAG, "onReceivedHttpError() called with: view = $view, request = ${request?.url}, errorResponse = ${errorResponse?.reasonPhrase}")
+            override fun onReceivedHttpError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                errorResponse: WebResourceResponse?
+            ) {
+                Log.d(
+                    TAG,
+                    "onReceivedHttpError() called with: view = $view, request = ${request?.url}, " +
+                        "errorResponse = ${errorResponse?.reasonPhrase}"
+                )
                 super.onReceivedHttpError(view, request, errorResponse)
             }
 
-            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+            override fun onReceivedError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                error: WebResourceError?
+            ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    Log.d(TAG, "onReceivedError() called with: view = $view, request = ${request?.url}, error = ${error?.description} ${error?.errorCode}")
+                    Log.d(
+                        TAG,
+                        "onReceivedError() called with: view = $view, request = ${request?.url}, " +
+                            "error = ${error?.description} ${error?.errorCode}"
+                    )
                 }
                 super.onReceivedError(view, request, error)
             }
 
-            override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
-                Log.d(TAG, "onReceivedSslError() called with: view = $view, handler = $handler, error = $error")
+            override fun onReceivedSslError(
+                view: WebView?,
+                handler: SslErrorHandler?,
+                error: SslError?
+            ) {
+                Log.d(
+                    TAG,
+                    "onReceivedSslError() called with: view = $view, handler = $handler, error = $error"
+                )
                 super.onReceivedSslError(view, handler, error)
             }
         }
@@ -122,14 +171,16 @@ class WebViewPluginActivity : AppCompatActivity() {
                         messageChannel?.let {
                             if (WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE)) {
                                 val webMessageCompat = WebMessageCompat(result, it)
-                                WebViewCompat.postWebMessage(webView, webMessageCompat, Uri.parse(BASE_URL))
+                                WebViewCompat.postWebMessage(
+                                    webView,
+                                    webMessageCompat,
+                                    Uri.parse(BASE_URL)
+                                )
                             }
                         }
                     }
                 }
-
             }
-
         }
         val f = object : WebViewFilePlugin {
             @JavascriptInterface
@@ -150,9 +201,7 @@ class WebViewPluginActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "WebViewPluginActivity"
         const val BASE_URL = "http://www.example.com"
-
     }
-
 }
 
 interface WebViewFilePlugin {
@@ -167,7 +216,7 @@ fun WebView.callback(callbackId: String, parameters: String?) {
 suspend fun File.ensureExtract(extracted: String) {
     withContext(Dispatchers.IO) {
         ZipInputStream(FileInputStream(this@ensureExtract)).use {
-            val byteArray = ByteArray(1024)
+            val byteArray = ByteArray(DEFAULT_BUFFER_SIZE)
             while (true) {
                 val nextEntry = it.nextEntry
                 if (nextEntry != null) {
@@ -178,10 +227,14 @@ suspend fun File.ensureExtract(extracted: String) {
                             val read = it.read(byteArray)
                             if (read != -1) {
                                 out.write(byteArray, 0, read)
-                            } else break
+                            } else {
+                                break
+                            }
                         }
                     }
-                } else break
+                } else {
+                    break
+                }
             }
         }
     }

@@ -13,6 +13,7 @@ import com.storyteller_f.common_vm_ktx.GenericValueModel
 import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.file_system.util.getExtension
 import com.storyteller_f.file_system_ktx.getFileInstance
+import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.databinding.DialogOpenFileBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -49,7 +50,7 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
             .getMimeTypeFromExtension(getExtension(uri.path!!))
         binding.mimeType = mimeTypeFromExtension
         scope.launch {
-            delay(100)
+            delay(DEFAULT_DEBOUNCE)
             dataType.data.value =
                 ContentInfoUtil().findMatch(fileInstance.getFileInputStream().buffered())
         }
@@ -60,20 +61,24 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
             binding.openByVideo.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "video"))
             binding.openByHex.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "application"))
         }
-
     }
 
     private fun mixColor(mimeTypeFromExtension: String?, contentInfo: ContentInfo?, t: String): Int {
-        val fromMagicNumber = if (contentInfo?.contentType?.mimeType?.contains(t) == true) 1 else 2
-        val fromName = if (mimeTypeFromExtension?.contains(t) == true) 4 else 8
+        val fromMagicNumber = if (contentInfo?.contentType?.mimeType?.contains(t) == true) MAGIC_TARGET else 0
+        val fromName = if (mimeTypeFromExtension?.contains(t) == true) EXTENSION_TARGET else 0
         return (fromMagicNumber + fromName).let {
             when (it) {
-                9 -> Color.parseColor("#A25B32")
-                6 -> Color.parseColor("#667DDA")
-                5 -> Color.parseColor("#D2D205")
+                MAGIC_TARGET -> Color.parseColor("#A25B32")
+                EXTENSION_TARGET -> Color.parseColor("#667DDA")
+                MIX_TARGET -> Color.parseColor("#D2D205")
                 else -> Color.GRAY
             }
         }
     }
-}
 
+    companion object {
+        const val MAGIC_TARGET = 1
+        const val EXTENSION_TARGET = 2
+        const val MIX_TARGET = 3
+    }
+}

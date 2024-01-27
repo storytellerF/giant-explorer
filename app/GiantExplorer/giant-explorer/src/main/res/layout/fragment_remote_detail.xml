@@ -97,10 +97,10 @@
             android:layout_height="wrap_content"
             android:text="测试连接"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/button_second" />
+            app:layout_constraintTop_toTopOf="@id/button_ok" />
 
         <Button
-            android:id="@+id/button_second"
+            android:id="@+id/button_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@android:string/ok"

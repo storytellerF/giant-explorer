@@ -28,9 +28,7 @@ class NameFilter(item: SimpleRegExpConfigItem) :
         override fun dup(): Any {
             return Config(regexp)
         }
-
     }
-
 }
 
 class FilterFactory : FilterViewHolderFactory<FileInfo>() {
@@ -41,5 +39,4 @@ class FilterFactory : FilterViewHolderFactory<FileInfo>() {
         SimpleRegExpFilterViewHolder.create(container)
         return NameFilter.ViewHolder(container.view)
     }
-
 }

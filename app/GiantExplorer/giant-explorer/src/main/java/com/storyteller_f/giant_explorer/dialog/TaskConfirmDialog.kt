@@ -13,9 +13,12 @@ import kotlinx.parcelize.Parcelize
 import java.io.File
 
 class TaskConfirmDialog : SimpleDialogFragment<DialogTaskConfirmBinding>(DialogTaskConfirmBinding::inflate) {
-    private val sharePasteTargetViewModel by keyPrefix({ "temp" }, pvm({}) {
-        SharePasteTargetViewModel()
-    })
+    private val sharePasteTargetViewModel by keyPrefix(
+        { "temp" },
+        pvm({}) {
+            SharePasteTargetViewModel()
+        }
+    )
 
     override fun onBindViewEvent(binding: DialogTaskConfirmBinding) {
         binding.labelDest.text = sharePasteTargetViewModel.dest

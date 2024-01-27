@@ -41,8 +41,7 @@ class FilterDialogFragment : CommonDialogFragment() {
                 activeFilters.value = activeList
             }
 
-            override fun onEditingChanged(editing: List<Filter<FileInfo>>) {
-            }
+            override fun onEditingChanged(editing: List<Filter<FileInfo>>) = Unit
 
             override fun onRestoreState(configItems: List<FilterConfigItem>): List<Filter<FileInfo>> {
                 return configItems.buildFilters()
@@ -57,7 +56,8 @@ class FilterDialogFragment : CommonDialogFragment() {
     companion object {
         const val SUFFIX = "filter"
         val factory: RuntimeTypeAdapterFactory<ConfigItem> = RuntimeTypeAdapterFactory.of(
-            ConfigItem::class.java, "config-item-key"
+            ConfigItem::class.java,
+            "config-item-key"
         ).registerSubtype(NameFilter.Config::class.java, "name")!!
     }
 }

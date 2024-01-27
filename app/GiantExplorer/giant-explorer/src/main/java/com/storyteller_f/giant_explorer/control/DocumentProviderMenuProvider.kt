@@ -1,13 +1,11 @@
 package com.storyteller_f.giant_explorer.control
 
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.Menu
 import android.view.SubMenu
 import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import com.storyteller_f.common_ui.scope
