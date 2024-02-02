@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -190,8 +191,9 @@ class FileListObserver<T>(
             session.fileInstance.observe(owner) {
                 updatePath(it.path)
             }
-            session.fileInstance.observe(owner) {
-                val path = it.uri
+            session.fileInstance.map {
+                it.uri
+            }.distinctUntilChanged().observe(owner) { path ->
                 // 检查权限
                 owner.lifecycleScope.launch {
                     if (!checkFilePermission(path)) {

@@ -2,9 +2,11 @@
 <resources>
     <string name="default_open_window_mode" translatable="false">normal</string>
     <string name="normal_open_window_mode" translatable="false">normal</string>
-    <string name="adjacent_open_window_mode" translatable="false">split/freeform</string>
+    <string name="adjacent_open_window_mode" translatable="false">split</string>
+    <string name="freeform_open_window_mode" translatable="false">freeform</string>
     <string-array name="def_open_window_mode">
         <item>normal</item>
-        <item>split/freeform</item>
+        <item>split</item>
+        <item>freeform</item>
     </string-array>
 </resources>
