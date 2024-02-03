@@ -2,19 +2,6 @@ import com.android.build.api.dsl.VariantDimension
 import com.storyteller_f.version_manager.*
 val versionManager: String by project
 
-class RoomSchemaArgProvider(
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    val schemaDir: File
-) : CommandLineArgumentProvider {
-
-    override fun asArguments(): Iterable<String> {
-        // Note: If you're using KSP, you should change the line below to return
-        // listOf("room.schemaLocation=${schemaDir.path}")
-        return listOf("-Aroom.schemaLocation=${schemaDir.path}")
-    }
-}
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -23,22 +10,15 @@ plugins {
     id("com.storyteller_f.version_manager")
     id("kotlin-kapt")
     id("com.google.devtools.ksp")
-    id("com.starter.easylauncher") version ("6.2.0")
+    id("com.starter.easylauncher") version "6.2.0"
+    id("androidx.room") version "2.6.1"
 }
-
 
 android {
 
     val id = "com.storyteller_f.giant_explorer"
     defaultConfig {
         applicationId = id
-        javaCompileOptions {
-            annotationProcessorOptions {
-                compilerArgumentProviders(
-                    RoomSchemaArgProvider(File(projectDir, "schemas"))
-                )
-            }
-        }
     }
 
     namespace = "com.storyteller_f.giant_explorer"
@@ -84,7 +64,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("androidx.browser:browser:1.7.0")
-    implementation("androidx.webkit:webkit:1.9.0")
+    implementation("androidx.webkit:webkit:1.10.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.window:window:1.2.0")
 
@@ -99,7 +79,6 @@ dependencies {
     }
 }
 baseApp()
-
 constraintCommonUIListVersion(versionManager)
 fileSystemDependency()
 setupGeneric()
@@ -185,4 +164,8 @@ fun placeholderKey(identification: String): String {
         }
     }
     return identifyString.append("Authority").toString()
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }

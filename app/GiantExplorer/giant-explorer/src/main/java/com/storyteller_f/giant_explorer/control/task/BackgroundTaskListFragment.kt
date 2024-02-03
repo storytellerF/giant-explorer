@@ -17,6 +17,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.flowWithLifecycle
 import com.storyteller_f.annotation_defination.BindClickEvent
 import com.storyteller_f.annotation_defination.BindItemHolder
+import com.storyteller_f.annotation_defination.ItemHolder
 import com.storyteller_f.common_ktx.exceptionMessage
 import com.storyteller_f.common_ui.*
 import com.storyteller_f.giant_explorer.database.BigTimeTask
@@ -91,6 +92,7 @@ class BackgroundTaskListFragment : SimpleFragment<FragmentTaskListBinding>(Fragm
     companion object
 }
 
+@ItemHolder("task")
 class TaskTypeHolder(val title: String) : DataItemHolder() {
     override fun areItemsTheSame(other: DataItemHolder) = title == (other as TaskTypeHolder).title
 }
@@ -123,6 +125,7 @@ fun TaskType(@PreviewParameter(TaskTypeProvider::class) itemHolder: TaskTypeHold
     }
 }
 
+@ItemHolder("task")
 class BigTimeTaskItemHolder(val bigTimeWorker: BigTimeTask) : DataItemHolder() {
     val id = "${bigTimeWorker.uri}:${bigTimeWorker.category}"
     override fun areItemsTheSame(other: DataItemHolder) = id == (other as BigTimeTaskItemHolder).id

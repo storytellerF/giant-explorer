@@ -138,7 +138,7 @@ class RequestPathDialog :
         }
     }
 
-    @BindClickEvent(FileItemHolder::class, viewName = "getRoot()", key = REQUEST_KEY)
+    @BindClickEvent(FileItemHolder::class, viewName = "getRoot()", group = REQUEST_KEY)
     fun toChild(itemHolder: FileItemHolder) {
         if (itemHolder.file.item.isDirectory) {
             val current = observer.fileInstance ?: return

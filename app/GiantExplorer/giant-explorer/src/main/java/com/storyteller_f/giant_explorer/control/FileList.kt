@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.savedstate.SavedStateRegistryOwner
 import com.storyteller_f.annotation_defination.BindItemHolder
+import com.storyteller_f.annotation_defination.ItemHolder
 import com.storyteller_f.common_ktx.context
 import com.storyteller_f.common_ktx.same
 import com.storyteller_f.common_pr.dipToInt
@@ -235,6 +236,7 @@ private val <T> LiveData<List<T>>.same
         sort1.same(sort2)
     }
 
+@ItemHolder("file")
 class FileItemHolder(
     val file: FileModel,
     val selected: List<Pair<DataItemHolder, Int>>,

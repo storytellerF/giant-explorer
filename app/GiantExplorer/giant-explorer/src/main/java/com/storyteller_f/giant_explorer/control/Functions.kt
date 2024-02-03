@@ -9,15 +9,18 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.window.layout.WindowMetricsCalculator
 import com.storyteller_f.giant_explorer.R
 
-//copy from Intent.java
+// copy from Intent.java
 const val COPIED_FLAG_ACTIVITY_LAUNCH_ADJACENT = 0x00001000
+const val FRACTION_FULL = 1f
+const val FRACTION_SPLIT = 0.5f
+const val DP_SAFE_SPLIT = 0.5f
 
 fun Rect.scale(scale: Float) {
-    if (scale != 1.0f) {
-        left = (left * scale + 0.5f).toInt()
-        top = (top * scale + 0.5f).toInt()
-        right = (right * scale + 0.5f).toInt()
-        bottom = (bottom * scale + 0.5f).toInt()
+    if (scale != FRACTION_FULL) {
+        left = (left * scale + DP_SAFE_SPLIT).toInt()
+        top = (top * scale + DP_SAFE_SPLIT).toInt()
+        right = (right * scale + DP_SAFE_SPLIT).toInt()
+        bottom = (bottom * scale + DP_SAFE_SPLIT).toInt()
     }
 }
 
@@ -38,7 +41,8 @@ fun Activity.newWindow(extrasIntent: Intent.() -> Unit = {}) {
                     base or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT
                 } else {
                     base or COPIED_FLAG_ACTIVITY_LAUNCH_ADJACENT
-                }, extrasIntent = extrasIntent
+                },
+                extrasIntent = extrasIntent
             )
         }
 
@@ -46,12 +50,11 @@ fun Activity.newWindow(extrasIntent: Intent.() -> Unit = {}) {
             val optionsCompat = ActivityOptionsCompat.makeBasic()
             val rect =
                 WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(this).bounds.apply {
-                    scale(0.5f)
+                    scale(FRACTION_SPLIT)
                 }
             newWindow(base, optionsCompat.setLaunchBounds(rect).toBundle(), extrasIntent)
         }
     }
-
 }
 
 private fun Activity.newWindow(
@@ -63,6 +66,7 @@ private fun Activity.newWindow(
         Intent(this, MainActivity::class.java).apply {
             addFlags(flag)
             extrasIntent()
-        }, bundle
+        },
+        bundle
     )
 }

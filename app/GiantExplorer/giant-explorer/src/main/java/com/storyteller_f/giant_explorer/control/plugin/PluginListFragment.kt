@@ -5,6 +5,7 @@ import android.view.View
 import androidx.navigation.fragment.findNavController
 import com.storyteller_f.annotation_defination.BindClickEvent
 import com.storyteller_f.annotation_defination.BindItemHolder
+import com.storyteller_f.annotation_defination.ItemHolder
 import com.storyteller_f.common_ui.SimpleFragment
 import com.storyteller_f.common_ui.owner
 import com.storyteller_f.giant_explorer.*
@@ -63,6 +64,7 @@ class PluginListFragment : SimpleFragment<FragmentPluginListBinding>(FragmentPlu
     }
 }
 
+@ItemHolder("plugin")
 class PluginHolder(val name: String) : DataItemHolder() {
     override fun areItemsTheSame(other: DataItemHolder): Boolean {
         return (other as PluginHolder).name == name

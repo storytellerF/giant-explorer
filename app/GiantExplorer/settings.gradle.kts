@@ -30,12 +30,22 @@ include(":giant-explorer-plugin-core")
 val commonUiPath = File(rootDir, "../../../common-ui-list")
 
 listOf<String>(
-//    "ui-list",
+//    "common-ktx",
+//    "common-pr",
+//    "common-ui",
 //    "common-vm-ktx",
-//    "ui-list-annotation-definition",
-//    "ext-func-definition",
+//    "compat-ktx",
+//    "composite-compiler-ksp",
+//    "composite-definition",
 //    "ext-func-compiler",
-//    "slim-ktx"
+//    "ext-func-definition",
+//    "slim-ktx",
+//    "ui-list",
+//    "ui-list-annotation-common",
+//    "ui-list-annotation-compiler",
+//    "ui-list-annotation-compiler-ksp",
+//    "ui-list-annotation-definition",
+//    "view-holder-compose"
 ).forEach {
     val modulePath = File(commonUiPath, it)
     if (modulePath.exists()) {
