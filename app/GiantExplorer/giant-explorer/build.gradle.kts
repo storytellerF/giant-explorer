@@ -10,7 +10,7 @@ plugins {
     id("com.storyteller_f.version_manager")
     id("kotlin-kapt")
     id("com.google.devtools.ksp")
-    id("com.starter.easylauncher") version "6.2.0"
+//    id("com.starter.easylauncher") version "6.2.0"
     id("androidx.room") version "2.6.1"
 }
 

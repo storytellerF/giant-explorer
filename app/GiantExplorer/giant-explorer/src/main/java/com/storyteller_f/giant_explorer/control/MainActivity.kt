@@ -62,6 +62,9 @@ import com.storyteller_f.giant_explorer.dialog.VolumeSpaceDialog
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
 import com.storyteller_f.giant_explorer.service.FileOperateService
 import com.storyteller_f.giant_explorer.service.FileService
+import com.storyteller_f.giant_explorer.view.PathMan
+import com.storyteller_f.giant_explorer.view.flash
+import com.storyteller_f.giant_explorer.view.setup
 import com.storyteller_f.ui_list.core.DataItemHolder
 import com.storyteller_f.ui_list.event.viewBinding
 import com.topjohnwu.superuser.Shell
@@ -144,7 +147,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
             binding.switchDisplay.isActivated = it
         }
         binding.switchDisplay.setOnClick {
-            fileListViewModel.displayGrid.value = it.isChecked
+            fileListViewModel.displayGrid.value = !it.isActivated
         }
         setupNav()
     }
@@ -205,11 +208,13 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     }
 
     private fun observePathMan(navController: NavController) {
+        val pathManLayout = binding.pathManLayout
+        pathManLayout.setup()
         scope.launch {
             callbackFlow {
-                binding.pathMan.setPathChangeListener { pathString -> trySend(pathString) }
+                pathManLayout.pathMan.pathChangeListener = PathMan.PathChangeListener { pathString -> trySend(pathString) }
                 awaitClose {
-                    binding.pathMan.setPathChangeListener(null)
+                    pathManLayout.pathMan.pathChangeListener = null
                 }
             }.flowWithLifecycle(lifecycle).collectLatest {
                 val bundle =
@@ -415,7 +420,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     }
 
     fun drawPath(path: String) {
-        binding.pathMan.drawPath(path)
+        binding.pathManLayout.flash(path)
     }
 
     companion object {

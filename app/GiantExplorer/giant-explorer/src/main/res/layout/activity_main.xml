@@ -22,36 +22,37 @@
             app:layout_constraintTop_toTopOf="parent"
             app:titleTextColor="?attr/colorOnSurfaceVariant" />
 
-        <com.storyteller_f.giant_explorer.view.EditablePathMan
-            android:id="@+id/path_man"
+        <include
+            android:id="@+id/path_man_layout"
+            layout="@layout/layout_path"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="50dp"
             app:layout_constraintEnd_toStartOf="@id/switchDisplay"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-        <ToggleButton
+        <ImageButton
             android:id="@+id/switchDisplay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:textOff="@string/item_show_as_linear"
-            android:textOn="@string/item_show_as_grid"
-            app:layout_constraintBottom_toBottomOf="@id/path_man"
+            android:adjustViewBounds="true"
+            android:src="@drawable/icon_display_type"
+            app:layout_constraintBottom_toBottomOf="@id/path_man_layout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/path_man" />
+            app:layout_constraintTop_toTopOf="@id/path_man_layout" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment_main"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="50dp"
             app:defaultNavHost="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/path_man"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
             tools:layout="@layout/fragment_file_list" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

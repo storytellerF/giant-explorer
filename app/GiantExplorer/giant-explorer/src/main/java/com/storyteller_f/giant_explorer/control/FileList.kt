@@ -148,7 +148,7 @@ class FileListObserver<T>(
             listWithState.recyclerView.layoutManager = when {
                 it -> {
                     val spanCount = listWithState.context.run {
-                        resources.displayMetrics.widthPixels / 200.dipToInt
+                        resources.displayMetrics.widthPixels / 120.dipToInt
                     }
                     GridLayoutManager(listWithState.context, spanCount)
                 }

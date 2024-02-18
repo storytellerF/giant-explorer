@@ -29,6 +29,9 @@ import com.storyteller_f.giant_explorer.control.FileListFragmentArgs
 import com.storyteller_f.giant_explorer.control.FileListObserver
 import com.storyteller_f.giant_explorer.control.FileViewHolder
 import com.storyteller_f.giant_explorer.databinding.DialogRequestPathBinding
+import com.storyteller_f.giant_explorer.view.PathMan
+import com.storyteller_f.giant_explorer.view.flash
+import com.storyteller_f.giant_explorer.view.setup
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -121,14 +124,16 @@ class RequestPathDialog :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val pathManLayout = binding.pathManLayout
+        pathManLayout.setup()
         observer.setup(binding.content, adapter, {}) {
-            binding.pathMan.drawPath(it)
+            pathManLayout.flash(it)
         }
         scope.launch {
             callbackFlow {
-                binding.pathMan.setPathChangeListener { pathString -> trySend(pathString) }
+                pathManLayout.pathMan.pathChangeListener = PathMan.PathChangeListener { pathString -> trySend(pathString) }
                 awaitClose {
-                    binding.pathMan.setPathChangeListener(null)
+                    pathManLayout.pathMan.pathChangeListener = null
                 }
             }.flowWithLifecycle(lifecycle).collectLatest {
                 val uri = observer.fileInstance?.uri?.buildUpon()?.path(it)?.build()

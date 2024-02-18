@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -39,10 +40,14 @@
             android:text="@string/sort" />
     </LinearLayout>
 
-    <com.storyteller_f.giant_explorer.view.EditablePathMan
-        android:id="@+id/path_man"
+    <include
+        android:id="@+id/path_man_layout"
+        layout="@layout/layout_path"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="50dp"
+        app:layout_constraintEnd_toStartOf="@id/switchDisplay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <com.storyteller_f.ui_list.ui.ListWithState
         android:id="@+id/content"
