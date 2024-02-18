@@ -12,11 +12,12 @@ import com.storyteller_f.giant_explorer.databinding.ViewHolderTaskConfirmItemBin
 import kotlinx.parcelize.Parcelize
 import java.io.File
 
-class TaskConfirmDialog : SimpleDialogFragment<DialogTaskConfirmBinding>(DialogTaskConfirmBinding::inflate) {
-    private val sharePasteTargetViewModel by keyPrefix(
-        { "temp" },
+class TaskConfirmDialog :
+    SimpleDialogFragment<DialogTaskConfirmBinding>(DialogTaskConfirmBinding::inflate) {
+    private val sharePasteTargetViewModel by keyPrefix<SharePasteTargetViewModel>(
+        { "shareTarget" },
         pvm({}) {
-            SharePasteTargetViewModel()
+            error("impossible")
         }
     )
 
@@ -24,7 +25,8 @@ class TaskConfirmDialog : SimpleDialogFragment<DialogTaskConfirmBinding>(DialogT
         binding.labelDest.text = sharePasteTargetViewModel.dest
         sharePasteTargetViewModel.list.forEach {
             val file = File(it)
-            val inflate = ViewHolderTaskConfirmItemBinding.inflate(layoutInflater, binding.selected, true)
+            val inflate =
+                ViewHolderTaskConfirmItemBinding.inflate(layoutInflater, binding.selected, true)
             inflate.name.text = file.name
             inflate.path.text = it
         }

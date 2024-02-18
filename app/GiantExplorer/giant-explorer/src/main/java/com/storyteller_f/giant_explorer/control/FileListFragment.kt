@@ -259,12 +259,12 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         val items = uriList.map {
             getFileInstance(context, it).getFileInfo()
         }
-        shareTarget.replace(uriList, dest)
         val fileOperateBinderLocal = fileOperateBinder.value ?: kotlin.run {
             Toast.makeText(context, "未连接服务", Toast.LENGTH_LONG).show()
             return
         }
         if (defaultSettings?.getBoolean("notify_before_paste", true) == true) {
+            shareTarget.replace(uriList, dest)
             request(TaskConfirmDialog::class.java).response(TaskConfirmDialog.Result::class.java) { result ->
                 if (result.confirm) fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
             }

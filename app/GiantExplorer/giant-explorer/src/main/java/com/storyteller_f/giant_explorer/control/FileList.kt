@@ -257,6 +257,9 @@ class FileGridViewHolder(private val binding: ViewHolderFileGridBinding) :
         binding.fileName.text = itemHolder.file.name
         binding.fileIcon.fileIcon(itemHolder.file.item)
         binding.symLink.isVisible = itemHolder.file.isSymLink
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            itemHolder.file.item.dragSupport(view)
+        }
     }
 }
 
@@ -293,15 +296,15 @@ class FileViewHolder(private val binding: ViewHolderFileBinding) :
         }
 
         binding.detail.text = item.permissions.toString()
+        binding.symLink.isVisible = file.isSymLink
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             file.item.dragSupport(binding.root)
         }
-        binding.symLink.isVisible = file.isSymLink
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.N)
-private fun FileInfo.dragSupport(root: ConstraintLayout) {
+private fun FileInfo.dragSupport(root: View) {
     DragStartHelper(root) { view: View, _: DragStartHelper ->
         val clipData = ClipData.newPlainText(FileListFragment.CLIP_DATA_KEY, uri.toString())
         val flags = View.DRAG_FLAG_GLOBAL or View.DRAG_FLAG_GLOBAL_URI_READ
