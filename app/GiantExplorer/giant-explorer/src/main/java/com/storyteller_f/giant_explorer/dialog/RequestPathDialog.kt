@@ -131,7 +131,8 @@ class RequestPathDialog :
         }
         scope.launch {
             callbackFlow {
-                pathManLayout.pathMan.pathChangeListener = PathMan.PathChangeListener { pathString -> trySend(pathString) }
+                pathManLayout.pathMan.pathChangeListener =
+                    PathMan.PathChangeListener { pathString -> trySend(pathString) }
                 awaitClose {
                     pathManLayout.pathMan.pathChangeListener = null
                 }
@@ -143,7 +144,7 @@ class RequestPathDialog :
         }
     }
 
-    @BindClickEvent(FileItemHolder::class, viewName = "getRoot()", group = REQUEST_KEY)
+    @BindClickEvent(FileItemHolder::class, group = REQUEST_KEY)
     fun toChild(itemHolder: FileItemHolder) {
         if (itemHolder.file.item.isDirectory) {
             val current = observer.fileInstance ?: return

@@ -2,95 +2,60 @@ package com.storyteller_f.giant_explorer.control.remote
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.core.widget.doAfterTextChanged
+import androidx.navigation.fragment.navArgs
 import com.storyteller_f.common_pr.state
+import com.storyteller_f.common_ui.SimpleFragment
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.waitingDialog
-import com.storyteller_f.common_vm_ktx.GenericValueModel
-import com.storyteller_f.common_vm_ktx.buildExtras
+import com.storyteller_f.common_vm_ktx.BuilderValueModel
 import com.storyteller_f.common_vm_ktx.vm
-import com.storyteller_f.file_system_remote.FtpInstance
-import com.storyteller_f.file_system_remote.FtpsInstance
 import com.storyteller_f.file_system_remote.RemoteAccessType
 import com.storyteller_f.file_system_remote.RemoteSpec
 import com.storyteller_f.file_system_remote.ShareSpec
-import com.storyteller_f.file_system_remote.WebDavInstance
-import com.storyteller_f.file_system_remote.checkSftp
-import com.storyteller_f.file_system_remote.checkSmb
+import com.storyteller_f.file_system_remote.checkFtpConnection
+import com.storyteller_f.file_system_remote.checkFtpEsConnection
+import com.storyteller_f.file_system_remote.checkFtpsConnection
+import com.storyteller_f.file_system_remote.checkSFtpConnection
+import com.storyteller_f.file_system_remote.checkSmbConnection
+import com.storyteller_f.file_system_remote.checkWebDavConnection
 import com.storyteller_f.giant_explorer.database.RemoteAccessSpec
 import com.storyteller_f.giant_explorer.database.requireDatabase
-import com.storyteller_f.giant_explorer.database.toRemote
 import com.storyteller_f.giant_explorer.databinding.FragmentRemoteDetailBinding
-import com.storyteller_f.giant_explorer.defaultFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RemoteDetailFragment : Fragment() {
+class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(FragmentRemoteDetailBinding::inflate) {
     companion object {
         private const val TAG = "RemoteDetailFragment"
     }
+    private val args by navArgs<RemoteDetailFragmentArgs>()
 
-    private var _binding: FragmentRemoteDetailBinding? = null
-
-    private val binding get() = _binding!!
-    private val model by viewModels<GenericValueModel<RemoteAccessSpec>>(
-        factoryProducer = { defaultFactory },
-        extrasProducer = {
-            buildExtras {
+    private val model by vm({
+        requireDatabase to args
+    }) { (database, args) ->
+        BuilderValueModel {
+            if (args.specId == 0) {
+                RemoteAccessSpec(0, "", -1, "", "", "", "", "")
+            } else {
+                withContext(Dispatchers.IO) {
+                    database.remoteAccessDao().find(args.specId)
+                }
             }
-        }
-    )
-
-    // is smb
-    private val mode by vm({}) {
-        GenericValueModel<String>().apply {
-            data.value = RemoteAccessType.SMB
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentRemoteDetailBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        model
-        mode.data.state {
-            Log.i(TAG, "onViewCreated: mode $it")
-            binding.shareInput.isVisible =
-                it == RemoteAccessType.SMB || it == RemoteAccessType.WEB_DAV
-            val i = RemoteAccessType.EXCLUDE_HTTP_PROTOCOL.indexOf(it)
-            if (binding.typeGroup.checkedRadioButtonId != i) {
-                binding.typeGroup.check(i)
-            }
-        }
-        binding.typeGroup.setOnCheckedChangeListener { _, checkedId ->
-            Log.i(TAG, "onViewCreated: $checkedId")
-            mode.data.value = RemoteAccessType.EXCLUDE_HTTP_PROTOCOL[checkedId]
-            if (binding.portInput.text.isEmpty()) {
-                binding.portInput.setText(
-                    when (checkedId - 1) {
-                        2 -> "22"
-                        0 -> "22"
-                        1 -> "22"
-                        else -> null
-                    }
-                )
-            }
-        }
+    override fun onBindViewEvent(binding: FragmentRemoteDetailBinding) {
         binding.testConnection.setOnClick {
             testConnection()
         }
@@ -99,12 +64,109 @@ class RemoteDetailFragment : Fragment() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        bind(model.data)
+
+        val list = listOf(
+            binding.typeSmb,
+            binding.typeSftp,
+            binding.typeFtp,
+            binding.typeFtpsExplicit,
+            binding.typeFtpsImplicit,
+            binding.typeWebdav
+        ).map {
+            it.id
+        }
+        model.data.filterNotNull().map {
+            it.type
+        }.state {
+            Log.i(TAG, "onViewCreated: mode $it")
+            binding.shareInput.isVisible = it == RemoteAccessType.SMB
+            if (it != "") {
+                val id = list[RemoteAccessType.EXCLUDE_HTTP_PROTOCOL.indexOf(it)]
+                if (binding.typeGroup.checkedRadioButtonId != id) {
+                    binding.typeGroup.check(id)
+                }
+            }
+        }
+        binding.typeGroup.setOnCheckedChangeListener { _, checkedId ->
+            Log.i(TAG, "onViewCreated: $checkedId")
+            val indexOf = list.indexOf(checkedId)
+            model.data.update {
+                it!!.copy(type = RemoteAccessType.EXCLUDE_HTTP_PROTOCOL[indexOf])
+            }
+            if (binding.portInput.text.isEmpty()) {
+                binding.portInput.setText(RemoteAccessType.DEFAULT_PORT[indexOf].toString())
+            }
+        }
+    }
+
+    private fun RemoteDetailFragment.bind(data: MutableStateFlow<RemoteAccessSpec?>) {
+        data.bind(binding.serverInput, {
+            server
+        }) {
+            copy(server = it)
+        }
+        data.bind(binding.passwordInput, {
+            password
+        }) {
+            copy(password = it)
+        }
+        data.bind(binding.portInput, {
+            if (port == -1) {
+                ""
+            } else {
+                port.toString()
+            }
+        }) {
+            copy(port = it.takeIf { it.isNotEmpty() }?.toInt() ?: -1)
+        }
+        data.bind(binding.userInput, {
+            user
+        }) {
+            copy(user = it)
+        }
+        data.bind(binding.shareInput, {
+            share
+        }) {
+            copy(share = it)
+        }
+        val filterNotNull = data.filterNotNull()
+        filterNotNull.state {
+            binding.nameInput.hint = it.toUri().toString()
+        }
+        data.bind(binding.nameInput, {
+            name
+        }) {
+            copy(name = it)
+        }
+    }
+
+    private fun <T> MutableStateFlow<T?>.bind(
+        editText: EditText,
+        map: T.() -> String,
+        rebuild: T.(String) -> T
+    ) {
+        map {
+            it?.map()
+        }.state {
+            if (it != editText.text.toString()) {
+                editText.setText(it)
+            }
+        }
+        editText.doAfterTextChanged { s ->
+            update {
+                it!!.rebuild(s.toString())
+            }
+        }
+    }
+
     private fun save() {
+        val value = model.data.value ?: return
         scope.launch {
-            val isSmb = mode.data.value == RemoteAccessType.SMB
             withContext(Dispatchers.IO) {
-                val dao = requireDatabase.remoteAccessDao()
-                if (isSmb) dao.add(shareSpec().toRemote()) else dao.add(spec().toRemote())
+                requireDatabase.remoteAccessDao().add(value)
             }
             Toast.makeText(requireContext(), "success", Toast.LENGTH_SHORT).show()
         }
@@ -114,13 +176,14 @@ class RemoteDetailFragment : Fragment() {
         scope.launch {
             waitingDialog {
                 withContext(Dispatchers.IO) {
-                    when (mode.data.value) {
-                        RemoteAccessType.SMB -> shareSpec().checkSmb()
-                        RemoteAccessType.FTP -> FtpInstance(spec()).open()
-                        RemoteAccessType.FTP_ES -> FtpsInstance(spec()).open()
-                        RemoteAccessType.FTPS -> FtpsInstance(spec()).open()
-                        RemoteAccessType.WEB_DAV -> WebDavInstance(shareSpec()).list("/")
-                        else -> spec().checkSftp()
+                    when (val t = model.data.value?.type) {
+                        RemoteAccessType.SMB -> shareSpec().checkSmbConnection()
+                        RemoteAccessType.FTP -> spec().checkFtpConnection()
+                        RemoteAccessType.FTP_ES -> spec().checkFtpEsConnection()
+                        RemoteAccessType.FTPS -> spec().checkFtpsConnection()
+                        RemoteAccessType.WEB_DAV -> spec().checkWebDavConnection()
+                        RemoteAccessType.SFTP -> spec().checkSFtpConnection()
+                        else -> error("impossible $t")
                     }
                 }
 
@@ -130,28 +193,10 @@ class RemoteDetailFragment : Fragment() {
     }
 
     private fun spec(): RemoteSpec {
-        return RemoteSpec(
-            binding.serverInput.text.toString(),
-            binding.portInput.text.toString().toInt(),
-            binding.userInput.text.toString(),
-            binding.passwordInput.text.toString(),
-            mode.data.value.toString()
-        )
+        return model.data.value!!.toRemoteSpec()
     }
 
     private fun shareSpec(): ShareSpec {
-        return ShareSpec(
-            binding.serverInput.text.toString(),
-            binding.portInput.text.toString().toInt(),
-            binding.userInput.text.toString(),
-            binding.passwordInput.text.toString(),
-            mode.data.value.toString(),
-            binding.shareInput.text.toString()
-        )
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        return model.data.value!!.toShareSpec()
     }
 }

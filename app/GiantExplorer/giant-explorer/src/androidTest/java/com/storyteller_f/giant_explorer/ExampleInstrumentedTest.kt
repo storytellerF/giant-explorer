@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.storyteller_f.file_system.instance.local.DocumentLocalFileInstance
+import com.storyteller_f.file_system_remote.RemoteSpec
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,5 +36,14 @@ class ExampleInstrumentedTest {
             "/"
         )
         uriFromAuthority.path
+    }
+
+    @Test
+    fun testWebDavServerParse() {
+        val remoteSpec =
+            RemoteSpec("192.168.31.7/dav/sunny", 5081, "sunny", "tb3g040xQWL2yG9", "webdav")
+        val toUri = remoteSpec.toUri()
+        val parse = RemoteSpec.parse(toUri)
+        parse
     }
 }

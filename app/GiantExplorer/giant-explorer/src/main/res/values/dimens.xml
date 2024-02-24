@@ -1,3 +1,8 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="path_man_cell_text_size">14dp</dimen>
+    <dimen name="path_man_cell_horizontal_padding">10dp</dimen>
+    <dimen name="path_man_cell_vertical_margin">10dp</dimen>
+    <dimen name="path_man_cell_end_margin">10dp</dimen>
+    <dimen name="path_man_cell_corner">12dp</dimen>
 </resources>

@@ -1,11 +1,12 @@
 package com.storyteller_f.giant_explorer.database
 
-import androidx.room.ColumnInfo
+import android.net.Uri
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
 import androidx.room.Query
 import com.storyteller_f.file_system_remote.RemoteAccessType
 import com.storyteller_f.file_system_remote.RemoteSpec
@@ -14,22 +15,32 @@ import kotlinx.coroutines.flow.Flow
 
 @Entity(
     tableName = "remote-access",
-    primaryKeys = ["server", "port", "user", "password", "share", "type"]
 )
 data class RemoteAccessSpec(
-    val server: String = "",
-    val port: Int = 0,
-    val user: String = "",
-    val password: String = "",
-    @ColumnInfo(defaultValue = "") val share: String = "", // smb 专用
-    @ColumnInfo(defaultValue = RemoteAccessType.FTP) val type: String
+    @PrimaryKey(true)
+    val id: Int,
+    val server: String,
+    val port: Int,
+    val user: String,
+    val password: String,
+    val share: String, // smb 专用
+    val type: String,
+    val name: String
 ) {
-    fun toFtpSpec(): RemoteSpec {
+    fun toRemoteSpec(): RemoteSpec {
         return RemoteSpec(server, port, user, password, type)
     }
 
     fun toShareSpec(): ShareSpec {
         return ShareSpec(server, port, user, password, type, share)
+    }
+
+    fun toUri(): Uri {
+        return if (type == RemoteAccessType.SMB || type == RemoteAccessType.WEB_DAV) {
+            toShareSpec().toUri()
+        } else {
+            toRemoteSpec().toUri()
+        }
     }
 }
 
@@ -46,10 +57,7 @@ interface RemoteAccessDao {
 
     @Delete
     fun remove(spec: RemoteAccessSpec)
+
+    @Query("select * from `remote-access` where id = :id")
+    fun find(id: Int): RemoteAccessSpec
 }
-
-fun ShareSpec.toRemote() =
-    RemoteAccessSpec(server, port, user, password, share, type)
-
-fun RemoteSpec.toRemote() =
-    RemoteAccessSpec(server, port, user, password, type = type)

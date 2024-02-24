@@ -1,14 +1,17 @@
 package com.storyteller_f.giant_explorer.control.remote
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.fragment.findNavController
 import com.storyteller_f.annotation_defination.BindItemHolder
 import com.storyteller_f.annotation_defination.ItemHolder
+import com.storyteller_f.common_ui.SimpleFragment
+import com.storyteller_f.common_ui.request
 import com.storyteller_f.common_ui.scope
+import com.storyteller_f.common_ui.setOnClick
+import com.storyteller_f.giant_explorer.control.remote.RemoteListFragmentDirections.Companion.actionFirstFragmentToSecondFragment
 import com.storyteller_f.giant_explorer.database.RemoteAccessSpec
 import com.storyteller_f.giant_explorer.database.requireDatabase
 import com.storyteller_f.giant_explorer.databinding.FragmentRemoteListBinding
@@ -16,6 +19,7 @@ import com.storyteller_f.giant_explorer.databinding.ViewHolderRemoteAccessSpecBi
 import com.storyteller_f.ui_list.adapter.ManualAdapter
 import com.storyteller_f.ui_list.core.BindingViewHolder
 import com.storyteller_f.ui_list.core.DataItemHolder
+import com.storyteller_f.ui_list.event.findFragmentOrNull
 import com.storyteller_f.ui_list.ui.ListWithState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -25,26 +29,14 @@ import kotlinx.coroutines.launch
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class RemoteListFragment : Fragment() {
-    private val adapter = ManualAdapter<RemoteAccessSpecHolder, RemoteAccessSpecViewHolder>()
-
-    private var _binding: FragmentRemoteListBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentRemoteListBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+class RemoteListFragment :
+    SimpleFragment<FragmentRemoteListBinding>(FragmentRemoteListBinding::inflate) {
+    override fun onBindViewEvent(binding: FragmentRemoteListBinding) = Unit
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val adapter = ManualAdapter<RemoteAccessSpecHolder, RemoteAccessSpecViewHolder>()
+
         binding.content.manualUp(adapter)
         binding.content.flash(ListWithState.UIState.loading)
         scope.launch {
@@ -53,7 +45,14 @@ class RemoteListFragment : Fragment() {
                 .shareIn(scope, SharingStarted.WhileSubscribed())
                 .collectLatest {
                     binding.content.flash(
-                        ListWithState.UIState(false, it.isNotEmpty(), empty = false, progress = false, null, null)
+                        ListWithState.UIState(
+                            false,
+                            it.isNotEmpty(),
+                            empty = false,
+                            progress = false,
+                            null,
+                            null
+                        )
                     )
                     adapter.submitList(
                         it.map { spec ->
@@ -64,14 +63,17 @@ class RemoteListFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    fun clickSpec(spec: RemoteAccessSpec) {
+        findNavController().request(
+            actionFirstFragmentToSecondFragment(
+                spec.id
+            )
+        )
     }
 }
 
 @ItemHolder("remote access")
-class RemoteAccessSpecHolder(val spec: RemoteAccessSpec) : DataItemHolder() {
+data class RemoteAccessSpecHolder(val spec: RemoteAccessSpec) : DataItemHolder() {
     override fun areItemsTheSame(other: DataItemHolder): Boolean {
         val remoteAccessSpec = other as RemoteAccessSpecHolder
         return remoteAccessSpec.spec == this.spec
@@ -84,7 +86,15 @@ class RemoteAccessSpecViewHolder(
 ) : BindingViewHolder<RemoteAccessSpecHolder>(
     binding
 ) {
+    init {
+        itemView.setOnClick {
+            it.findFragmentOrNull<RemoteListFragment>()?.clickSpec(itemHolder.spec)
+        }
+    }
+
     override fun bindData(itemHolder: RemoteAccessSpecHolder) {
-        binding.url.text = itemHolder.spec.toFtpSpec().toUri().toString()
+        val spec = itemHolder.spec
+        binding.url.text = spec.toRemoteSpec().toUri().toString()
+        binding.server.text = spec.server
     }
 }

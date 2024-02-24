@@ -25,77 +25,89 @@
                 android:orientation="horizontal">
 
                 <RadioButton
+                    android:id="@+id/type_smb"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="is smb" />
+                    android:text="@string/is_smb" />
 
                 <RadioButton
+                    android:id="@+id/type_sftp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="is sftp" />
+                    android:text="@string/is_sftp" />
 
                 <RadioButton
+                    android:id="@+id/type_ftp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="is ftp" />
+                    android:text="@string/is_ftp" />
 
                 <RadioButton
+                    android:id="@+id/type_ftps_explicit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="is ftps explicit" />
+                    android:text="@string/is_ftps_explicit" />
 
                 <RadioButton
+                    android:id="@+id/type_ftps_implicit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="is ftps implicit" />
+                    android:text="@string/is_ftps_implicit" />
 
                 <RadioButton
+                    android:id="@+id/type_webdav"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="is webdav" />
+                    android:text="@string/is_webdav" />
             </RadioGroup>
         </HorizontalScrollView>
+
+        <EditText
+            android:id="@+id/name_input"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/radio_group" />
 
         <EditText
             android:id="@+id/server_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="server"
-            app:layout_constraintTop_toBottomOf="@id/radio_group" />
+            android:hint="@string/server"
+            app:layout_constraintTop_toBottomOf="@id/name_input" />
 
         <EditText
             android:id="@+id/port_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="port"
+            android:hint="@string/port"
             app:layout_constraintTop_toBottomOf="@id/server_input" />
 
         <EditText
             android:id="@+id/user_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="user"
+            android:hint="@string/user"
             app:layout_constraintTop_toBottomOf="@id/port_input" />
 
         <EditText
             android:id="@+id/password_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="password"
+            android:hint="@string/password"
             app:layout_constraintTop_toBottomOf="@id/user_input" />
 
         <EditText
             android:id="@+id/share_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="share name. for smb"
+            android:hint="@string/share_name_for_smb"
             app:layout_constraintTop_toBottomOf="@id/password_input" />
 
         <Button
             android:id="@+id/test_connection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="测试连接"
+            android:text="@string/test_connection"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/button_ok" />
 

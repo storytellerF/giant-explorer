@@ -30,9 +30,8 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.storyteller_f.common_ktx.exceptionMessage
+import com.storyteller_f.common_pr.state
 import com.storyteller_f.common_ui.CommonActivity
-import com.storyteller_f.common_ui.owner
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
@@ -65,6 +64,7 @@ import com.storyteller_f.giant_explorer.service.FileService
 import com.storyteller_f.giant_explorer.view.PathMan
 import com.storyteller_f.giant_explorer.view.flash
 import com.storyteller_f.giant_explorer.view.setup
+import com.storyteller_f.slim_ktx.exceptionMessage
 import com.storyteller_f.ui_list.core.DataItemHolder
 import com.storyteller_f.ui_list.event.viewBinding
 import com.topjohnwu.superuser.Shell
@@ -143,7 +143,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
             }
         }
         binding.drawer.addDrawerListener(drawableToggle)
-        fileListViewModel.displayGrid.distinctUntilChanged().observe(owner) {
+        fileListViewModel.displayGrid.distinctUntilChanged().state {
             binding.switchDisplay.isActivated = it
         }
         binding.switchDisplay.setOnClick {
@@ -212,7 +212,8 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         pathManLayout.setup()
         scope.launch {
             callbackFlow {
-                pathManLayout.pathMan.pathChangeListener = PathMan.PathChangeListener { pathString -> trySend(pathString) }
+                pathManLayout.pathMan.pathChangeListener =
+                    PathMan.PathChangeListener { pathString -> trySend(pathString) }
                 awaitClose {
                     pathManLayout.pathMan.pathChangeListener = null
                 }

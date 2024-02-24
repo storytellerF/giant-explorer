@@ -41,7 +41,7 @@ class FileTorrentRecord(
 )
 
 @Entity(tableName = "big-time-task", primaryKeys = ["uri", "category"])
-class BigTimeTask(
+data class BigTimeTask(
     val uri: Uri,
     val enable: Boolean,
     val category: String,

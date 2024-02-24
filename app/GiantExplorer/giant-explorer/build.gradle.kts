@@ -1,5 +1,15 @@
 import com.android.build.api.dsl.VariantDimension
-import com.storyteller_f.version_manager.*
+import com.storyteller_f.version_manager.Versions
+import com.storyteller_f.version_manager.baseApp
+import com.storyteller_f.version_manager.constraintCommonUIListVersion
+import com.storyteller_f.version_manager.fileSystemDependency
+import com.storyteller_f.version_manager.implModule
+import com.storyteller_f.version_manager.networkDependency
+import com.storyteller_f.version_manager.setupDataBinding
+import com.storyteller_f.version_manager.setupGeneric
+import com.storyteller_f.version_manager.setupPreviewFeature
+import com.storyteller_f.version_manager.workerDependency
+
 val versionManager: String by project
 
 plugins {
@@ -50,8 +60,6 @@ android {
 dependencies {
 
     implementation("androidx.constraintlayout:constraintlayout:${Versions.CONSTRAINTLAYOUT}")
-    implementation("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
-    implementation("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
     fileSystemDependency()
     networkDependency()
     workerDependency()
@@ -70,15 +78,15 @@ dependencies {
 
     androidTestImplementation("androidx.room:room-testing:2.6.1")
 
-    implementation("com.madgag.spongycastle:core:1.58.0.0")
-    implementation("com.madgag.spongycastle:prov:1.58.0.0")
-
     val liPluginModule = findProject(":li-plugin")
     if (liPluginModule != null) {
         implementation(liPluginModule)
     }
+    implementation("com.github.tony19:logback-android:3.0.0")
 }
+
 baseApp()
+implModule(":slim-ktx")
 constraintCommonUIListVersion(versionManager)
 fileSystemDependency()
 setupGeneric()
@@ -126,7 +134,8 @@ fun VariantDimension.registerProviderKey(
 ) {
     val placeholderKey = placeholderKey(identification)
     val buildConfigKey = buildConfigKey(placeholderKey)
-    val authorityValue = "${applicationId}.$identification${if (valueSuffix == null) "" else "$valueSuffix"}"
+    val authorityValue =
+        "${applicationId}.$identification${if (valueSuffix == null) "" else "$valueSuffix"}"
 
     // Now we can use ${documentsAuthority} in our Manifest
     manifestPlaceholders[placeholderKey] = authorityValue

@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModelProvider
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
@@ -13,7 +12,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.android.material.color.DynamicColors
-import com.storyteller_f.common_ktx.exceptionMessage
 import com.storyteller_f.config_core.EditorKey
 import com.storyteller_f.config_core.editor
 import com.storyteller_f.file_system.checkFilePermission
@@ -26,7 +24,6 @@ import com.storyteller_f.filter_core.config.FilterConfig
 import com.storyteller_f.filter_core.config.FilterConfigItem
 import com.storyteller_f.filter_core.filterConfigAdapterFactory
 import com.storyteller_f.giant_explorer.control.plugin.PluginManager
-import com.storyteller_f.giant_explorer.control.ui_list.HolderBuilder
 import com.storyteller_f.giant_explorer.database.FileMDRecord
 import com.storyteller_f.giant_explorer.database.FileSizeRecord
 import com.storyteller_f.giant_explorer.database.FileTorrentRecord
@@ -38,6 +35,7 @@ import com.storyteller_f.giant_explorer.dialog.activeSortChains
 import com.storyteller_f.giant_explorer.dialog.buildFilters
 import com.storyteller_f.giant_explorer.dialog.buildSorts
 import com.storyteller_f.giant_explorer.utils.getTorrentName
+import com.storyteller_f.slim_ktx.exceptionMessage
 import com.storyteller_f.sort_core.config.SortConfig
 import com.storyteller_f.sort_core.config.SortConfigItem
 import com.storyteller_f.sort_core.config.sortConfigAdapterFactory
@@ -47,20 +45,20 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.security.Security
 
 val pluginManagerRegister = PluginManager()
 
-val defaultFactory = object : ViewModelProvider.Factory {
-}
+// val defaultFactory = object : ViewModelProvider.Factory {
+//    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+//        return super.create(modelClass, extras)
+//    }
+// }
 
 const val DEFAULT_DEBOUNCE = 200L
-const val DEFAULT_WEBVIEW_HEIGHT = 0.7f
-const val DEFAULT_BUFFER_SIZE = 1024
+const val DEFAULT_WEB_VIEW_HEIGHT = 0.7f
 
 object WorkCategory {
     const val MESSAGE_DIGEST = "message-digest"
@@ -72,8 +70,12 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)
-        setupBouncyCastle()
-        holders(HolderBuilder::add)
+        holders(
+            com.storyteller_f.giant_explorer.control.plugin.ui_list.HolderBuilder::add,
+            com.storyteller_f.giant_explorer.control.remote.ui_list.HolderBuilder::add,
+            com.storyteller_f.giant_explorer.control.task.ui_list.HolderBuilder::add,
+            com.storyteller_f.giant_explorer.control.ui_list.HolderBuilder::add,
+        )
         MainScope().launch {
             requireDatabase.bigTimeDao().fetchSuspend().groupBy {
                 it.category
@@ -84,7 +86,8 @@ class App : Application() {
                     when (entry.key) {
                         WorkCategory.MESSAGE_DIGEST -> OneTimeWorkRequestBuilder<MDWorker>()
                         WorkCategory.FOLDER_SIZE -> OneTimeWorkRequestBuilder<FolderWorker>()
-                        else -> OneTimeWorkRequestBuilder<TorrentWorker>()
+                        WorkCategory.TORRENT_NAME -> OneTimeWorkRequestBuilder<TorrentWorker>()
+                        else -> error("unrecognized type ${entry.key}")
                     }.setInputData(
                         Data.Builder().putStringArray(
                             "folders",
@@ -117,11 +120,6 @@ class App : Application() {
             ).lastConfig?.run {
                 configItems.filterIsInstance<SortConfigItem>().buildSorts()
             }
-    }
-
-    private fun setupBouncyCastle() {
-        Security.removeProvider("BC")
-        Security.insertProviderAt(BouncyCastleProvider(), 1)
     }
 }
 

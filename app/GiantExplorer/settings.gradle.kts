@@ -45,7 +45,11 @@ listOf<String>(
 //    "ui-list-annotation-compiler",
 //    "ui-list-annotation-compiler-ksp",
 //    "ui-list-annotation-definition",
-//    "view-holder-compose"
+//    "view-holder-compose",
+//    "file-system",
+//    "file-system-remote",
+//    "file-system-ktx",
+//    "file-system-root"
 ).forEach {
     val modulePath = File(commonUiPath, it)
     if (modulePath.exists()) {
@@ -102,3 +106,6 @@ when (liFolder) {
         project(":li-plugin").projectDir = it
     }
 }
+
+//include("sardine-android")
+//project(":sardine-android").projectDir = file("$home/AndroidStudioProjects/sardine-android")

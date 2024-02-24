@@ -12,7 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import com.storyteller_f.common_ui.SimpleFragment
-import com.storyteller_f.giant_explorer.DEFAULT_WEBVIEW_HEIGHT
+import com.storyteller_f.giant_explorer.DEFAULT_WEB_VIEW_HEIGHT
 import com.storyteller_f.giant_explorer.databinding.FragmentRootIntroBinding
 
 const val MAGISK_URL = "https://github.com/topjohnwu/Magisk"
@@ -32,7 +32,7 @@ class RootIntroFragment : SimpleFragment<FragmentRootIntroBinding>(FragmentRootI
     private fun open(url: String) {
         val newSession = (requireActivity() as RootAccessActivity).newSession
         val height = ScreenMetricsCompat.getScreenSize(requireContext()).height
-        val builder = CustomTabsIntent.Builder().setInitialActivityHeightPx((height * DEFAULT_WEBVIEW_HEIGHT).toInt())
+        val builder = CustomTabsIntent.Builder().setInitialActivityHeightPx((height * DEFAULT_WEB_VIEW_HEIGHT).toInt())
         if (newSession != null) builder.setSession(newSession)
         val customTabsIntent = builder.build()
         customTabsIntent.launchUrl(requireContext(), Uri.parse(url))

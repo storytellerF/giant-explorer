@@ -47,7 +47,11 @@ class DocumentProviderMenuProvider(
         info.forEach { resolveInfo ->
             val authority = resolveInfo.providerInfo.authority
             val menuItem = menu.addSubMenu(resolveInfo.loadLabel(packageManager))
-            menuItem.inflateTree(authority, savedUris, resolveInfo.providerInfo.loadIcon(packageManager))
+            menuItem.inflateTree(
+                authority,
+                savedUris,
+                resolveInfo.providerInfo.loadIcon(packageManager)
+            )
         }
     }
 
@@ -81,19 +85,22 @@ class DocumentProviderMenuProvider(
 
     private fun inflateRemote(menu: Menu) {
         scope.launch {
-            activity.requireDatabase.remoteAccessDao().listAsync().forEach {
-                if (it.type == RemoteAccessType.SMB || it.type == RemoteAccessType.WEB_DAV) {
-                    val toUri = it.toShareSpec().toUri()
-                    menu.add(toUri.toString()).setOnMenuItemClickListener {
-                        switchUriRoot(toUri)
-                        true
+            activity.requireDatabase.remoteAccessDao().listAsync().groupBy {
+                it.type
+            }.forEach { (key, value) ->
+                val addSubMenu = menu.addSubMenu(key)
+                value.forEach { spec ->
+                    val uri = if (spec.type == RemoteAccessType.SMB) {
+                        spec.toShareSpec().toUri()
+                    } else {
+                        spec.toRemoteSpec().toUri()
                     }
-                } else {
-                    val toUri = it.toFtpSpec().toUri()
-                    menu.add(toUri.toString()).setOnMenuItemClickListener {
-                        switchUriRoot(toUri)
-                        true
-                    }
+
+                    addSubMenu.add(spec.name.takeIf { it.isNotEmpty() } ?: spec.server)
+                        .setOnMenuItemClickListener {
+                            switchUriRoot(uri)
+                            true
+                        }
                 }
             }
         }

@@ -32,7 +32,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.storyteller_f.annotation_defination.BindClickEvent
-import com.storyteller_f.common_ktx.safeLet
 import com.storyteller_f.common_pr.dipToInt
 import com.storyteller_f.common_pr.response
 import com.storyteller_f.common_ui.SimpleFragment
@@ -204,7 +203,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         Log.i(TAG, "handleClipData: key $key")
         val context = context ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            val dest = destDirectory.safeLet {
+            val dest = destDirectory?.let {
                 getFileInstance(context, it)
             } ?: observer.fileInstance ?: kotlin.run {
                 Toast.makeText(requireContext(), "无法确定目的地", Toast.LENGTH_LONG).show()
@@ -548,11 +547,11 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
             requestPathDialogArgs
         ).response(RequestPathDialog.RequestPathResult::class.java) { result ->
             scope.launch {
-                result.path.safeLet {
-                    getFileInstance(requireContext(), File(it).toUri())
-                }.safeLet { dest ->
-                    moveOrCopy(itemHolder, dest, move)
-                }
+                moveOrCopy(
+                    itemHolder,
+                    getFileInstance(requireContext(), File(result.path).toUri()),
+                    move
+                )
             }
         }
     }

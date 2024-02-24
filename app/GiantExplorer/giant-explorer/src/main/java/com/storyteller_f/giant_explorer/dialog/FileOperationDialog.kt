@@ -127,7 +127,7 @@ class FileOperationDialog :
     }
 
     private fun bindUi(key: String, list: List<View>, binding: DialogFileOperationBinding) {
-        binder.state.distinctUntilChanged().debounce(DEFAULT_DEBOUNCE).observe(owner) {
+        binder.state.distinctUntilChanged().debounce(DEFAULT_DEBOUNCE).state {
             when (it) {
                 FileOperateBinder.state_running -> {
                     val task = binder.map[key]?.taskAssessResult

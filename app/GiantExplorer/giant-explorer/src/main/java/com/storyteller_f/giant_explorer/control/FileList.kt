@@ -8,7 +8,6 @@ import android.view.DragEvent
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.DragStartHelper
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -27,11 +26,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.savedstate.SavedStateRegistryOwner
 import com.storyteller_f.annotation_defination.BindItemHolder
 import com.storyteller_f.annotation_defination.ItemHolder
-import com.storyteller_f.common_ktx.context
-import com.storyteller_f.common_ktx.same
 import com.storyteller_f.common_pr.dipToInt
+import com.storyteller_f.common_pr.state
+import com.storyteller_f.common_ui.context
 import com.storyteller_f.common_ui.cycle
-import com.storyteller_f.common_ui.owner
 import com.storyteller_f.common_ui.setVisible
 import com.storyteller_f.common_vm_ktx.VMScope
 import com.storyteller_f.common_vm_ktx.combineDao
@@ -59,20 +57,23 @@ import com.storyteller_f.giant_explorer.databinding.ViewHolderFileGridBinding
 import com.storyteller_f.giant_explorer.dialog.activeFilters
 import com.storyteller_f.giant_explorer.dialog.activeSortChains
 import com.storyteller_f.giant_explorer.model.FileModel
+import com.storyteller_f.slim_ktx.same
 import com.storyteller_f.sort_core.config.SortChain
 import com.storyteller_f.sort_core.config.SortChains
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
 import com.storyteller_f.ui_list.core.BindingViewHolder
 import com.storyteller_f.ui_list.core.DataItemHolder
 import com.storyteller_f.ui_list.data.SimpleResponse
-import com.storyteller_f.ui_list.event.findActionReceiverOrNull
+import com.storyteller_f.ui_list.event.findFragmentOrNull
 import com.storyteller_f.ui_list.source.SearchProducer
 import com.storyteller_f.ui_list.source.observerInScope
 import com.storyteller_f.ui_list.source.search
 import com.storyteller_f.ui_list.ui.ListWithState
 import com.storyteller_f.ui_list.ui.toggle
 import com.storyteller_f.ui_list.ui.valueContains
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import java.util.Locale
 
@@ -142,7 +143,7 @@ class FileListObserver<T>(
         rightSwipe: (FileItemHolder) -> Unit,
         updatePath: (String) -> Unit
     ) {
-        fileListViewModel.displayGrid.observe(owner) {
+        fileListViewModel.displayGrid.state {
             listWithState.recyclerView.isVisible = false
             adapter.submitData(cycle, PagingData.empty())
             listWithState.recyclerView.layoutManager = when {
@@ -189,12 +190,12 @@ class FileListObserver<T>(
                 },
                 flash = ListWithState.Companion::remote
             )
-            session.fileInstance.observe(owner) {
+            session.fileInstance.state {
                 updatePath(it.path)
             }
             session.fileInstance.map {
                 it.uri
-            }.distinctUntilChanged().observe(owner) { path ->
+            }.distinctUntilChanged().state { path ->
                 // 检查权限
                 owner.lifecycleScope.launch {
                     if (!checkFilePermission(path)) {
@@ -211,7 +212,7 @@ class FileListObserver<T>(
                 activeSortChains.same,
                 fileListViewModel.displayGrid
             ).wait5().distinctUntilChanged().debounce(DEFAULT_DEBOUNCE)
-                .observe(owner) { (fileInstance, filterHiddenFile, filters, sortChains, d5) ->
+                .state { (fileInstance, filterHiddenFile, filters, sortChains, d5) ->
                     val display = if (d5) "grid" else ""
 
                     data.observerInScope(
@@ -325,7 +326,7 @@ private fun FileInfo.dragSupport(root: View) {
                     }
 
                     DragEvent.ACTION_DROP -> {
-                        v.findActionReceiverOrNull<FileListFragment>()
+                        v.findFragmentOrNull<FileListFragment>()
                             ?.pasteFiles(event.clipData, uri)
                         true
                     }
@@ -369,11 +370,14 @@ fun fileSearchService(
     database: AppDatabase
 ): suspend (searchQuery: FileExplorerSearch, start: Int, count: Int) -> SimpleResponse<FileModel> {
     return { searchQuery: FileExplorerSearch, start: Int, count: Int ->
-        val listSafe = searchQuery.path.list()
+        val listSafe = withContext(Dispatchers.IO) {
+            searchQuery.path.list()
+        }
 
         val filterList = searchQuery.filters
         val sortChains = searchQuery.sort
 
+        // 判断是否需要隐藏，如果为true 代表不隐藏
         val filterPredicate: (FileInfo) -> Boolean = {
             (!searchQuery.filterHiddenFile || !it.kind.isHidden) && (
                 filterList.isEmpty() || filterList.any { f ->
