@@ -1,83 +1,105 @@
 package com.storyteller_f.li.plugin
 
-import androidx.core.net.toUri
+import android.net.Uri
 import com.storyteller_f.plugin_core.GiantExplorerPluginManager
 import com.storyteller_f.plugin_core.GiantExplorerShellPlugin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class LiPlugin : GiantExplorerShellPlugin {
+    companion object {
+        const val COMPRESS_EVENT = 109
+        const val EXTRACT_EVENT = 108
+    }
+
     private lateinit var pluginManager: GiantExplorerPluginManager
     override fun plugPluginManager(pluginManager: GiantExplorerPluginManager) {
         this.pluginManager = pluginManager
     }
 
-    override fun group(file: List<File>): List<Pair<List<String>, Int>> {
+    override fun group(file: List<Uri>, extension: String): List<Pair<List<String>, Int>> {
         return if (file.all {
-                it.extension == "zip"
-            }) listOf(listOf("archive", "extract to") to 108)
-        else listOf(listOf("archive", "compress") to 109)
+                extension == "zip"
+            }) listOf(listOf("archive", "extract to") to EXTRACT_EVENT)
+        else listOf(listOf("archive", "compress") to COMPRESS_EVENT)
     }
 
-    override suspend fun start(uriString: String, id: Int) {
+    override suspend fun start(uri: Uri, id: Int) {
         val requestPath = pluginManager.requestPath()
         println("request path $requestPath")
-        if (id == 108) {
-            extract(pluginManager.fileInputStream(uriString), File(requestPath))
-        } else {
-            val dest = pluginManager.fileOutputStream(requestPath)
-            val zipOutputStream = ZipOutputStream(dest)
-            zipOutputStream.use {
-                compress(it, File(uriString), "")
-            }
+        if (id == EXTRACT_EVENT) {
+            extract(requestPath, uri)
+        } else if (id == COMPRESS_EVENT) {
+            compress(requestPath, uri)
         }
     }
 
-    private suspend fun compress(dest: ZipOutputStream, fullPath: File, offset: String) {
-        val path = fullPath.absolutePath
-        val name = fullPath.name
-        if (pluginManager.isFile(path)) {
-            val zipEntry = ZipEntry("$offset/$name")
-            dest.putNextEntry(zipEntry)
-            pluginManager.fileInputStream(path).use {
-                read(it, dest)
+    /**
+     * @param uri 需要压缩的文件
+     */
+    private suspend fun compress(
+        destPath: Uri,
+        uri: Uri
+    ) {
+        pluginManager.runInService {
+            reportRunning()
+            val dest = pluginManager.fileOutputStream(destPath)
+            val zipOutputStream = ZipOutputStream(dest)
+            zipOutputStream.use {
+                compress(it, uri, "")
             }
+            true
+        }
+
+    }
+
+    private suspend fun compress(dest: ZipOutputStream, uriString: Uri, offset: String) {
+        val name = pluginManager.getName(uriString)
+        if (pluginManager.isFile(uriString)) {
+            withContext(Dispatchers.IO) {
+                val zipEntry = ZipEntry("$offset/$name")
+                dest.putNextEntry(zipEntry)
+                putFileToEntry(uriString, dest)
+            }
+
         } else {
-            val listFiles = pluginManager.listFiles(path)
+            val listFiles = pluginManager.listFiles(uriString)
             listFiles.forEach {
-                val subName = File(it).name
-                val subFile = File(fullPath, subName)
-                val subPath = subFile.absolutePath
-                if (!pluginManager.isFile(subPath)) {
+                if (!pluginManager.isFile(it)) {
                     val subDir = ZipEntry("$offset/$it/")
                     dest.putNextEntry(subDir)
                 }
-                compress(dest, subFile, name)
+                compress(dest, it, name)
             }
         }
     }
 
-    private fun read(it: FileInputStream, dest: ZipOutputStream) {
-        val buffer = ByteArray(1024)
-        it.buffered().use {
-            while (true) {
-                val offset = it.read(buffer)
-                if (offset != -1) {
-                    dest.write(buffer, 0, offset)
-                } else break
+    private suspend fun putFileToEntry(file: Uri, dest: ZipOutputStream) {
+        pluginManager.fileInputStream(file).use { stream ->
+            val buffer = ByteArray(1024)
+            stream.buffered().use {
+                while (true) {
+                    val offset = it.read(buffer)
+                    if (offset != -1) {
+                        dest.write(buffer, 0, offset)
+                    } else break
+                }
             }
         }
     }
 
-    private fun extract(archive: InputStream, dest: File) {
+    /**
+     * @param dest 解压目的地
+     */
+    private suspend fun extract(dest: Uri, archivePath: Uri) {
+        val archiveStream = pluginManager.fileInputStream(archivePath)
         pluginManager.runInService {
             reportRunning()
-            ZipInputStream(archive).use { stream ->
+            ZipInputStream(archiveStream).use { stream ->
                 while (true) {
                     stream.nextEntry?.let {
                         processEntry(dest, it, stream)
@@ -88,19 +110,19 @@ class LiPlugin : GiantExplorerShellPlugin {
         }
     }
 
-    private suspend fun processEntry(dest: File, nextEntry: ZipEntry, stream: ZipInputStream) {
-        val child = File(dest, nextEntry.name)
-        println(nextEntry.name)
+    private suspend fun processEntry(dest: Uri, nextEntry: ZipEntry, stream: ZipInputStream) {
+        val childDestUri = pluginManager.resolver.resolveChildUri(dest, nextEntry.name)
         if (nextEntry.isDirectory) {
-            pluginManager.ensureDir(child.toUri().toString())
+            pluginManager.ensureDir(childDestUri)
         } else {
-            write(pluginManager.fileOutputStream(child.absolutePath), stream)
+            readEntryToFile(childDestUri, stream)
         }
     }
 
-    private fun write(file: FileOutputStream, stream: ZipInputStream) {
+    private suspend fun readEntryToFile(dest: Uri, stream: ZipInputStream) {
+        val destStream = pluginManager.fileOutputStream(dest)
         val buffer = ByteArray(1024)
-        file.buffered().use {
+        destStream.buffered().use {
             while (true) {
                 val offset = stream.read(buffer)
                 if (offset != -1) {

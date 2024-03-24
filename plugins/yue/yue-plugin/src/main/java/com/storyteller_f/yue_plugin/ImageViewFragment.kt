@@ -48,13 +48,12 @@ class ImageViewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val u = uri ?: return
-        val path = u.path
         val findViewById = view.findViewById<ImageView>(R.id.image_view)
 
         try {
-            if (u.scheme == ContentResolver.SCHEME_FILE && path != null) {
+            if (u.scheme == ContentResolver.SCHEME_FILE) {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    (requireParentFragment() as? YueFragment)?.plugin?.fileInputStream(path)?.use {
+                    (requireParentFragment() as? YueFragment)?.plugin?.fileInputStream(u)?.use {
                         val decodeStream = BitmapFactory.decodeStream(it)
                         findViewById.setImageBitmap(decodeStream)
                     }

@@ -20,7 +20,7 @@ plugins {
     id("com.storyteller_f.version_manager")
     id("kotlin-kapt")
     id("com.google.devtools.ksp")
-//    id("com.starter.easylauncher") version "6.2.0"
+    id("com.starter.easylauncher") version "6.2.0"
     id("androidx.room") version "2.6.1"
 }
 
@@ -71,7 +71,7 @@ dependencies {
     implementation("com.j256.simplemagic:simplemagic:1.17")
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
-    implementation("androidx.browser:browser:1.7.0")
+    implementation("androidx.browser:browser:1.8.0")
     implementation("androidx.webkit:webkit:1.10.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.window:window:1.2.0")

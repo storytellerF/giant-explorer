@@ -359,7 +359,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
 
             resolveInstalledPlugins(itemHolder, mimeTypeFromExtension, uri)
             resolveNoInstalledPlugins(mimeTypeFromExtension, fullPath, uri)
-            resolveModulePlugin(key, fullPath)
+            resolveModulePlugin(key, uri, fullPath)
 
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
@@ -376,6 +376,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
 
     private fun PopupMenu.resolveModulePlugin(
         key: String,
+        uri: Uri,
         fullPath: String,
     ) {
         val liPlugin = try {
@@ -387,12 +388,12 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         } ?: return
         val pluginManager = defaultPluginManager(key)
         liPlugin.plugPluginManager(pluginManager)
-        val group = liPlugin.group(listOf(File(fullPath)))
+        val group = liPlugin.group(listOf(uri), File(fullPath).extension)
         if (group.isNotEmpty()) {
             group.map {
                 menu.loopAdd(it.first).add(0, it.second, 0, "li").setOnMenuItemClickListener {
                     scope.launch {
-                        liPlugin.start(fullPath, it.itemId)
+                        liPlugin.start(uri, it.itemId)
                     }
                     return@setOnMenuItemClickListener true
                 }
@@ -402,8 +403,8 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
 
     private fun defaultPluginManager(key: String) =
         object : DefaultPluginManager(requireContext()) {
-            override suspend fun requestPath(initUri: String?): String {
-                val completableDeferred = CompletableDeferred<String>()
+            override suspend fun requestPath(initUri: Uri?): Uri {
+                val completableDeferred = CompletableDeferred<Uri>()
                 val requestPathDialogArgs = RequestPathDialog.bundle(requireContext())
                 request(
                     RequestPathDialog::class.java,
@@ -411,7 +412,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
                 ).response(
                     RequestPathDialog.RequestPathResult::class.java
                 ) { result ->
-                    completableDeferred.complete(result.path)
+                    completableDeferred.complete(result.uri)
                 }
                 return completableDeferred.await()
             }
@@ -540,7 +541,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         }
     }
 
-    private fun moveOrCopy(move: Boolean, itemHolder: FileItemHolder) {
+    private fun moveOrCopy(needMove: Boolean, itemHolder: FileItemHolder) {
         val requestPathDialogArgs = RequestPathDialog.bundle(requireContext())
         request(
             RequestPathDialog::class.java,
@@ -549,8 +550,8 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
             scope.launch {
                 moveOrCopy(
                     itemHolder,
-                    getFileInstance(requireContext(), File(result.path).toUri()),
-                    move
+                    getFileInstance(requireContext(), result.uri),
+                    needMove
                 )
             }
         }
@@ -600,8 +601,8 @@ private fun Menu.loopAdd(strings: List<String>): Menu {
 }
 
 private fun Intent.plugUri(mimeType: String?, fullPath: String, uri: Uri) {
-    val build = FileSystemProviderResolver.share(false, uri)
+    val sharedUri = FileSystemProviderResolver.share(false, uri)
     putExtra("path", fullPath)
-    setDataAndType(build, mimeType)
+    setDataAndType(sharedUri, mimeType)
     flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 }

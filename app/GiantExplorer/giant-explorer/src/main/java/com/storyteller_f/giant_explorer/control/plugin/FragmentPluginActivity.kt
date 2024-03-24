@@ -27,51 +27,66 @@ suspend fun Context.fileInputStream1(uriString: String) =
     }.getFileInputStream()
 
 abstract class DefaultPluginManager(val context: Context) : GiantExplorerPluginManager {
-    override suspend fun fileInputStream(uriString: String): FileInputStream {
-        return context.fileInputStream1(uriString)
+
+    override val resolver: GiantExplorerPluginManager.Resolve
+        get() = object : GiantExplorerPluginManager.Resolve {
+            override fun resolveParentUri(uri: Uri): Uri = resolveParentUri1(uri)!!
+
+            override fun resolveParentPath(uri: Uri): String? {
+                val resolvePath =
+                    FileSystemProviderResolver.resolve(uri)?.path ?: return null
+                return File(resolvePath).parent
+            }
+
+            override fun resolvePath(uri: Uri): String? {
+                return FileSystemProviderResolver.resolve(uri)?.path
+            }
+
+            override fun resolveChildUri(uri: Uri, name: String): Uri {
+                return uri.buildUpon().appendPath(name).build()
+            }
+        }
+
+    override suspend fun fileInputStream(uri: Uri): FileInputStream {
+        return getFileInstance(context, uri).getFileInputStream()
     }
 
-    override suspend fun fileOutputStream(uriString: String): FileOutputStream {
-        return getFileInstance(context, uriString.toUri()).apply {
+    override suspend fun fileOutputStream(uri: Uri): FileOutputStream {
+        return getFileInstance(context, uri).apply {
             createFile()
         }.getFileOutputStream()
     }
 
-    override suspend fun listFiles(uriString: String): List<String> {
-        return getFileInstance(context, uriString.toUri()).list().let { filesAndDirectories ->
+    override suspend fun listFiles(uri: Uri): List<Uri> {
+        return getFileInstance(context, uri).list().let { filesAndDirectories ->
             filesAndDirectories.files.map {
-                it.fullPath
+                it.uri
             } + filesAndDirectories.directories.map {
-                it.fullPath
+                it.uri
             }
         }
     }
 
-    override fun resolveParentUri(uriString: String) = resolveParentUri(uriString.toUri())
-
-    private fun resolveParentUri(uri: Uri): String? {
+    private fun resolveParentUri1(uri: Uri): Uri? {
         val path = FileSystemProviderResolver.resolve(uri)?.path ?: return null
         val parent = File(path).parent ?: return null
         return FileSystemProviderResolver.share(false, uri.buildUpon().path(parent).build())
-            .toString()
     }
 
-    override fun resolveParentPath(uriString: String): String? {
-        val resolvePath =
-            FileSystemProviderResolver.resolve(uriString.toUri())?.path ?: return null
-        return File(resolvePath).parent
+    override suspend fun ensureDir(uri: Uri) {
+        getFileInstance(context, uri).createDirectory()
     }
 
-    override fun resolvePath(uriString: String): String? {
-        return FileSystemProviderResolver.resolve(uriString.toUri())?.path
+    override suspend fun ensureFile(uri: Uri) {
+        getFileInstance(context, uri).createFile()
     }
 
-    override suspend fun ensureDir(uriString: String) {
-        getFileInstance(context, uriString.toUri()).createDirectory()
+    override suspend fun isFile(uri: Uri): Boolean {
+        return getFileInstance(context, uri).fileKind().isFile
     }
 
-    override suspend fun isFile(uriString: String): Boolean {
-        return getFileInstance(context, uriString.toUri()).fileKind().isFile
+    override suspend fun getName(uri: Uri): String {
+        return getFileInstance(context, uri).name
     }
 }
 
@@ -99,11 +114,13 @@ class FragmentPluginActivity : AppCompatActivity() {
         val uri = intent.data
         pluginName = intent.getStringExtra("plugin-name")!!
         val pluginManager = object : DefaultPluginManager(this) {
-            override suspend fun requestPath(initUri: String?): String {
-                return ""
+            override suspend fun requestPath(initUri: Uri?): Uri {
+                TODO("Not yet implemented")
             }
 
-            override fun runInService(block: suspend GiantExplorerService.() -> Boolean) = Unit
+            override fun runInService(block: suspend GiantExplorerService.() -> Boolean) {
+                TODO("Not yet implemented")
+            }
         }
         lifecycleScope.launch {
             val revolvePlugin = pluginManagerRegister.resolvePluginName(

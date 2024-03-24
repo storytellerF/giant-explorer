@@ -48,7 +48,7 @@ class PluginManageActivity : CommonActivity() {
                 requestPathDialogArgs
             ).response(RequestPathDialog.RequestPathResult::class.java) { result ->
                 lifecycleScope.launch {
-                    getFileInstance(this@PluginManageActivity, File(result.path).toUri()).let { pluginFile ->
+                    getFileInstance(this@PluginManageActivity, result.uri).let { pluginFile ->
                         lifecycleScope.launch {
                             addPlugin(pluginFile, pluginRoot)
                         }

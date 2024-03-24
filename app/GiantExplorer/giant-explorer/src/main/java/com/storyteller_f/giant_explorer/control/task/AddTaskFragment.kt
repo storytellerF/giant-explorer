@@ -7,7 +7,13 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.navigation.fragment.findNavController
 import com.storyteller_f.common_pr.response
-import com.storyteller_f.common_ui.*
+import com.storyteller_f.common_ui.SimpleFragment
+import com.storyteller_f.common_ui.end
+import com.storyteller_f.common_ui.request
+import com.storyteller_f.common_ui.scope
+import com.storyteller_f.common_ui.setFragmentResult
+import com.storyteller_f.common_ui.setOnClick
+import com.storyteller_f.common_ui.waitingDialog
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.database.BigTimeTask
 import com.storyteller_f.giant_explorer.database.requireDatabase
@@ -49,7 +55,7 @@ class AddTaskFragment : SimpleFragment<FragmentAddTaskBinding>(FragmentAddTaskBi
         binding.selectPath.setOnClick {
             findNavController().request(R.id.action_select_task_path)
                 .response(RequestPathDialog.RequestPathResult::class.java) { result ->
-                    binding.path.setText(result.path)
+                    binding.path.setText(result.uri.toString())
                 }
         }
     }

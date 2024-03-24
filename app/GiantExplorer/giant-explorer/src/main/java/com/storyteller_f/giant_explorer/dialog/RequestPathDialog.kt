@@ -1,6 +1,7 @@
 package com.storyteller_f.giant_explorer.dialog
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
@@ -50,7 +51,7 @@ class RequestPathDialog :
     }, activityScope)
 
     @Parcelize
-    class RequestPathResult(val path: String) : Parcelable
+    class RequestPathResult(val uri: Uri) : Parcelable
 
     private val adapter = SimpleSourceAdapter<FileItemHolder, FileViewHolder>(REQUEST_KEY)
 
@@ -72,7 +73,7 @@ class RequestPathDialog :
             it.keepScreenOn = it.isChecked
         }
         binding.bottom.positive.setOnClick {
-            observer.fileInstance?.path?.let {
+            observer.fileInstance?.uri?.let {
                 setFragmentResult(RequestPathResult(it))
                 dismiss()
             }
@@ -158,7 +159,7 @@ class RequestPathDialog :
                 )
             }
         } else {
-            setFragmentResult(RequestPathResult(itemHolder.file.fullPath))
+            setFragmentResult(RequestPathResult(itemHolder.file.item.uri))
             dismiss()
         }
     }

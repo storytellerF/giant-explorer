@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -16,7 +15,6 @@ import com.storyteller_f.plugin_core.FileSystemProviderConstant
 import com.storyteller_f.plugin_core.GiantExplorerPlugin
 import com.storyteller_f.plugin_core.GiantExplorerPluginManager
 import kotlinx.coroutines.launch
-import java.io.File
 
 private const val arg_uri = "uri"
 
@@ -27,11 +25,15 @@ class YueFragment : Fragment(), GiantExplorerPlugin {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            uri = it.getParcelable(arg_uri)
+            uri = it.getParcelableCompat(arg_uri, Uri::class.java)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_yue, container, false)
     }
 
@@ -45,7 +47,8 @@ class YueFragment : Fragment(), GiantExplorerPlugin {
         val adapter = object : FragmentStateAdapter(childFragmentManager, lifecycle) {
             override fun getItemCount() = list.size
 
-            override fun createFragment(position: Int) = ImageViewFragment.newInstance(list[position], position)
+            override fun createFragment(position: Int) =
+                ImageViewFragment.newInstance(list[position], position)
         }
         viewPager2.adapter = adapter
         viewLifecycleOwner.lifecycleScope.launch {
@@ -62,21 +65,25 @@ class YueFragment : Fragment(), GiantExplorerPlugin {
 
         if (u.authority?.contains("storyteller") == true) {
             val manager = plugin ?: return false
-            val parentPath = manager.resolveParentPath(u.toString())
-            val isolateRunning = requireContext().javaClass.canonicalName == "com.storyteller_f.yue.MainActivity"
-            if (!isolateRunning && parentPath != null) {
-                list.addAll(manager.listFiles(parentPath).map {
-                    Uri.fromFile(File(it))
-                })
+            val parentPath = manager.resolver.resolveParentUri(u)
+            val isolateRunning =
+                requireContext().javaClass.canonicalName == "com.storyteller_f.yue.MainActivity"
+            if (!isolateRunning) {
+                list.addAll(manager.listFiles(parentPath))
             } else {
-                val parentUri = manager.resolveParentUri(u.toString())?.toUri() ?: return false
+                val parentUri = manager.resolver.resolveParentUri(u)
                 requireContext().contentResolver.query(parentUri, null, null, null, null)?.use {
                     while (it.moveToNext()) {
-                        val path = it.getString(it.getColumnIndexOrThrow(FileSystemProviderConstant.FILE_PATH))
-                        val mimeType = it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_MIME_TYPE))
+                        val path =
+                            it.getString(it.getColumnIndexOrThrow(FileSystemProviderConstant.FILE_PATH))
+                        val mimeType =
+                            it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_MIME_TYPE))
                         Log.i(TAG, "listFiles: $path $mimeType")
                         if (mimeType != null && mimeType.startsWith("image"))
-                            list.add(Uri.Builder().scheme(u.scheme).authority(u.authority).path("/info$path").build())
+                            list.add(
+                                Uri.Builder().scheme(u.scheme).authority(u.authority)
+                                    .path("/info$path").build()
+                            )
                     }
                 }
             }
@@ -91,7 +98,7 @@ class YueFragment : Fragment(), GiantExplorerPlugin {
         private const val TAG = "YueFragment"
     }
 
-    override fun group(file: List<File>): List<Pair<List<String>, Int>> {
+    override fun group(file: List<Uri>, extension: String): List<Pair<List<String>, Int>> {
         return listOf(listOf("view", "yue") to 109)
     }
 

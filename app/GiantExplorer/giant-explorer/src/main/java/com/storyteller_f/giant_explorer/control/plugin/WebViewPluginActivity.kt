@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.storyteller_f.giant_explorer.control.plugin
 
 import android.annotation.SuppressLint
@@ -7,18 +9,31 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
-import android.webkit.*
+import android.webkit.ConsoleMessage
+import android.webkit.JavascriptInterface
+import android.webkit.SslErrorHandler
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.webkit.WebMessageCompat
+import androidx.webkit.WebMessagePortCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.file_system.ensureFile
 import com.storyteller_f.giant_explorer.databinding.ActivityWebviewPluginBinding
 import com.storyteller_f.giant_explorer.pluginManagerRegister
+import com.storyteller_f.plugin_core.GiantExplorerService
 import com.storyteller_f.ui_list.event.viewBinding
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -157,32 +172,21 @@ class WebViewPluginActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("JavascriptInterface")
     private fun bindApi(webView: WebView, data: Uri?) {
-        val pluginManager = object {
+        val defaultPluginManager = object : DefaultPluginManager(this) {
+            override suspend fun requestPath(initUri: Uri?): Uri {
+                TODO("Not yet implemented")
+            }
 
-            @JavascriptInterface
-            fun base64(path: String, callbackId: String) {
-                scope.launch {
-                    val readBytes = fileInputStream1(path).readBytes()
-                    val result = Base64.encodeToString(readBytes, Base64.NO_WRAP)
-                    webView.post {
-                        webView.callback(callbackId, "'$result'")
-                        messageChannel?.let {
-                            if (WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE)) {
-                                val webMessageCompat = WebMessageCompat(result, it)
-                                WebViewCompat.postWebMessage(
-                                    webView,
-                                    webMessageCompat,
-                                    Uri.parse(BASE_URL)
-                                )
-                            }
-                        }
-                    }
-                }
+            override fun runInService(block: suspend GiantExplorerService.() -> Boolean) {
+                TODO("Not yet implemented")
             }
         }
-        val f = object : WebViewFilePlugin {
+        webView.addJavascriptInterface(
+            WebViewPluginObject(webView, defaultPluginManager, scope, messageChannel),
+            "plugin"
+        )
+        webView.addJavascriptInterface(object : WebViewFilePlugin {
             @JavascriptInterface
             override fun fullPath(): String {
                 val u = data ?: return ""
@@ -191,11 +195,52 @@ class WebViewPluginActivity : AppCompatActivity() {
 
             @JavascriptInterface
             override fun fileName(): String {
-                return "not implemented"
+                return runBlocking {
+                    defaultPluginManager.getName(data!!)
+                }
+            }
+        }, "file")
+    }
+
+    class WebViewPluginObject(
+        private val webView: WebView,
+        private val defaultPluginManager: DefaultPluginManager,
+        private val scope: CoroutineScope,
+        private val messageChannel: Array<WebMessagePortCompat>?,
+    ) {
+
+        private val context = webView.context
+
+        @JavascriptInterface
+        fun requestPath(initUriString: String, callbackId: String) {
+            scope.launch {
+                webView.callback(
+                    callbackId,
+                    defaultPluginManager.requestPath(initUriString.toUri()).toString()
+                )
             }
         }
-        webView.addJavascriptInterface(pluginManager, "plugin")
-        webView.addJavascriptInterface(f, "file")
+
+        @JavascriptInterface
+        fun base64(path: String, callbackId: String) {
+            scope.launch {
+                val readBytes = context.fileInputStream1(path).readBytes()
+                val result = Base64.encodeToString(readBytes, Base64.NO_WRAP)
+                webView.post {
+                    webView.callback(callbackId, "'$result'")
+                    messageChannel?.let {
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE)) {
+                            val webMessageCompat = WebMessageCompat(result, it)
+                            WebViewCompat.postWebMessage(
+                                webView,
+                                webMessageCompat,
+                                Uri.parse(BASE_URL)
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     companion object {
