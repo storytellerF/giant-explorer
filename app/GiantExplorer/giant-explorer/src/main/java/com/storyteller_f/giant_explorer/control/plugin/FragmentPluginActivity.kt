@@ -9,7 +9,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.storyteller_f.compat_ktx.packageInfoCompat
-import com.storyteller_f.file_system_ktx.getFileInstance
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.pluginManagerRegister
 import com.storyteller_f.plugin_core.GiantExplorerPlugin
@@ -22,7 +22,7 @@ import java.io.FileOutputStream
 
 const val GIANT_EXPLORER_PLUGIN_INI = "META-INF/giant-explorer-plugin.ini"
 suspend fun Context.fileInputStream1(uriString: String) =
-    getFileInstance(this, uriString.toUri()).apply {
+    getFileInstance(this, uriString.toUri())!!.apply {
         createFile()
     }.getFileInputStream()
 
@@ -48,17 +48,17 @@ abstract class DefaultPluginManager(val context: Context) : GiantExplorerPluginM
         }
 
     override suspend fun fileInputStream(uri: Uri): FileInputStream {
-        return getFileInstance(context, uri).getFileInputStream()
+        return getFileInstance(context, uri)!!.getFileInputStream()
     }
 
     override suspend fun fileOutputStream(uri: Uri): FileOutputStream {
-        return getFileInstance(context, uri).apply {
+        return getFileInstance(context, uri)!!.apply {
             createFile()
         }.getFileOutputStream()
     }
 
     override suspend fun listFiles(uri: Uri): List<Uri> {
-        return getFileInstance(context, uri).list().let { filesAndDirectories ->
+        return getFileInstance(context, uri)!!.list().let { filesAndDirectories ->
             filesAndDirectories.files.map {
                 it.uri
             } + filesAndDirectories.directories.map {
@@ -74,19 +74,19 @@ abstract class DefaultPluginManager(val context: Context) : GiantExplorerPluginM
     }
 
     override suspend fun ensureDir(uri: Uri) {
-        getFileInstance(context, uri).createDirectory()
+        getFileInstance(context, uri)!!.createDirectory()
     }
 
     override suspend fun ensureFile(uri: Uri) {
-        getFileInstance(context, uri).createFile()
+        getFileInstance(context, uri)!!.createFile()
     }
 
     override suspend fun isFile(uri: Uri): Boolean {
-        return getFileInstance(context, uri).fileKind().isFile
+        return getFileInstance(context, uri)!!.fileKind().isFile
     }
 
     override suspend fun getName(uri: Uri): String {
-        return getFileInstance(context, uri).name
+        return getFileInstance(context, uri)!!.name
     }
 }
 

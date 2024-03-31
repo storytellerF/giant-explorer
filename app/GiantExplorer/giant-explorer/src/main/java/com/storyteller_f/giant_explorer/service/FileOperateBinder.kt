@@ -7,12 +7,12 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system.operate.FileOperationForemanProgressListener
-import com.storyteller_f.file_system_ktx.getFileInstance
-import com.storyteller_f.file_system_ktx.isFile
+import com.storyteller_f.file_system.size
 import com.storyteller_f.giant_explorer.service.FileOperateService.FileOperateResultContainer
 import com.storyteller_f.plugin_core.GiantExplorerService
 import kotlinx.coroutines.runBlocking
@@ -274,13 +274,13 @@ class TaskAssessor(
             ) {
                 "不能将父文件夹移动到子文件夹"
             }
-            val fileInstance = getFileInstance(context, File(it.fullPath).toUri())
+            val fileInstance = getFileInstance(context, File(it.fullPath).toUri())!!
             if (!fileInstance.exists()) {
                 throw FileNotFoundException(fileInstance.path)
             }
-            if (it.isFile) {
+            if (it.kind.isFile) {
                 count++
-                getFileInstance(context, File(it.fullPath).toUri()).getFileLength()
+                getFileInstance(context, File(it.fullPath).toUri())!!.size()
             } else {
                 getDirectorySize(it)
             }
@@ -294,7 +294,7 @@ class TaskAssessor(
     private suspend fun getDirectorySize(file: FileInfo): Long {
         folderCount++
         val fileInstance = getFileInstance(context, File(file.fullPath).toUri())
-        val listSafe = fileInstance.list()
+        val listSafe = fileInstance!!.list()
 
         val fileSize = listSafe.files.map {
             count++

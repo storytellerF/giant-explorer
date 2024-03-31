@@ -19,12 +19,12 @@ import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setFragmentResult
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_vm_ktx.activityScope
-import com.storyteller_f.file_system.getCurrentUserEmulatedPath
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.toChildEfficiently
 import com.storyteller_f.file_system.toParentEfficiently
-import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.file_system_ktx.isDirectory
+import com.storyteller_f.file_system_local.getCurrentUserEmulatedPath
 import com.storyteller_f.giant_explorer.control.FileItemHolder
 import com.storyteller_f.giant_explorer.control.FileListFragmentArgs
 import com.storyteller_f.giant_explorer.control.FileListObserver
@@ -140,7 +140,7 @@ class RequestPathDialog :
             }.flowWithLifecycle(lifecycle).collectLatest {
                 val uri = observer.fileInstance?.uri?.buildUpon()?.path(it)?.build()
                     ?: return@collectLatest
-                observer.update(getFileInstance(requireContext(), uri))
+                observer.update(getFileInstance(requireContext(), uri)!!)
             }
         }
     }

@@ -13,6 +13,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
@@ -23,6 +24,7 @@ import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.savedstate.SavedStateRegistryOwner
 import com.storyteller_f.annotation_defination.BindItemHolder
 import com.storyteller_f.annotation_defination.ItemHolder
@@ -38,14 +40,14 @@ import com.storyteller_f.common_vm_ktx.distinctUntilChangedBy
 import com.storyteller_f.common_vm_ktx.svm
 import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.common_vm_ktx.wait5
-import com.storyteller_f.file_system.checkFilePermission
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.model.FileInfo
-import com.storyteller_f.file_system.requestFilePermission
 import com.storyteller_f.file_system_ktx.fileIcon
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.file_system_ktx.isFile
+import com.storyteller_f.file_system_local.checkFilePermission
+import com.storyteller_f.file_system_local.requestFilePermission
 import com.storyteller_f.filter_core.Filter
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.PC_END_ON
@@ -61,6 +63,7 @@ import com.storyteller_f.slim_ktx.same
 import com.storyteller_f.sort_core.config.SortChain
 import com.storyteller_f.sort_core.config.SortChains
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
+import com.storyteller_f.ui_list.core.AbstractViewHolder
 import com.storyteller_f.ui_list.core.BindingViewHolder
 import com.storyteller_f.ui_list.core.DataItemHolder
 import com.storyteller_f.ui_list.data.SimpleResponse
@@ -69,8 +72,6 @@ import com.storyteller_f.ui_list.source.SearchProducer
 import com.storyteller_f.ui_list.source.observerInScope
 import com.storyteller_f.ui_list.source.search
 import com.storyteller_f.ui_list.ui.ListWithState
-import com.storyteller_f.ui_list.ui.toggle
-import com.storyteller_f.ui_list.ui.valueContains
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -181,15 +182,15 @@ class FileListObserver<T>(
                 adapter,
                 owner,
                 plugLayoutManager = false,
-                dampingSwipe = { viewHolder, direction ->
-                    if (direction == ItemTouchHelper.LEFT) {
-                        session.selected.toggle(viewHolder)
-                    } else {
-                        rightSwipe(viewHolder.itemHolder as FileItemHolder)
-                    }
-                },
                 flash = ListWithState.Companion::remote
             )
+            listWithState.setupDampingSwipeSupport { viewHolder, direction ->
+                if (direction == ItemTouchHelper.LEFT) {
+                    session.selected.toggle(viewHolder)
+                } else {
+                    rightSwipe(viewHolder.itemHolder as FileItemHolder)
+                }
+            }
             session.fileInstance.state {
                 updatePath(it.path)
             }
@@ -462,4 +463,34 @@ private suspend fun fileModelBuilder(
         md,
         format1024(length)
     )
+}
+
+/**
+ * 反选。pair 的first 作为key。
+ */
+fun List<Pair<DataItemHolder, Int>>?.toggle(
+    pair: Pair<DataItemHolder, Int>
+): Pair<List<Pair<DataItemHolder, Int>>, Boolean> {
+    val oldSelectedHolders = this ?: mutableListOf()
+    val otherHolders = oldSelectedHolders.filter {
+        !it.first.areItemsTheSame(pair.first)
+    }
+    val stateSelected = otherHolders.size == oldSelectedHolders.size
+    val selected = if (stateSelected) otherHolders + pair else otherHolders
+    return selected to stateSelected
+}
+
+fun List<Pair<DataItemHolder, Int>>.valueContains(pair: Pair<DataItemHolder, Int>): Boolean {
+    val firstOrNull = firstOrNull {
+        it.first.areItemsTheSame(pair.first)
+    }
+    return firstOrNull != null
+}
+
+fun MutableLiveData<List<Pair<DataItemHolder, Int>>>.toggle(viewHolder: RecyclerView.ViewHolder) {
+    val adapterViewHolder = viewHolder as AbstractViewHolder<out DataItemHolder>
+    val (selectedHolders, currentSelected) =
+        value.toggle(adapterViewHolder.itemHolder to viewHolder.absoluteAdapterPosition)
+    viewHolder.view.isSelected = currentSelected
+    value = selectedHolders
 }

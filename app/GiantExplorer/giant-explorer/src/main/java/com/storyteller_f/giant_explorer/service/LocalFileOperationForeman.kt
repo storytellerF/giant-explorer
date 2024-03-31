@@ -3,6 +3,7 @@ package com.storyteller_f.giant_explorer.service
 import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.message.Message
 import com.storyteller_f.file_system.model.FileInfo
@@ -13,7 +14,6 @@ import com.storyteller_f.file_system.operate.ScopeFileCopyOp
 import com.storyteller_f.file_system.operate.ScopeFileMoveOp
 import com.storyteller_f.file_system.operate.ScopeFileMoveOpInShell
 import com.storyteller_f.file_system.operate.SuspendCallable
-import com.storyteller_f.file_system_ktx.getFileInstance
 import java.io.File
 
 class TaskOverview(val fileCount: Int, val folderCount: Int, val size: Long) {
@@ -106,7 +106,7 @@ class CopyForemanImpl(
 
     override suspend fun call(): Boolean {
         val isSuccess = !items.any {
-            val fileInstance = getFileInstance(context, File(it.fullPath).toUri())
+            val fileInstance = getFileInstance(context, File(it.fullPath).toUri())!!
             emitStateMessage("处理${fileInstance.path}")
             val operationResult =
                 when {
@@ -161,7 +161,7 @@ class DeleteForemanImpl(
         val isSuccess = !detectorTasks.any { // 如果有一个失败了，就提前退出
             emitStateMessage("处理${it.fullPath}")
             !FileDeleteOp(
-                getFileInstance(context, File(it.fullPath).toUri()),
+                getFileInstance(context, File(it.fullPath).toUri())!!,
                 context
             ).apply {
                 fileOperationListener = this@DeleteForemanImpl

@@ -44,9 +44,9 @@ import com.storyteller_f.common_vm_ktx.avm
 import com.storyteller_f.common_vm_ktx.genericValueModel
 import com.storyteller_f.common_vm_ktx.keyPrefix
 import com.storyteller_f.common_vm_ktx.pvm
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.giant_explorer.BuildConfig
 import com.storyteller_f.giant_explorer.R
@@ -256,7 +256,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     ) {
         val context = context ?: return
         val items = uriList.map {
-            getFileInstance(context, it).getFileInfo()
+            getFileInstance(context, it)!!.getFileInfo()
         }
         val fileOperateBinderLocal = fileOperateBinder.value ?: kotlin.run {
             Toast.makeText(context, "未连接服务", Toast.LENGTH_LONG).show()
@@ -550,7 +550,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
             scope.launch {
                 moveOrCopy(
                     itemHolder,
-                    getFileInstance(requireContext(), result.uri),
+                    getFileInstance(requireContext(), result.uri)!!,
                     needMove
                 )
             }

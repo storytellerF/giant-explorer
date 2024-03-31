@@ -16,8 +16,8 @@ import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.setVisible
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.DialogFilePropertiesBinding
 import kotlinx.coroutines.launch
@@ -38,8 +38,8 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fileInstance = getFileInstance(requireContext(), args.uri)
         scope.launch {
+            val fileInstance = getFileInstance(requireContext(), args.uri)!!
             val fileKind = fileInstance.fileKind()
             val model = fileInstance.getFileInfo()
             binding.name.text = model.name

@@ -14,12 +14,12 @@ import androidx.work.WorkerParameters
 import com.google.android.material.color.DynamicColors
 import com.storyteller_f.config_core.EditorKey
 import com.storyteller_f.config_core.editor
-import com.storyteller_f.file_system.checkFilePermission
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.model.FileInfo
-import com.storyteller_f.file_system_ktx.getFileInstance
+import com.storyteller_f.file_system_local.checkFilePermission
 import com.storyteller_f.filter_core.config.FilterConfig
 import com.storyteller_f.filter_core.config.FilterConfigItem
 import com.storyteller_f.filter_core.filterConfigAdapterFactory
@@ -184,7 +184,7 @@ class FolderWorker(context: Context, workerParams: WorkerParameters) :
             val uri = uriString.toUri()
             val fileInstance = getFileInstance(context, uri)
             val record = context.requireDatabase.sizeDao().search(uri)
-            val lastModified = fileInstance.getFileInfo().time.lastModified ?: 0
+            val lastModified = fileInstance!!.getFileInfo().time.lastModified ?: 0
             if (record != null && record.lastUpdateTime > lastModified) {
                 WorkerResult.SizeWorker(
                     record.size
@@ -232,7 +232,7 @@ class MDWorker(context: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(context: Context, uriString: String): WorkerResult {
         return try {
             val uri = uriString.toUri()
-            val fileInstance = getFileInstance(context, uri)
+            val fileInstance = getFileInstance(context, uri)!!
             val listSafe = fileInstance.list()
             listSafe.directories.mapNullNull {
                 doWork(context, it.fullPath)
@@ -274,7 +274,7 @@ class TorrentWorker(context: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(context: Context, uriString: String): WorkerResult {
         return try {
             val uri = uriString.toUri()
-            val fileInstance = getFileInstance(context, uri)
+            val fileInstance = getFileInstance(context, uri)!!
             val listSafe = fileInstance.list()
             listSafe.directories.mapNullNull {
                 doWork(context, it.fullPath)

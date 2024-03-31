@@ -22,3 +22,5 @@
 
 -dontwarn org.slf4j.impl.StaticLoggerBinder
 -dontwarn sun.security.x509.X509Key
+-dontwarn com.google.auto.service.AutoService
+-dontwarn com.google.j2objc.annotations.Weak

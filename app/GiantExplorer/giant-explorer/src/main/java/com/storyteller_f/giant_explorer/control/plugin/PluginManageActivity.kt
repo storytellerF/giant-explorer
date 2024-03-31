@@ -12,9 +12,9 @@ import com.storyteller_f.common_pr.response
 import com.storyteller_f.common_ui.CommonActivity
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.file_system.ensureFile
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.operate.ScopeFileCopyOp
-import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.ActivityPluginManageBinding
 import com.storyteller_f.giant_explorer.dialog.RequestPathDialog
@@ -48,7 +48,7 @@ class PluginManageActivity : CommonActivity() {
                 requestPathDialogArgs
             ).response(RequestPathDialog.RequestPathResult::class.java) { result ->
                 lifecycleScope.launch {
-                    getFileInstance(this@PluginManageActivity, result.uri).let { pluginFile ->
+                    getFileInstance(this@PluginManageActivity, result.uri)?.let { pluginFile ->
                         lifecycleScope.launch {
                             addPlugin(pluginFile, pluginRoot)
                         }
@@ -67,7 +67,7 @@ class PluginManageActivity : CommonActivity() {
         withContext(Dispatchers.IO) {
             ScopeFileCopyOp(
                 pluginFile,
-                getFileInstance(this@PluginManageActivity, destPluginFile.toUri()),
+                getFileInstance(this@PluginManageActivity, destPluginFile.toUri())!!,
                 this@PluginManageActivity
             ).call()
         }

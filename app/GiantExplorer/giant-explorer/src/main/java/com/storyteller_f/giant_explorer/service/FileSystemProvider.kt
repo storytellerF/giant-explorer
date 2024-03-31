@@ -9,9 +9,10 @@ import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.util.Log
 import android.webkit.MimeTypeMap
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
-import com.storyteller_f.file_system_ktx.getFileInstance
+import com.storyteller_f.file_system.size
 import com.storyteller_f.giant_explorer.control.plugin.FileSystemProviderResolver
 import com.storyteller_f.plugin_core.FileSystemProviderConstant
 import kotlinx.coroutines.runBlocking
@@ -20,15 +21,15 @@ class FileSystemProvider : ContentProvider() {
 
     override fun onCreate() = true
 
-    private fun current(uri: Uri): FileInstance? {
+    private suspend fun current(uri: Uri): FileInstance? {
         val c = context ?: return null
         val path = FileSystemProviderResolver.resolve(uri) ?: return null
         return getFileInstance(c, path)
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        val fileInstance = current(uri) ?: return null
         return runBlocking {
+            val fileInstance = current(uri) ?: return@runBlocking null
             val fd = fileInstance.getFileInputStream().fd
             ParcelFileDescriptor.dup(fd)
         }
@@ -41,12 +42,12 @@ class FileSystemProvider : ContentProvider() {
         selectionArgs: Array<out String>?,
         sortOrder: String?
     ): Cursor? {
-        val fileInstance = current(uri) ?: return null
         return runBlocking {
+            val fileInstance = current(uri) ?: return@runBlocking null
             if (fileInstance.fileKind().isFile) {
                 MatrixCursor(fileProjection).apply {
                     val file = fileInstance.getFileInfo()
-                    addRow(arrayOf(file.name, file.fullPath, fileInstance.getFileLength()))
+                    addRow(arrayOf(file.name, file.fullPath, fileInstance.size()))
                 }
             } else {
                 queryFileInstanceChild(fileInstance)
@@ -87,8 +88,8 @@ class FileSystemProvider : ContentProvider() {
     }
 
     override fun getType(uri: Uri): String? {
-        val current = current(uri) ?: return null
         return runBlocking {
+            val current = current(uri) ?: return@runBlocking null
             if (current.fileKind().isDirectory) {
                 DocumentsContract.Document.MIME_TYPE_DIR
             } else {

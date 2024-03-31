@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import com.storyteller_f.common_ui.scope
-import com.storyteller_f.file_system.FileSystemUriStore
+import com.storyteller_f.file_system_local.FileSystemUriStore
 import com.storyteller_f.file_system_remote.RemoteAccessType
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.database.requireDatabase

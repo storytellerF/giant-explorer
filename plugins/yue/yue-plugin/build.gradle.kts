@@ -1,6 +1,6 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.storyteller_f.version_manager.baseLibrary
-import com.storyteller_f.version_manager.commonAndroidDependency
+import com.storyteller_f.version_manager.commonAppDependency
 import com.storyteller_f.version_manager.unitTestDependency
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 
@@ -21,7 +21,7 @@ android {
 }
 baseLibrary()
 dependencies {
-    commonAndroidDependency()
+    commonAppDependency()
     unitTestDependency()
     api(project(":giant-explorer-plugin-core"))
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

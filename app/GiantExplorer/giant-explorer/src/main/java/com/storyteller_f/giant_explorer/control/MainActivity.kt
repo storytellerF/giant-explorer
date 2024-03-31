@@ -40,12 +40,12 @@ import com.storyteller_f.common_vm_ktx.StateValueModel
 import com.storyteller_f.common_vm_ktx.debounce
 import com.storyteller_f.common_vm_ktx.svm
 import com.storyteller_f.common_vm_ktx.toDiffNoNull
-import com.storyteller_f.file_system.FileSystemUriStore
-import com.storyteller_f.file_system.getCurrentUserEmulatedPath
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
-import com.storyteller_f.file_system.instance.local.DocumentLocalFileInstance
 import com.storyteller_f.file_system.rawTree
-import com.storyteller_f.file_system_ktx.getFileInstance
+import com.storyteller_f.file_system_local.DocumentLocalFileInstance
+import com.storyteller_f.file_system_local.FileSystemUriStore
+import com.storyteller_f.file_system_local.getCurrentUserEmulatedPath
 import com.storyteller_f.file_system_root.RootAccessFileInstance
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.R
@@ -382,12 +382,13 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     private val fileConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             service?.let {
-                RootAccessFileInstance.remote = FileSystemManager.getRemote(service)
+                RootAccessFileInstance.registerLibSuRemote(FileSystemManager.getRemote(service))
             }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            RootAccessFileInstance.remote = null
+            // fixme 无法移除remote
+//            RootAccessFileInstance.registerLibSuRemote()
         }
     }
 
@@ -464,7 +465,7 @@ suspend fun Activity.documentProviderRoot(
     } else {
         try {
             val uri = DocumentLocalFileInstance.uriFromAuthority(authority, tree)
-            if (getFileInstance(this, uri).exists()) uri else null
+            if (getFileInstance(this, uri)!!.exists()) uri else null
         } catch (_: Exception) {
             null
         }

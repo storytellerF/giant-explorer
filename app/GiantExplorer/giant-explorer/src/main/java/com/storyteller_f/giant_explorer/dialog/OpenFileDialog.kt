@@ -14,8 +14,8 @@ import com.storyteller_f.common_ui.setFragmentResult
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_vm_ktx.GenericValueModel
 import com.storyteller_f.common_vm_ktx.vm
-import com.storyteller_f.file_system.util.getExtension
-import com.storyteller_f.file_system_ktx.getFileInstance
+import com.storyteller_f.file_system.getExtension
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.databinding.DialogOpenFileBinding
 import kotlinx.coroutines.delay
@@ -72,10 +72,10 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val fileInstance = getFileInstance(requireContext(), uri)
-        binding.fileName.text = fileInstance.name
         binding.fileName.copyTextFeature()
         scope.launch {
+            val fileInstance = getFileInstance(requireContext(), uri)!!
+            binding.fileName.text = fileInstance.name
             delay(DEFAULT_DEBOUNCE)
             dataType.data.value =
                 ContentInfoUtil().findMatch(fileInstance.getFileInputStream().buffered())

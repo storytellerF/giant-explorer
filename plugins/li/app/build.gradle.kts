@@ -1,9 +1,17 @@
-import com.storyteller_f.version_manager.*
+import com.storyteller_f.version_manager.Versions
+import com.storyteller_f.version_manager.baseApp
+import com.storyteller_f.version_manager.commonAppDependency
+import com.storyteller_f.version_manager.constraintCommonUIListVersion
+import com.storyteller_f.version_manager.navigationDependency
+import com.storyteller_f.version_manager.unitTestDependency
+
+val versionManager: String by project
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.storyteller_f.version_manager")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -23,9 +31,20 @@ android {
 }
 baseApp()
 dependencies {
-    commonAndroidDependency()
+    commonAppDependency()
     unitTestDependency()
     navigationDependency()
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(project(":plugin"))
+    //fixme
+    constraints {
+        listOf(
+            "composite-compiler-ksp",
+            "ext-func-compiler",
+            "ui-list-annotation-compiler-ksp",
+        ).forEach {
+            ksp("${Versions.JITPACK_RELEASE_GROUP}:$it:$versionManager")
+        }
+    }
 }
+constraintCommonUIListVersion(versionManager)

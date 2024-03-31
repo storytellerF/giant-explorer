@@ -1,8 +1,13 @@
+import com.storyteller_f.version_manager.Versions
+
+val versionManager: String by project
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
     id("com.storyteller_f.song")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -52,6 +57,16 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation(project(":yue-plugin"))
+    //fixme
+    constraints {
+        listOf(
+            "composite-compiler-ksp",
+            "ext-func-compiler",
+            "ui-list-annotation-compiler-ksp",
+        ).forEach {
+            ksp("${Versions.JITPACK_RELEASE_GROUP}:$it:$versionManager")
+        }
+    }
 }
 
 val userHome: String = System.getProperty("user.home")

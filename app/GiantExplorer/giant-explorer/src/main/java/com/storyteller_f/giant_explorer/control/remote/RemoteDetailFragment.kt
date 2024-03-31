@@ -19,7 +19,6 @@ import com.storyteller_f.file_system_remote.RemoteAccessType
 import com.storyteller_f.file_system_remote.RemoteSpec
 import com.storyteller_f.file_system_remote.ShareSpec
 import com.storyteller_f.file_system_remote.checkFtpConnection
-import com.storyteller_f.file_system_remote.checkFtpEsConnection
 import com.storyteller_f.file_system_remote.checkFtpsConnection
 import com.storyteller_f.file_system_remote.checkSFtpConnection
 import com.storyteller_f.file_system_remote.checkSmbConnection
@@ -179,7 +178,7 @@ class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(Fragmen
                     when (val t = model.data.value?.type) {
                         RemoteAccessType.SMB -> shareSpec().checkSmbConnection()
                         RemoteAccessType.FTP -> spec().checkFtpConnection()
-                        RemoteAccessType.FTP_ES -> spec().checkFtpEsConnection()
+                        RemoteAccessType.FTP_ES -> spec().checkFtpsConnection()
                         RemoteAccessType.FTPS -> spec().checkFtpsConnection()
                         RemoteAccessType.WEB_DAV -> spec().checkWebDavConnection()
                         RemoteAccessType.SFTP -> spec().checkSFtpConnection()

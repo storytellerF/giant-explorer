@@ -1,9 +1,7 @@
-
 import com.android.build.api.dsl.VariantDimension
 import com.storyteller_f.version_manager.Versions
 import com.storyteller_f.version_manager.baseApp
 import com.storyteller_f.version_manager.constraintCommonUIListVersion
-import com.storyteller_f.version_manager.fileSystemDependency
 import com.storyteller_f.version_manager.implModule
 import com.storyteller_f.version_manager.networkDependency
 import com.storyteller_f.version_manager.setupGeneric
@@ -55,7 +53,6 @@ android {
 dependencies {
 
     implementation("androidx.constraintlayout:constraintlayout:${Versions.CONSTRAINTLAYOUT}")
-    fileSystemDependency()
     networkDependency()
     workerDependency()
 
@@ -78,12 +75,41 @@ dependencies {
         implementation(liPluginModule)
     }
     implementation("com.github.tony19:logback-android:3.0.0")
+    
+    val fileSystemVersion = "73769ee487"
+    implementation("com.github.storytellerF.AFS:file-system-remote:$fileSystemVersion")
+    implementation("com.github.storytellerF.AFS:file-system-ktx:$fileSystemVersion")
+    implementation("com.github.storytellerF.AFS:file-system:$fileSystemVersion")
+    implementation("com.github.storytellerF.AFS:file-system-root:$fileSystemVersion")
+    implementation("com.github.storytellerF.AFS:file-system-archive:$fileSystemVersion")
+    implementation("com.github.storytellerF.AFS:file-system-memory:$fileSystemVersion")
+    implementation("com.github.storytellerF.AFS:file-system-local:$fileSystemVersion")
+
+    constraints {
+        listOf(
+            "composite-compiler-ksp",
+            "ext-func-compiler",
+            "ui-list-annotation-compiler-ksp",
+        ).forEach {
+            ksp("${Versions.JITPACK_RELEASE_GROUP}:$it:$versionManager")
+        }
+    }
 }
 
 baseApp()
+android {
+    defaultConfig {
+        //fixme file-system-archive minSdk = 24 file-system-memory minSdk = 26
+        minSdk = 26
+    }
+}
 implModule(":slim-ktx")
 constraintCommonUIListVersion(versionManager)
-fileSystemDependency()
+configurations.all {
+    resolutionStrategy.capabilitiesResolution.withCapability("com.google.guava:listenablefuture") {
+        select("com.google.guava:guava:0")
+    }
+}
 setupGeneric()
 setupPreviewFeature()
 
