@@ -50,11 +50,6 @@ android {
             registerProviderKey("file-system-encrypted-provider", id)
         }
     }
-
-    sourceSets {
-        // Adds exported schema location as test app assets.
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
-    }
 }
 
 dependencies {

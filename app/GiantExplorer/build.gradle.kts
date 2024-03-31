@@ -9,7 +9,7 @@ buildscript {
         //jitpack 构建
         classpath("com.github.storytellerF.common-ui-list:version-manager:$versionManager")
         //本地构建
-//        classpath("com.storyteller_f:version-manager:0.0.1")
+//        classpath("com.storyteller_f:version-manager:0.0.1-local")
     }
 }
 plugins {
