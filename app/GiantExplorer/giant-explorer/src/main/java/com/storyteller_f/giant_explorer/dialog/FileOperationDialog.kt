@@ -8,9 +8,9 @@ import androidx.lifecycle.distinctUntilChanged
 import com.storyteller_f.common_pr.state
 import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.onVisible
-import com.storyteller_f.common_ui.owner
 import com.storyteller_f.common_ui.pp
 import com.storyteller_f.common_ui.repeatOnViewResumed
+import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_vm_ktx.GenericValueModel
 import com.storyteller_f.common_vm_ktx.avm
 import com.storyteller_f.common_vm_ktx.debounce
@@ -67,16 +67,17 @@ class FileOperationDialog :
         }
     )
 
-    override fun onBindViewEvent(binding: DialogFileOperationBinding) = Unit
+    override fun onBindViewEvent(binding: DialogFileOperationBinding) {
+        binding.closeWhenError.setOnClick {
+            dismiss()
+        }
+        binding.closeWhenDone.setOnClick {
+            dismiss()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = owner
-        binding.handler = object : Handler {
-            override fun close() {
-                dismiss()
-            }
-        }
         dialog?.setCanceledOnTouchOutside(false)
         val list = listOf(binding.stateProgress, binding.stateRunning, binding.stateDone)
         if (::binder.isInitialized) {

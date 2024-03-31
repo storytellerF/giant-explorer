@@ -1,3 +1,4 @@
+
 import com.android.build.api.dsl.VariantDimension
 import com.storyteller_f.version_manager.Versions
 import com.storyteller_f.version_manager.baseApp
@@ -5,7 +6,6 @@ import com.storyteller_f.version_manager.constraintCommonUIListVersion
 import com.storyteller_f.version_manager.fileSystemDependency
 import com.storyteller_f.version_manager.implModule
 import com.storyteller_f.version_manager.networkDependency
-import com.storyteller_f.version_manager.setupDataBinding
 import com.storyteller_f.version_manager.setupGeneric
 import com.storyteller_f.version_manager.setupPreviewFeature
 import com.storyteller_f.version_manager.workerDependency
@@ -85,7 +85,6 @@ implModule(":slim-ktx")
 constraintCommonUIListVersion(versionManager)
 fileSystemDependency()
 setupGeneric()
-setupDataBinding()
 setupPreviewFeature()
 
 fun DependencyHandlerScope.handleShun() {

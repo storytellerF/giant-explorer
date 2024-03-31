@@ -19,9 +19,7 @@ import com.storyteller_f.common_ui.setVisible
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system_ktx.getFileInstance
 import com.storyteller_f.giant_explorer.R
-import com.storyteller_f.giant_explorer.control.format1024
 import com.storyteller_f.giant_explorer.databinding.DialogFilePropertiesBinding
-import com.storyteller_f.giant_explorer.model.FileModel
 import kotlinx.coroutines.launch
 
 class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(DialogFilePropertiesBinding::inflate) {
@@ -40,27 +38,15 @@ class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(Dialo
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = viewLifecycleOwner
         val fileInstance = getFileInstance(requireContext(), args.uri)
         scope.launch {
             val fileKind = fileInstance.fileKind()
-            val length = if (fileKind.isFile) {
-                fileInstance.getFileLength()
-            } else {
-                0
-            }
             val model = fileInstance.getFileInfo()
-            binding.model = FileModel(
-                model,
-                fileInstance.name,
-                fileInstance.path,
-                length,
-                fileKind.isHidden,
-                fileKind.linkType != null,
-                null,
-                null,
-                formattedSize = format1024(length)
-            )
+            binding.name.text = model.name
+            binding.fullPath.text = model.fullPath
+            binding.createdTime.text = model.time.formattedCreatedTime
+            binding.modifiedTime.text = model.time.formattedLastModifiedTime
+            binding.accessedTime.text = model.time.formattedLastAccessTime
             binding.videoInfo.setVisible(model.extension == "mp4" && fileKind.isFile) {
                 val trimIndent = videoInfo(fileInstance)
                 binding.videoInfo.text = trimIndent
