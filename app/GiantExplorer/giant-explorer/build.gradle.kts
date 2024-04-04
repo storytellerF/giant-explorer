@@ -18,8 +18,8 @@ plugins {
     id("com.storyteller_f.version_manager")
     id("kotlin-kapt")
     id("com.google.devtools.ksp")
-    id("com.starter.easylauncher") version "6.2.0"
-    id("androidx.room") version "2.6.1"
+//    id("com.starter.easylauncher")
+    id("androidx.room")
 }
 
 android {
@@ -52,7 +52,7 @@ android {
 
 dependencies {
 
-    implementation("androidx.constraintlayout:constraintlayout:${Versions.CONSTRAINTLAYOUT}")
+    implementation(libs.constraintlayout)
     networkDependency()
     workerDependency()
 
@@ -60,30 +60,29 @@ dependencies {
     handleShun()
     implementation(project(":giant-explorer-plugin-core"))
 
-    implementation("com.j256.simplemagic:simplemagic:1.17")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.simplemagic)
+    implementation(libs.glide)
 
-    implementation("androidx.browser:browser:1.8.0")
-    implementation("androidx.webkit:webkit:1.10.0")
-    implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.window:window:1.2.0")
+    implementation(libs.browser)
+    implementation(libs.webkit)
+    implementation(libs.preference.ktx)
+    implementation(libs.window)
 
-    androidTestImplementation("androidx.room:room-testing:2.6.1")
+    androidTestImplementation(libs.room.testing)
 
     val liPluginModule = findProject(":li-plugin")
     if (liPluginModule != null) {
         implementation(liPluginModule)
     }
-    implementation("com.github.tony19:logback-android:3.0.0")
+    implementation(libs.logback.android)
     
-    val fileSystemVersion = "73769ee487"
-    implementation("com.github.storytellerF.AFS:file-system-remote:$fileSystemVersion")
-    implementation("com.github.storytellerF.AFS:file-system-ktx:$fileSystemVersion")
-    implementation("com.github.storytellerF.AFS:file-system:$fileSystemVersion")
-    implementation("com.github.storytellerF.AFS:file-system-root:$fileSystemVersion")
-    implementation("com.github.storytellerF.AFS:file-system-archive:$fileSystemVersion")
-    implementation("com.github.storytellerF.AFS:file-system-memory:$fileSystemVersion")
-    implementation("com.github.storytellerF.AFS:file-system-local:$fileSystemVersion")
+    implementation(libs.file.system.remote)
+    implementation(libs.file.system.ktx)
+    implementation(libs.file.system)
+    implementation(libs.file.system.root)
+    implementation(libs.file.system.archive)
+    implementation(libs.file.system.memory)
+    implementation(libs.file.system.local)
 
     constraints {
         listOf(
@@ -97,12 +96,6 @@ dependencies {
 }
 
 baseApp()
-android {
-    defaultConfig {
-        //fixme file-system-archive minSdk = 24 file-system-memory minSdk = 26
-        minSdk = 26
-    }
-}
 implModule(":slim-ktx")
 constraintCommonUIListVersion(versionManager)
 configurations.all {

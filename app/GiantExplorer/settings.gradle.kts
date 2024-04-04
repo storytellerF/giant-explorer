@@ -58,6 +58,26 @@ listOf<String>(
     }
 }
 
+
+val fileSystemModulePath = File(rootDir, "../../../AFS")
+
+listOf<String>(
+//    "file-system",
+//    "file-system-archive",
+//    "file-system-ktx",
+//    "file-system-local",
+//    "file-system-memory",
+//    "file-system-remote",
+//    "file-system-root"
+).forEach {
+    val modulePath = File(fileSystemModulePath, it)
+    if (modulePath.exists()) {
+        include(it)
+        project(":$it").projectDir = modulePath
+    }
+}
+
+
 val home: String = System.getProperty("user.home")
 when (filterFolder) {
     "local" -> file("$home/AndroidStudioProjects/FilterUIProject/")

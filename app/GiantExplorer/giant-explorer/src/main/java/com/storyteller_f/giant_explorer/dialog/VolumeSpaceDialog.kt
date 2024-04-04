@@ -1,16 +1,20 @@
 package com.storyteller_f.giant_explorer.dialog
 
+import android.content.ContentResolver
+import android.net.Uri
 import android.os.Build
 import android.os.storage.StorageVolume
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.scope
+import com.storyteller_f.file_system_local.LocalFileSystem
 import com.storyteller_f.file_system_local.getFree
 import com.storyteller_f.file_system_local.getSpace
 import com.storyteller_f.file_system_local.getStorageCompat
 import com.storyteller_f.file_system_local.getStorageVolume
 import com.storyteller_f.file_system_local.getTotal
+import com.storyteller_f.file_system_local.requestFilePermission
 import com.storyteller_f.file_system_local.volumePathName
 import com.storyteller_f.giant_explorer.control.format1024
 import com.storyteller_f.giant_explorer.databinding.DialogVolumeSpaceBinding
@@ -28,6 +32,13 @@ class VolumeSpaceDialog :
         } else {
             requireContext().getStorageCompat().forEach {
                 deployFile(binding, it)
+            }
+        }
+        val regularUri = Uri.Builder().scheme(ContentResolver.SCHEME_FILE)
+            .path(LocalFileSystem.ROOT_USER_EMULATED_PATH).build()
+        binding.managePermission.setOnClickListener {
+            scope.launch {
+                it.context.requestFilePermission(regularUri)
             }
         }
     }

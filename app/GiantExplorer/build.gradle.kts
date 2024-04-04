@@ -4,8 +4,7 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 buildscript {
     dependencies {
         val versionManager: String by project
-        val navVersion = "2.7.7"
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$navVersion")
+        classpath(libs.navigation.safe.args.gradle.plugin)
         //jitpack 构建
         classpath("com.github.storytellerF.common-ui-list:version-manager:$versionManager")
         //本地构建
@@ -13,14 +12,11 @@ buildscript {
     }
 }
 plugins {
-    val androidVersion = "8.3.1"
-    val kotlinVersion = "1.9.21"
-    val kspVersion = "1.9.21-1.0.15"
-    id("com.android.application") version androidVersion apply false
-    id("com.android.library") version androidVersion apply false
-    id("org.jetbrains.kotlin.android") version kotlinVersion apply false
-    id("org.jetbrains.kotlin.jvm") version kotlinVersion apply false
-    id("com.google.devtools.ksp") version kspVersion apply false
+    alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.jetbrainsKotlinAndroid) apply false
+    alias(libs.plugins.ksp) apply false
+    id("com.starter.easylauncher") version "6.3.0" apply false
+    id("androidx.room") version "2.6.1" apply false
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
 }
 

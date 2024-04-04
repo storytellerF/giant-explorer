@@ -38,6 +38,7 @@ import com.storyteller_f.common_vm_ktx.combineDao
 import com.storyteller_f.common_vm_ktx.debounce
 import com.storyteller_f.common_vm_ktx.distinctUntilChangedBy
 import com.storyteller_f.common_vm_ktx.svm
+import com.storyteller_f.common_vm_ktx.update
 import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.common_vm_ktx.wait5
 import com.storyteller_f.file_system.instance.FileInstance
@@ -94,7 +95,7 @@ class FileListObserver<T>(
 ) where T : ViewModelStoreOwner, T : SavedStateRegistryOwner {
     val fileInstance: FileInstance?
         get() = session.fileInstance.value
-    val selected: List<Pair<DataItemHolder, Int>>?
+    val selected: List<DataItemHolder>?
         get() = session.selected.value
 
     val fileListViewModel by owner.svm({}, scope) { handle, _ ->
@@ -241,7 +242,7 @@ private val <T> LiveData<List<T>>.same
 @ItemHolder("file")
 class FileItemHolder(
     val file: FileModel,
-    val selected: List<Pair<DataItemHolder, Int>>,
+    val selected: List<DataItemHolder>,
     variant: String
 ) : DataItemHolder(variant) {
     override fun areItemsTheSame(other: DataItemHolder) =
@@ -273,9 +274,14 @@ class FileViewHolder(private val binding: ViewHolderFileBinding) :
         binding.fileName.text = file.name
         binding.fileIcon.fileIcon(file.item)
         val item = file.item
-        binding.root.isSelected = itemHolder.selected.valueContains(
-            Pair(itemHolder, 0)
-        ) == true
+        binding.root.isSelected = run {
+            val firstOrNull = itemHolder.selected.firstOrNull {
+                it.areItemsTheSame(
+                    itemHolder
+                )
+            }
+            firstOrNull != null
+        } == true
         binding.root.setBackgroundResource(
             if (file.item.isFile) R.drawable.background_file else R.drawable.background_folder
         )
@@ -466,31 +472,27 @@ private suspend fun fileModelBuilder(
 }
 
 /**
- * 反选。pair 的first 作为key。
+ * 反选。通过areItemsTheSame 比较，而不是equals
+ * @return 返回新的选中列表和上一次是否处于选中状态
  */
-fun List<Pair<DataItemHolder, Int>>?.toggle(
-    pair: Pair<DataItemHolder, Int>
-): Pair<List<Pair<DataItemHolder, Int>>, Boolean> {
+fun List<DataItemHolder>?.toggle(
+    holder: DataItemHolder
+): Pair<List<DataItemHolder>, Boolean> {
     val oldSelectedHolders = this ?: mutableListOf()
     val otherHolders = oldSelectedHolders.filter {
-        !it.first.areItemsTheSame(pair.first)
+        !it.areItemsTheSame(holder)
     }
-    val stateSelected = otherHolders.size == oldSelectedHolders.size
-    val selected = if (stateSelected) otherHolders + pair else otherHolders
-    return selected to stateSelected
+    val newState = otherHolders.size == oldSelectedHolders.size
+    val selected = if (newState) otherHolders + holder else otherHolders
+    return selected to newState
 }
 
-fun List<Pair<DataItemHolder, Int>>.valueContains(pair: Pair<DataItemHolder, Int>): Boolean {
-    val firstOrNull = firstOrNull {
-        it.first.areItemsTheSame(pair.first)
+fun MutableLiveData<List<DataItemHolder>>.toggle(viewHolder: RecyclerView.ViewHolder) {
+    update {
+        val adapterViewHolder = viewHolder as AbstractViewHolder<out DataItemHolder>
+        val (selectedHolders, currentSelected) =
+            it.toggle(adapterViewHolder.itemHolder)
+        viewHolder.view.isSelected = currentSelected
+        selectedHolders
     }
-    return firstOrNull != null
-}
-
-fun MutableLiveData<List<Pair<DataItemHolder, Int>>>.toggle(viewHolder: RecyclerView.ViewHolder) {
-    val adapterViewHolder = viewHolder as AbstractViewHolder<out DataItemHolder>
-    val (selectedHolders, currentSelected) =
-        value.toggle(adapterViewHolder.itemHolder to viewHolder.absoluteAdapterPosition)
-    viewHolder.view.isSelected = currentSelected
-    value = selectedHolders
 }

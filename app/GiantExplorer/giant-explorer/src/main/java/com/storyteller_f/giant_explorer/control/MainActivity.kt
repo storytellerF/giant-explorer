@@ -79,7 +79,7 @@ import java.lang.ref.WeakReference
 import java.util.Properties
 
 class FileExplorerSession(application: Application, uri: Uri) : AndroidViewModel(application) {
-    val selected = MutableLiveData<List<Pair<DataItemHolder, Int>>>()
+    val selected = MutableLiveData<List<DataItemHolder>>()
     val fileInstance = MutableLiveData<FileInstance>()
 
     init {
@@ -387,8 +387,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            // fixme 无法移除remote
-//            RootAccessFileInstance.registerLibSuRemote()
+            RootAccessFileInstance.removeLibSuRemote()
         }
     }
 

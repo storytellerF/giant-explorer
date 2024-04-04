@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
 import android.text.TextPaint
 import android.text.TextUtils
 import android.util.Log
@@ -47,6 +48,7 @@ import com.storyteller_f.common_vm_ktx.pvm
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
+import com.storyteller_f.file_system_archive.ArchiveFileInstanceFactory
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.giant_explorer.BuildConfig
 import com.storyteller_f.giant_explorer.R
@@ -360,6 +362,9 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
             resolveInstalledPlugins(itemHolder, mimeTypeFromExtension, uri)
             resolveNoInstalledPlugins(mimeTypeFromExtension, fullPath, uri)
             resolveModulePlugin(key, uri, fullPath)
+            val isSupportArchiveFileInstance = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+            menu.findItem(R.id.preview_archive).isVisible =
+                isSupportArchiveFileInstance || itemHolder.file.item.extension == "zip"
 
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
@@ -368,10 +373,26 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
                     R.id.copy_to -> moveOrCopy(false, itemHolder)
                     R.id.copy_file -> copyFilePathToClipboard(itemHolder)
                     R.id.properties -> showPropertiesDialog(uri)
+                    R.id.preview_archive -> previewArchiveFile(uri)
                 }
                 true
             }
         }.show()
+    }
+
+    private fun previewArchiveFile(uri: Uri) {
+        val context = context ?: return
+        scope.launch {
+            val fileInstance = getFileInstance(context, uri) ?: return@launch
+            val newUri =
+                ArchiveFileInstanceFactory().buildNestedFile(context, "/", fileInstance)
+                    ?: return@launch
+            findNavController().navigate(
+                FileListFragmentDirections.actionFileListFragmentSelf(
+                    newUri
+                )
+            )
+        }
     }
 
     private fun PopupMenu.resolveModulePlugin(
@@ -581,7 +602,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
     }
 
     private fun detectSelected(itemHolder: FileItemHolder) =
-        observer.selected?.map { pair -> (pair.first as FileItemHolder).file.item } ?: listOf(
+        observer.selected?.map { pair -> (pair as FileItemHolder).file.item } ?: listOf(
             itemHolder.file.item
         )
 }

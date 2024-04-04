@@ -49,16 +49,18 @@
     <string name="open_window_mode_dialog_title">打开新窗口的模式</string>
     <string name="setting_key_open_window_mode" translatable="false">open_window_mode</string>
     <string name="prompt_before_drag_drop">粘贴和拖拽之前需要手动同意</string>
-    <string name="server">server</string>
-    <string name="port">port</string>
-    <string name="user">user</string>
-    <string name="password">password</string>
+    <string name="server">服务器</string>
+    <string name="port">端口</string>
+    <string name="user">用户名</string>
+    <string name="password">密码</string>
     <string name="share_name_for_smb">share name. for smb</string>
     <string name="test_connection">测试连接</string>
-    <string name="is_smb">is smb</string>
-    <string name="is_sftp">is sftp</string>
-    <string name="is_ftp">is ftp</string>
-    <string name="is_ftps_explicit">is ftps explicit</string>
-    <string name="is_ftps_implicit">is ftps implicit</string>
-    <string name="is_webdav">is webdav</string>
+    <string name="is_smb" translatable="false">is smb</string>
+    <string name="is_sftp" translatable="false">is sftp</string>
+    <string name="is_ftp" translatable="false">is ftp</string>
+    <string name="is_ftps_explicit" translatable="false">is ftps explicit</string>
+    <string name="is_ftps_implicit" translatable="false">is ftps implicit</string>
+    <string name="is_webdav" translatable="false">is webdav</string>
+    <string name="preview_archive">预览压缩文件</string>
+    <string name="manage_permission">管理权限</string>
 </resources>

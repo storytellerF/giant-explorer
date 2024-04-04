@@ -47,4 +47,12 @@
     <string name="open_window_mode">Open window mode %s</string>
     <string name="prompt_before_drag_drop">Prompt before drag&amp;drop</string>
     <string name="open_window_mode_dialog_title">Open window mode</string>
+    <string name="server">server host</string>
+    <string name="port">port</string>
+    <string name="user">user name</string>
+    <string name="password">password</string>
+    <string name="share_name_for_smb">share name for smb</string>
+    <string name="test_connection">test connection</string>
+    <string name="preview_archive">preview archived file</string>
+    <string name="manage_permission">manage permission</string>
 </resources>

@@ -16,4 +16,7 @@
     <item
         android:id="@+id/properties"
         android:title="@string/properties" />
+    <item
+        android:id="@+id/preview_archive"
+        android:title="@string/preview_archive"/>
 </menu>

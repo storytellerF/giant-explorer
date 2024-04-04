@@ -2,11 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <permission android:name="com.storyteller_f.giant_explorer.provider" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-sdk tools:overrideLibrary="com.storyteller_f.file_system_archive,com.storyteller_f.file_system_memory" />
     <queries>
         <intent>
             <action android:name="com.storyteller_f.action.giant_explorer.PLUGIN" />
@@ -115,11 +120,13 @@
         <provider
             android:name=".service.FileSystemProvider"
             android:authorities="${fileSystemProviderAuthority}"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="com.storyteller_f.giant_explorer.provider" />
         <provider
             android:name=".service.FileSystemProvider"
             android:authorities="${fileSystemEncryptedProviderAuthority}"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="com.storyteller_f.giant_explorer.provider" />
     </application>
 
 </manifest>
