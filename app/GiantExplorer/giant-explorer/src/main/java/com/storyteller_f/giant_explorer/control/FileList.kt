@@ -261,7 +261,7 @@ class FileGridViewHolder(private val binding: ViewHolderFileGridBinding) :
         binding.fileIcon.fileIcon(itemHolder.file.item)
         binding.symLink.isVisible = itemHolder.file.isSymLink
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            itemHolder.file.item.dragSupport(view)
+            itemHolder.file.item.dragSupport(itemView)
         }
     }
 }
@@ -492,7 +492,7 @@ fun MutableLiveData<List<DataItemHolder>>.toggle(viewHolder: RecyclerView.ViewHo
         val adapterViewHolder = viewHolder as AbstractViewHolder<out DataItemHolder>
         val (selectedHolders, currentSelected) =
             it.toggle(adapterViewHolder.itemHolder)
-        viewHolder.view.isSelected = currentSelected
+        viewHolder.itemView.isSelected = currentSelected
         selectedHolders
     }
 }

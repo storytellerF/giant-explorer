@@ -46,10 +46,6 @@ listOf<String>(
 //    "ui-list-annotation-compiler-ksp",
 //    "ui-list-annotation-definition",
 //    "view-holder-compose",
-//    "file-system",
-//    "file-system-remote",
-//    "file-system-ktx",
-//    "file-system-root"
 ).forEach {
     val modulePath = File(commonUiPath, it)
     if (modulePath.exists()) {

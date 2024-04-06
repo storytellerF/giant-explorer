@@ -18,7 +18,7 @@ plugins {
     id("com.storyteller_f.version_manager")
     id("kotlin-kapt")
     id("com.google.devtools.ksp")
-//    id("com.starter.easylauncher")
+    id("com.starter.easylauncher")
     id("androidx.room")
 }
 
@@ -83,16 +83,6 @@ dependencies {
     implementation(libs.file.system.archive)
     implementation(libs.file.system.memory)
     implementation(libs.file.system.local)
-
-    constraints {
-        listOf(
-            "composite-compiler-ksp",
-            "ext-func-compiler",
-            "ui-list-annotation-compiler-ksp",
-        ).forEach {
-            ksp("${Versions.JITPACK_RELEASE_GROUP}:$it:$versionManager")
-        }
-    }
 }
 
 baseApp()
