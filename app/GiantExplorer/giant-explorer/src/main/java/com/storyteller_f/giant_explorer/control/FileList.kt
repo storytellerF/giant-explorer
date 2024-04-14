@@ -32,6 +32,7 @@ import com.storyteller_f.common_pr.dipToInt
 import com.storyteller_f.common_pr.state
 import com.storyteller_f.common_ui.context
 import com.storyteller_f.common_ui.cycle
+import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.setVisible
 import com.storyteller_f.common_vm_ktx.VMScope
 import com.storyteller_f.common_vm_ktx.combineDao
@@ -239,6 +240,10 @@ private val <T> LiveData<List<T>>.same
         sort1.same(sort2)
     }
 
+interface FileItemHolderEvent {
+    fun onClick(view: View, itemHolder: FileItemHolder)
+}
+
 @ItemHolder("file")
 class FileItemHolder(
     val file: FileModel,
@@ -307,6 +312,9 @@ class FileViewHolder(private val binding: ViewHolderFileBinding) :
         binding.symLink.isVisible = file.isSymLink
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             file.item.dragSupport(binding.root)
+        }
+        itemView.setOnClick {
+            it.findFragmentOrNull<FileItemHolderEvent>()?.onClick(it, itemHolder)
         }
     }
 }

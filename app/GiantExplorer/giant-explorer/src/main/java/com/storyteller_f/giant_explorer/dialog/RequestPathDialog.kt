@@ -10,7 +10,6 @@ import androidx.activity.addCallback
 import androidx.core.net.toUri
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.fragment.navArgs
-import com.storyteller_f.annotation_defination.BindClickEvent
 import com.storyteller_f.common_ui.Registry
 import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.observeResponse
@@ -26,6 +25,7 @@ import com.storyteller_f.file_system.toParentEfficiently
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.file_system_local.getCurrentUserEmulatedPath
 import com.storyteller_f.giant_explorer.control.FileItemHolder
+import com.storyteller_f.giant_explorer.control.FileItemHolderEvent
 import com.storyteller_f.giant_explorer.control.FileListFragmentArgs
 import com.storyteller_f.giant_explorer.control.FileListObserver
 import com.storyteller_f.giant_explorer.control.FileViewHolder
@@ -43,7 +43,7 @@ import java.io.File
 
 class RequestPathDialog :
     SimpleDialogFragment<DialogRequestPathBinding>(DialogRequestPathBinding::inflate),
-    Registry {
+    Registry, FileItemHolderEvent {
     private val args by navArgs<RequestPathDialogArgs>()
 
     private val observer = FileListObserver(this, {
@@ -53,10 +53,9 @@ class RequestPathDialog :
     @Parcelize
     class RequestPathResult(val uri: Uri) : Parcelable
 
-    private val adapter = SimpleSourceAdapter<FileItemHolder, FileViewHolder>(REQUEST_KEY)
+    private val adapter = SimpleSourceAdapter<FileItemHolder, FileViewHolder>()
 
     companion object {
-        const val REQUEST_KEY = "request-path"
 
         fun bundle(context: Context): Bundle {
             val path = context.getCurrentUserEmulatedPath()
@@ -145,7 +144,6 @@ class RequestPathDialog :
         }
     }
 
-    @BindClickEvent(FileItemHolder::class, group = REQUEST_KEY)
     fun toChild(itemHolder: FileItemHolder) {
         if (itemHolder.file.item.isDirectory) {
             val current = observer.fileInstance ?: return
@@ -162,5 +160,9 @@ class RequestPathDialog :
             setFragmentResult(RequestPathResult(itemHolder.file.item.uri))
             dismiss()
         }
+    }
+
+    override fun onClick(view: View, itemHolder: FileItemHolder) {
+        toChild(itemHolder)
     }
 }

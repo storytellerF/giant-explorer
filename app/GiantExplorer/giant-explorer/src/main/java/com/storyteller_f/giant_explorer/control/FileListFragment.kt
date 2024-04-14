@@ -84,7 +84,7 @@ class SharePasteTargetViewModel : ViewModel() {
     }
 }
 
-class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileListBinding::inflate) {
+class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileListBinding::inflate), FileItemHolderEvent {
     private val fileOperateBinder
         get() = (requireContext() as MainActivity).fileOperateBinder
     private val uuid by keyPrefix(
@@ -274,7 +274,6 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         }
     }
 
-    @BindClickEvent(FileItemHolder::class)
     fun toChild(itemHolder: FileItemHolder) {
         val old = observer.fileInstance ?: return
         scope.launch {
@@ -605,6 +604,10 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileLis
         observer.selected?.map { pair -> (pair as FileItemHolder).file.item } ?: listOf(
             itemHolder.file.item
         )
+
+    override fun onClick(view: View, itemHolder: FileItemHolder) {
+        toChild(itemHolder)
+    }
 }
 
 private fun Menu.loopAdd(strings: List<String>): Menu {
