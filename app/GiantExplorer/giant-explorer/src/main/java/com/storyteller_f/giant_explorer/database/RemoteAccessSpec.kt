@@ -8,7 +8,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import com.storyteller_f.file_system_remote.RemoteAccessType
+import com.storyteller_f.file_system_remote.RemoteSchemes
 import com.storyteller_f.file_system_remote.RemoteSpec
 import com.storyteller_f.file_system_remote.ShareSpec
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +36,7 @@ data class RemoteAccessSpec(
     }
 
     fun toUri(): Uri {
-        return if (type == RemoteAccessType.SMB || type == RemoteAccessType.WEB_DAV) {
+        return if (type == RemoteSchemes.SMB || type == RemoteSchemes.WEB_DAV) {
             toShareSpec().toUri()
         } else {
             toRemoteSpec().toUri()

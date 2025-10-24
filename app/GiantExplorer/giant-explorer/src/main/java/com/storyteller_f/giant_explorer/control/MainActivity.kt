@@ -18,10 +18,14 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -35,7 +39,7 @@ import com.storyteller_f.common_ui.CommonActivity
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
-import com.storyteller_f.common_ui.supportNavigatorBarImmersive
+import com.storyteller_f.common_ui.updateMargins
 import com.storyteller_f.common_vm_ktx.StateValueModel
 import com.storyteller_f.common_vm_ktx.debounce
 import com.storyteller_f.common_vm_ktx.svm
@@ -43,9 +47,9 @@ import com.storyteller_f.common_vm_ktx.toDiffNoNull
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.rawTree
-import com.storyteller_f.file_system_local.DocumentLocalFileInstance
 import com.storyteller_f.file_system_local.FileSystemUriStore
 import com.storyteller_f.file_system_local.getCurrentUserEmulatedPath
+import com.storyteller_f.file_system_local.instance.DocumentLocalFileInstance
 import com.storyteller_f.file_system_root.RootAccessFileInstance
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.R
@@ -127,9 +131,14 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
-        supportNavigatorBarImmersive(binding.content)
+        enableEdgeToEdge()
         observeBinder()
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { v, i ->
+            val top = i.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            v.updatePadding(top = top)
+            i
+        }
         // 连接服务
         val fileOperateIntent = Intent(this, FileOperateService::class.java)
         startService(fileOperateIntent)

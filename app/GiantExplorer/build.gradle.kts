@@ -3,12 +3,7 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 buildscript {
     dependencies {
-        val versionManager: String by project
         classpath(libs.navigation.safe.args.gradle.plugin)
-        //jitpack 构建
-        classpath("com.github.storytellerF.common-ui-list:version-manager:$versionManager")
-        //本地构建
-//        classpath("com.storyteller_f:version-manager:0.0.1-local")
     }
 }
 plugins {
@@ -18,6 +13,7 @@ plugins {
     id("com.starter.easylauncher") version "6.4.1" apply false
     id("androidx.room") version "2.8.3" apply false
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    alias(libs.plugins.kotlinCompose) apply false
 }
 
 subprojects {

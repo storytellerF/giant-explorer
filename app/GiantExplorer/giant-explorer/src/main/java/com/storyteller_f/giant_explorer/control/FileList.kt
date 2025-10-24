@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.DragStartHelper
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,7 +26,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.savedstate.SavedStateRegistryOwner
 import com.storyteller_f.annotation_defination.BindItemHolder
 import com.storyteller_f.annotation_defination.ItemHolder
 import com.storyteller_f.common_pr.dipToInt
@@ -48,8 +48,8 @@ import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system_ktx.fileIcon
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.file_system_ktx.isFile
-import com.storyteller_f.file_system_local.checkFilePermission
-import com.storyteller_f.file_system_local.requestFilePermission
+import com.storyteller_f.file_system_local.permission.checkFilePermission
+import com.storyteller_f.file_system_local.permission.requestFilePermission
 import com.storyteller_f.filter_core.Filter
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.PC_END_ON
@@ -93,7 +93,7 @@ class FileListObserver<T>(
     private val owner: T,
     args: () -> FileListFragmentArgs,
     val scope: VMScope
-) where T : ViewModelStoreOwner, T : SavedStateRegistryOwner {
+) where T : ViewModelStoreOwner, T : HasDefaultViewModelProviderFactory, T : LifecycleOwner {
     val fileInstance: FileInstance?
         get() = session.fileInstance.value
     val selected: List<DataItemHolder>?

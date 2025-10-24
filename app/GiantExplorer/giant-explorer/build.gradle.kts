@@ -1,5 +1,5 @@
 import com.android.build.api.dsl.VariantDimension
-import com.storyteller_f.version_manager.Versions
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -12,6 +12,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.starter.easylauncher")
     id("androidx.room")
+    alias(libs.plugins.kotlinCompose)
 }
 
 android {
@@ -30,13 +31,13 @@ android {
             registerProviderKey("file-system-encrypted-provider", id)
         }
     }
-    compileSdk = Versions.COMPILE_SDK
+    compileSdk = libs.versions.compileSdk.get().toInt()
     defaultConfig {
         applicationId = id
-        minSdk = Versions.DEFAULT_MIN_SDK
+        minSdk = libs.versions.minSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        targetSdk = Versions.TARGET_SDK
+        targetSdk = libs.versions.compileSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -89,26 +90,24 @@ android {
         viewBinding = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = Versions.COMPOSE_COMPILER
-    }
 }
 dependencies {
     implementation(libs.startup)
-    implementation(libs.common.ui.list.slim.ktx)
+    implementation(libs.slim.ktx)
     implementation(libs.common.ktx)
     implementation(libs.compat.ktx)
     implementation(libs.common.ui)
+    implementation(libs.common.pr)
     implementation(libs.ui.list)
     implementation(libs.ui.list.annotation.definition)
     ksp(libs.ui.list.annotation.compiler.ksp)
     implementation(libs.composite.definition)
     ksp(libs.composite.compiler.ksp)
-    implementation(libs.androidx.core.ktx.v1120)
-    implementation(libs.androidx.appcompat.v161)
+    implementation(libs.core.ktx)
+    implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.fragment.ktx)
-    implementation(libs.androidx.activity.ktx.v182)
+    implementation(libs.activity.ktx)
 
     ksp(libs.androidx.room.compiler)
 
@@ -122,9 +121,8 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.navigation.ui.ktx)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit.v113)
-    androidTestImplementation(libs.androidx.espresso.core.v340)
-    implementation(libs.common.pr)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
     implementation(libs.constraintlayout)
     implementation(libs.retrofit)
     implementation(libs.retrofit.mock)
@@ -133,7 +131,12 @@ dependencies {
     androidTestImplementation(libs.androidx.work.testing)
     implementation(libs.androidx.work.multiprocess)
 
-    handleSu()
+    // The core module that provides APIs to a shell
+    implementation(libs.core)
+    // Optional: APIs for creating root services. Depends on ":core"
+    implementation(libs.service)
+    // Optional: Provides remote file system support
+    implementation(libs.nio)
     handleShun()
     implementation(project(":giant-explorer-plugin-core"))
 
@@ -170,9 +173,8 @@ configurations.all {
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs = listOf("-Xcontext-receivers")
+        freeCompilerArgs = listOf("-Xcontext-parameters")
         jvmTarget = JvmTarget.JVM_21
-        freeCompilerArgs = listOf("-opt-in=")
         optIn = listOf("kotlin.RequiresOptIn")
     }
 }
@@ -190,22 +192,9 @@ fun DependencyHandlerScope.handleShun() {
         }
     } else {
         filterArtifact.forEach {
-            implementation("com.github.storytellerF.Shun:$it:1.2.0")
+            implementation("com.github.storytellerF.Shun:$it:1.0.0")
         }
     }
-}
-
-fun DependencyHandlerScope.handleSu() {
-    val libsuVersion = "5.0.3"
-
-    // The core module that provides APIs to a shell
-    implementation("com.github.topjohnwu.libsu:core:${libsuVersion}")
-
-    // Optional: APIs for creating root services. Depends on ":core"
-    implementation("com.github.topjohnwu.libsu:service:${libsuVersion}")
-
-    // Optional: Provides remote file system support
-    implementation("com.github.topjohnwu.libsu:nio:${libsuVersion}")
 }
 
 /**

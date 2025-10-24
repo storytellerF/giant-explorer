@@ -19,7 +19,7 @@ import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.model.FileInfo
-import com.storyteller_f.file_system_local.checkFilePermission
+import com.storyteller_f.file_system_local.permission.checkFilePermission
 import com.storyteller_f.filter_core.config.FilterConfig
 import com.storyteller_f.filter_core.config.FilterConfigItem
 import com.storyteller_f.filter_core.filterConfigAdapterFactory
@@ -71,10 +71,10 @@ class App : Application() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)
         holders(
-            com.storyteller_f.giant_explorer.control.plugin.ui_list.HolderBuilder::add,
-            com.storyteller_f.giant_explorer.control.remote.ui_list.HolderBuilder::add,
-            com.storyteller_f.giant_explorer.control.task.ui_list.HolderBuilder::add,
-            com.storyteller_f.giant_explorer.control.ui_list.HolderBuilder::add,
+            com.storyteller_f.giant_explorer.control.plugin.ui_list.HolderBuilder::registerAll,
+            com.storyteller_f.giant_explorer.control.remote.ui_list.HolderBuilder::registerAll,
+            com.storyteller_f.giant_explorer.control.task.ui_list.HolderBuilder::registerAll,
+            com.storyteller_f.giant_explorer.control.ui_list.HolderBuilder::registerAll,
         )
         MainScope().launch {
             requireDatabase.bigTimeDao().fetchSuspend().groupBy {
@@ -145,11 +145,8 @@ abstract class BigTimeWorker(
         return withContext(Dispatchers.IO) {
             val results = uriStringArray.asList().map { uriString ->
                 when {
-                    !context.checkFilePermission(uriString.toUri()) -> WorkerResult.Failure(
-                        java.lang.Exception(
-                            "don't have permission"
-                        )
-                    )
+                    !context.checkFilePermission(uriString.toUri()) ->
+                        WorkerResult.Failure(java.lang.Exception("don't have permission"))
 
                     isStopped -> WorkerResult.Stopped
                     else -> doWork(context, uriString)

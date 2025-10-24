@@ -15,7 +15,7 @@ import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.waitingDialog
 import com.storyteller_f.common_vm_ktx.BuilderValueModel
 import com.storyteller_f.common_vm_ktx.vm
-import com.storyteller_f.file_system_remote.RemoteAccessType
+import com.storyteller_f.file_system_remote.RemoteSchemes
 import com.storyteller_f.file_system_remote.RemoteSpec
 import com.storyteller_f.file_system_remote.ShareSpec
 import com.storyteller_f.file_system_remote.checkFtpConnection
@@ -81,9 +81,9 @@ class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(Fragmen
             it.type
         }.state {
             Log.i(TAG, "onViewCreated: mode $it")
-            binding.shareInput.isVisible = it == RemoteAccessType.SMB
+            binding.shareInput.isVisible = it == RemoteSchemes.SMB
             if (it != "") {
-                val id = list[RemoteAccessType.EXCLUDE_HTTP_PROTOCOL.indexOf(it)]
+                val id = list[RemoteSchemes.EXCLUDE_HTTP_PROTOCOL.indexOf(it)]
                 if (binding.typeGroup.checkedRadioButtonId != id) {
                     binding.typeGroup.check(id)
                 }
@@ -93,10 +93,10 @@ class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(Fragmen
             Log.i(TAG, "onViewCreated: $checkedId")
             val indexOf = list.indexOf(checkedId)
             model.data.update {
-                it!!.copy(type = RemoteAccessType.EXCLUDE_HTTP_PROTOCOL[indexOf])
+                it!!.copy(type = RemoteSchemes.EXCLUDE_HTTP_PROTOCOL[indexOf])
             }
             if (binding.portInput.text.isEmpty()) {
-                binding.portInput.setText(RemoteAccessType.DEFAULT_PORT[indexOf].toString())
+                binding.portInput.setText(RemoteSchemes.DEFAULT_PORT[indexOf].toString())
             }
         }
     }
@@ -176,12 +176,12 @@ class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(Fragmen
             waitingDialog {
                 withContext(Dispatchers.IO) {
                     when (val t = model.data.value?.type) {
-                        RemoteAccessType.SMB -> shareSpec().checkSmbConnection()
-                        RemoteAccessType.FTP -> spec().checkFtpConnection()
-                        RemoteAccessType.FTP_ES -> spec().checkFtpsConnection()
-                        RemoteAccessType.FTPS -> spec().checkFtpsConnection()
-                        RemoteAccessType.WEB_DAV -> spec().checkWebDavConnection()
-                        RemoteAccessType.SFTP -> spec().checkSFtpConnection()
+                        RemoteSchemes.SMB -> shareSpec().checkSmbConnection()
+                        RemoteSchemes.FTP -> spec().checkFtpConnection()
+                        RemoteSchemes.FTP_ES -> spec().checkFtpsConnection()
+                        RemoteSchemes.FTPS -> spec().checkFtpsConnection()
+                        RemoteSchemes.WEB_DAV -> spec().checkWebDavConnection()
+                        RemoteSchemes.SFTP -> spec().checkSFtpConnection()
                         else -> error("impossible $t")
                     }
                 }

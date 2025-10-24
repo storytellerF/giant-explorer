@@ -84,7 +84,9 @@ class SharePasteTargetViewModel : ViewModel() {
     }
 }
 
-class FileListFragment : SimpleFragment<FragmentFileListBinding>(FragmentFileListBinding::inflate), FileItemHolderEvent {
+class FileListFragment : SimpleFragment<FragmentFileListBinding>(
+    FragmentFileListBinding::inflate
+), FileItemHolderEvent {
     private val fileOperateBinder
         get() = (requireContext() as MainActivity).fileOperateBinder
     private val uuid by keyPrefix(

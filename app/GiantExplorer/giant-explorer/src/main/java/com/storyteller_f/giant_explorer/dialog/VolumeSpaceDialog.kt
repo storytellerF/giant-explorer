@@ -8,13 +8,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.scope
-import com.storyteller_f.file_system_local.LocalFileSystem
+import com.storyteller_f.file_system_local.LocalFileSystemPaths
 import com.storyteller_f.file_system_local.getFree
 import com.storyteller_f.file_system_local.getSpace
 import com.storyteller_f.file_system_local.getStorageCompat
 import com.storyteller_f.file_system_local.getStorageVolume
 import com.storyteller_f.file_system_local.getTotal
-import com.storyteller_f.file_system_local.requestFilePermission
+import com.storyteller_f.file_system_local.permission.requestFilePermission
 import com.storyteller_f.file_system_local.volumePathName
 import com.storyteller_f.giant_explorer.control.format1024
 import com.storyteller_f.giant_explorer.databinding.DialogVolumeSpaceBinding
@@ -35,7 +35,7 @@ class VolumeSpaceDialog :
             }
         }
         val regularUri = Uri.Builder().scheme(ContentResolver.SCHEME_FILE)
-            .path(LocalFileSystem.ROOT_USER_EMULATED_PATH).build()
+            .path(LocalFileSystemPaths.ROOT_USER_EMULATED_PATH).build()
         binding.managePermission.setOnClickListener {
             scope.launch {
                 it.context.requestFilePermission(regularUri)

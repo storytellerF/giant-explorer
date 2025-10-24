@@ -10,7 +10,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.file_system_local.FileSystemUriStore
-import com.storyteller_f.file_system_remote.RemoteAccessType
+import com.storyteller_f.file_system_remote.RemoteSchemes
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.database.requireDatabase
 import kotlinx.coroutines.launch
@@ -90,7 +90,7 @@ class DocumentProviderMenuProvider(
             }.forEach { (key, value) ->
                 val addSubMenu = menu.addSubMenu(key)
                 value.forEach { spec ->
-                    val uri = if (spec.type == RemoteAccessType.SMB) {
+                    val uri = if (spec.type == RemoteSchemes.SMB) {
                         spec.toShareSpec().toUri()
                     } else {
                         spec.toRemoteSpec().toUri()

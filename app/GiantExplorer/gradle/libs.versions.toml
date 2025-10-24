@@ -6,6 +6,7 @@ androidxJunit = "1.3.0"
 appcompat = "1.7.1"
 appcompatVersion = "1.7.1"
 compileSdk = "36"
+core = "5.0.3"
 coreKtx = "1.17.0"
 coreKtxVersion = "1.17.0"
 espressoCore = "3.7.0"
@@ -22,7 +23,7 @@ constraintlayout = "2.2.1"
 detektVersion = "1.23.8"
 kotlin = "2.2.20"
 browserVersion = "1.9.0"
-fileSystemVersion = "5104cf8714"
+fileSystemVersion = "b41ca6990d"
 glideVersion = "5.0.5"
 lifecycleService = "2.9.4"
 logbackAndroidVersion = "3.0.0"
@@ -40,17 +41,12 @@ windowVersion = "1.5.0"
 webkitVersion = "1.14.0"
 preferenceKtxVersion = "1.2.1"
 kspVersion = "2.2.20-2.0.4"
-commonUiList = "e98dd30f60"
+commonUiList = "a0fa18ddda"
 workMultiprocess = "2.11.0"
 workTesting = "2.11.0"
 
 [libraries]
 activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
-androidx-activity-ktx-v182 = { module = "androidx.activity:activity-ktx", version.ref = "activityKtxVersion" }
-androidx-core-ktx-v1120 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
-androidx-appcompat-v161 = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
-androidx-espresso-core-v340 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
-androidx-junit-v113 = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
@@ -66,10 +62,10 @@ common-ktx = { module = "com.github.storytellerF.common-ui-list:common-ktx", ver
 common-pr = { module = "com.github.storytellerF.common-ui-list:common-pr", version.ref = "commonUiList" }
 common-ui = { module = "com.github.storytellerF.common-ui-list:common-ui", version.ref = "commonUiList" }
 compat-ktx = { module = "com.github.storytellerF.common-ui-list:compat-ktx", version.ref = "commonUiList" }
-common-ui-list-slim-ktx = { module = "com.github.storytellerF.common-ui-list:slim-ktx", version.ref = "commonUiList" }
 composite-compiler-ksp = { module = "com.github.storytellerF.common-ui-list:composite-compiler-ksp", version.ref = "commonUiList" }
 composite-definition = { module = "com.github.storytellerF.common-ui-list:composite-definition", version.ref = "commonUiList" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+core = { module = "com.github.topjohnwu.libsu:core", version.ref = "core" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detektVersion" }
 detekt-rules-libraries = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detektVersion" }
@@ -92,9 +88,11 @@ lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.r
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navVersion" }
+nio = { module = "com.github.topjohnwu.libsu:nio", version.ref = "core" }
 preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtxVersion" }
 retrofit-mock = { module = "com.squareup.retrofit2:retrofit-mock", version.ref = "retrofitMock" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+service = { module = "com.github.topjohnwu.libsu:service", version.ref = "core" }
 simplemagic = { module = "com.j256.simplemagic:simplemagic", version.ref = "simplemagicVersion" }
 slim-ktx = { module = "com.github.storytellerF.common-ui-list:slim-ktx", version.ref = "commonUiList" }
 startup = { module = "com.github.storytellerF.Bao:startup", version.ref = "startup" }
@@ -111,3 +109,4 @@ logback-android = { module = "com.github.tony19:logback-android", version.ref = 
 ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinCompose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
