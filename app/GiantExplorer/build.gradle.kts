@@ -15,9 +15,9 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
     alias(libs.plugins.ksp) apply false
-    id("com.starter.easylauncher") version "6.3.0" apply false
-    id("androidx.room") version "2.6.1" apply false
-    id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("com.starter.easylauncher") version "6.4.1" apply false
+    id("androidx.room") version "2.8.3" apply false
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 subprojects {
@@ -35,11 +35,9 @@ subprojects {
         baseline = file("$rootDir/config/detekt/baseline.xml")
     }
     dependencies {
-        val detektVersion = "1.23.1"
-
-        detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
-        detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
-        detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors:$detektVersion")
+        detektPlugins(rootProject.libs.detekt.formatting)
+        detektPlugins(rootProject.libs.detekt.rules.libraries)
+        detektPlugins(rootProject.libs.detekt.rules.ruleauthors)
     }
 
     tasks.withType<Detekt>().configureEach {

@@ -1,21 +1,13 @@
 import com.android.build.api.dsl.VariantDimension
 import com.storyteller_f.version_manager.Versions
-import com.storyteller_f.version_manager.baseApp
-import com.storyteller_f.version_manager.constraintCommonUIListVersion
-import com.storyteller_f.version_manager.implModule
-import com.storyteller_f.version_manager.networkDependency
-import com.storyteller_f.version_manager.setupGeneric
-import com.storyteller_f.version_manager.setupPreviewFeature
-import com.storyteller_f.version_manager.workerDependency
-
-val versionManager: String by project
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
-    id("com.storyteller_f.version_manager")
+
     id("kotlin-kapt")
     id("com.google.devtools.ksp")
     id("com.starter.easylauncher")
@@ -23,18 +15,8 @@ plugins {
 }
 
 android {
-
     val id = "com.storyteller_f.giant_explorer"
-    defaultConfig {
-        applicationId = id
-    }
-
     namespace = "com.storyteller_f.giant_explorer"
-    buildFeatures {
-        viewBinding = true
-        buildConfig = true
-    }
-
     buildTypes {
         debug {
             val suffix = ".$name"
@@ -48,13 +30,108 @@ android {
             registerProviderKey("file-system-encrypted-provider", id)
         }
     }
+    compileSdk = Versions.COMPILE_SDK
+    defaultConfig {
+        applicationId = id
+        minSdk = Versions.DEFAULT_MIN_SDK
+        versionCode = 1
+        versionName = "1.0"
+        targetSdk = Versions.TARGET_SDK
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        val path = System.getenv("storyteller_f_sign_path")
+        val alias = System.getenv("storyteller_f_sign_alias")
+        val storePassword = System.getenv("storyteller_f_sign_store_password")
+        val keyPassword = System.getenv("storyteller_f_sign_key_password")
+        if (path != null && alias != null && storePassword != null && keyPassword != null) {
+            create("release") {
+                keyAlias = alias
+                this.keyPassword = keyPassword
+                storeFile = file(path)
+                this.storePassword = storePassword
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            resValue(
+                "string",
+                "leak_canary_display_activity_label",
+                defaultConfig.applicationId?.substringAfterLast(".") ?: "Leaks"
+            )
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            val releaseSignConfig = signingConfigs.findByName("release")
+            if (releaseSignConfig != null)
+                signingConfig = releaseSignConfig
+        }
+    }
+    val javaVersion = JavaVersion.VERSION_21
+    compileOptions {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+    }
+
+    dependenciesInfo {
+        includeInBundle = false
+        includeInApk = false
+    }
+    buildFeatures {
+        compose = true
+        viewBinding = true
+        buildConfig = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = Versions.COMPOSE_COMPILER
+    }
 }
-
 dependencies {
+    implementation(libs.startup)
+    implementation(libs.common.ui.list.slim.ktx)
+    implementation(libs.common.ktx)
+    implementation(libs.compat.ktx)
+    implementation(libs.common.ui)
+    implementation(libs.ui.list)
+    implementation(libs.ui.list.annotation.definition)
+    ksp(libs.ui.list.annotation.compiler.ksp)
+    implementation(libs.composite.definition)
+    ksp(libs.composite.compiler.ksp)
+    implementation(libs.androidx.core.ktx.v1120)
+    implementation(libs.androidx.appcompat.v161)
+    implementation(libs.material)
+    implementation(libs.fragment.ktx)
+    implementation(libs.androidx.activity.ktx.v182)
 
+    ksp(libs.androidx.room.compiler)
+
+    debugImplementation(libs.leakcanary.android)
+    implementation(libs.androidx.multidex)
+    implementation(libs.slim.ktx)
+    implementation(libs.androidx.material)
+    implementation(libs.androidx.ui.tooling)
+    implementation(libs.view.holder.compose)
+    ksp(libs.ext.func.compiler)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.navigation.ui.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit.v113)
+    androidTestImplementation(libs.androidx.espresso.core.v340)
+    implementation(libs.common.pr)
     implementation(libs.constraintlayout)
-    networkDependency()
-    workerDependency()
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.mock)
+    implementation(libs.logging.interceptor)
+    implementation(libs.androidx.work.runtime.ktx)
+    androidTestImplementation(libs.androidx.work.testing)
+    implementation(libs.androidx.work.multiprocess)
 
     handleSu()
     handleShun()
@@ -75,7 +152,7 @@ dependencies {
         implementation(liPluginModule)
     }
     implementation(libs.logback.android)
-    
+
     implementation(libs.file.system.remote)
     implementation(libs.file.system.ktx)
     implementation(libs.file.system)
@@ -83,18 +160,22 @@ dependencies {
     implementation(libs.file.system.archive)
     implementation(libs.file.system.memory)
     implementation(libs.file.system.local)
+    implementation(libs.lifecycle.service)
 }
-
-baseApp()
-implModule(":slim-ktx")
-constraintCommonUIListVersion(versionManager)
 configurations.all {
     resolutionStrategy.capabilitiesResolution.withCapability("com.google.guava:listenablefuture") {
         select("com.google.guava:guava:0")
     }
 }
-setupGeneric()
-setupPreviewFeature()
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs = listOf("-Xcontext-receivers")
+        jvmTarget = JvmTarget.JVM_21
+        freeCompilerArgs = listOf("-opt-in=")
+        optIn = listOf("kotlin.RequiresOptIn")
+    }
+}
 
 fun DependencyHandlerScope.handleShun() {
     //filter & sort
@@ -109,7 +190,7 @@ fun DependencyHandlerScope.handleShun() {
         }
     } else {
         filterArtifact.forEach {
-            implementation("com.github.storytellerF.Shun:$it:1.0.0")
+            implementation("com.github.storytellerF.Shun:$it:1.2.0")
         }
     }
 }
