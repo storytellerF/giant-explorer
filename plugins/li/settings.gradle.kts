@@ -5,7 +5,7 @@ pluginManagement {
         google()
         mavenCentral()
         maven {
-            url "https://jitpack.io"
+            url = uri("https.jitpack.io")
         }
     }
 }
@@ -15,12 +15,12 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            url "https://jitpack.io"
+            url = uri("https.jitpack.io")
         }
     }
 }
 rootProject.name = "li"
-include ':app'
-include ':plugin'
-include 'giant-explorer-plugin-core'
-project(":giant-explorer-plugin-core").setProjectDir(new File("../../app/GiantExplorer/giant-explorer-plugin-core"))
+include(":app")
+include(":plugin")
+include(":giant-explorer-plugin-core")
+project(":giant-explorer-plugin-core").projectDir = File("../../app/GiantExplorer/giant-explorer-plugin-core")

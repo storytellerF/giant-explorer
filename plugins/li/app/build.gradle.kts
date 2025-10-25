@@ -37,14 +37,12 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(project(":plugin"))
     //fixme
-    constraints {
-        listOf(
-            "composite-compiler-ksp",
-            "ext-func-compiler",
-            "ui-list-annotation-compiler-ksp",
-        ).forEach {
-            ksp("${Versions.JITPACK_RELEASE_GROUP}:$it:$versionManager")
-        }
+    listOf(
+        "composite-compiler-ksp",
+        "ext-func-compiler",
+        "ui-list-annotation-compiler-ksp",
+    ).forEach {
+        ksp("${Versions.JITPACK_RELEASE_GROUP}:$it:$versionManager")
     }
 }
 constraintCommonUIListVersion(versionManager)
