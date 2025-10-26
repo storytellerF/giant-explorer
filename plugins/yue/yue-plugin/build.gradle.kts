@@ -23,8 +23,8 @@ baseLibrary()
 dependencies {
     commonAppDependency()
     unitTestDependency()
-    api(project(":giant-explorer-plugin-core"))
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    api("com.github.storytellerF.giant-explorer:giant-explorer-plugin-core:0.0.1-local")
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
 }
 //dx 命令执行需要jdk8
 val javaVersion = providers.exec {

@@ -1,6 +1,6 @@
 pluginManagement {
-//    includeBuild("../../common-ui-list/version-manager")
     repositories {
+        mavenLocal()
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -12,6 +12,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
     }
@@ -19,5 +20,3 @@ dependencyResolutionManagement {
 rootProject.name = "yue"
 include ':app'
 include ':yue-plugin'
-include 'giant-explorer-plugin-core'
-project(":giant-explorer-plugin-core").setProjectDir(new File("../../app/GiantExplorer/giant-explorer-plugin-core"))
