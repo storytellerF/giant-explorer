@@ -14,6 +14,10 @@ fi
 checkLastResult "compress yue-html" $?
 
 cd dispatcher
-customBuild dispatcher installDist $1
+customBuildProcess dispatcher "gradlew installDist --no-daemon"
 build/install/dispatcher/bin/dispatcher
 checkLastResult dispatcher $?
+
+p=$(realpath ../../build/yue-html/)
+printWarningLabel "copy yue-html build to $p"
+cp -r build/* ../../build/yue-html/

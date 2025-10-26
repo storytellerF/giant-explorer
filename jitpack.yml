@@ -1,0 +1,4 @@
+jdk:
+    - openjdk21
+install:
+    - sh ./app/GiantExplorer/publish.sh

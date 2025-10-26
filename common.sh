@@ -28,67 +28,29 @@ printWarningLabel() {
 #第一个参数是project name，同时也作为tag 使用，
 #第二个是module name，
 #第三个是目标子目录，默认是第一个参数，
-#第四个参数是是否开启clean，默认开启，除非指定一个cache 的值
-#输出目录是1层目录
-buildApp(){
-    buildAppInternal $1 $2 ../build/${3:-$1}/ $4
-}
-
-#第一个参数是project name，同时也作为tag 使用，
-#第二个是module name，
-#第三个是目标子目录，默认是第一个参数，
-#第四个参数是是否开启clean，默认开启
 #输出目录是2层目录
-buildApp2(){
-    buildAppInternal $1 $2 ../../build/${3:-$1}/ $4
+buildApp(){
+    buildAppInternal $1 $2 ../../build/${3:-$1}/
 }
 
 #第一个参数是project name，同时也作为tag 使用，
 #第二个是module name，
 #第三个是目标目录，
-#第四个参数是是否开启clean，默认开启，
 buildAppInternal() {
     cd $1
 
-    customBuild $1 build $4
+    customBuildProcess $1 "gradlew clean build --no-daemon"
+    p=$(realpath $3)
+    printWarningLabel "copy $1 apk to $p"
     cp $2/build/outputs/apk/release/*.apk $3
 
     cd ..
 }
 
 #第一个参数是tag，
-#第二个参数是自定义命令，
-#第三个参数是是否开启clean，默认开始，输入cache 会关闭
-customBuild() {
-    customBuildProcess $1 "gradlew clean" "gradlew $2" $3
-}
-
-#第一个参数是tag，
-#第二个参数是自定义clean命令，
-#第三个参数是自定义build 命令，
-#第四个参数是是否开启clean，默认开始
+#第二个参数是自定义build 命令，
 customBuildProcess() {
-    printStartLabel "$1 [$4]"
-    invokeClean $1 "$2" $4
-    sh $3
+    printStartLabel "$1"
+    sh $2
     checkLastResult $1 $?
-}
-
-# 执行clean 命令
-# 第一个参数是project name，同时也作为tag 使用
-cleanCache() {
-    cd $1
-    invokeClean $1 "gradlew clean"
-    cd ..
-}
-
-#第一个参数是tag，
-#第二个参数是自定义clean命令, 
-#第三个参数是是否开启clean，默认开始，输入cache 会关闭
-invokeClean() {
-    if  [ "$3" != "cache" ]; then
-        printWarningLabel "clean $1 cache"
-        sh $2
-        checkLastResult "$1 clean" $?
-    fi
 }
