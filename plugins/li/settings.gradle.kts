@@ -1,26 +1,21 @@
 pluginManagement {
-    // includeBuild("../../common-ui-list/version-manager")
     repositories {
+        mavenLocal()
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven {
-            url = uri("https.jitpack.io")
-        }
+        maven("https://jitpack.io")
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
-        maven {
-            url = uri("https.jitpack.io")
-        }
+        maven("https://jitpack.io")
     }
 }
 rootProject.name = "li"
 include(":app")
 include(":plugin")
-include(":giant-explorer-plugin-core")
-project(":giant-explorer-plugin-core").projectDir = File("../../app/GiantExplorer/giant-explorer-plugin-core")
