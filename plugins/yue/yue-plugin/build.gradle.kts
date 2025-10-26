@@ -58,43 +58,56 @@ dependencies {
     api(libs.giant.explorer.plugin.core)
     api(libs.lifecycle.runtime.ktx)
 }
-//dx 命令执行需要jdk8
-val javaVersion: String = providers.exec {
-    commandLine("java", "-version")
-}.standardOutput.asText.get()
-if (javaVersion.contains("\"1.8")) {
-    val unpackAar = tasks.register<Copy>("unpackAar") {
-        group = "gep"
-        from(zipTree(layout.buildDirectory.file("outputs/aar/yue-plugin-debug.aar")))
-        into(layout.buildDirectory.dir("intermediates/aar_unzip"))
-    }
-    val property = System.getProperty("os.name").orEmpty()
-    val isWindows = property.lowercase().startsWith("win")
-    val convertJarToDex = tasks.register<Exec>("convertJarToDex") {
-        group = "gep"
-        val buildDir = layout.buildDirectory.asFile.get().absolutePath
-        workingDir = File(buildDir, "intermediates/aar_unzip")
-        val sdkDirectory = android.sdkDirectory.absolutePath
-        val dxName = if (isWindows) "dx.bat" else "dx"
-        commandLine = listOf(
-            "$sdkDirectory/build-tools/30.0.2/$dxName",
-            "--dex",
-            "--output=classes.dex",
-            "$buildDir/intermediates/aar_unzip/classes.jar"
-        )
-    }
-    val packGep = tasks.register<Zip>("packGep") {
-        group = "gep"
-        archiveFileName.set("yue.gep")
-        exclude("*.jar")
-        destinationDirectory.set(layout.buildDirectory.dir("outputs/gep"))
-        from(layout.buildDirectory.dir("intermediates/aar_unzip"))
+
+// 平台判断
+val isWindows = System.getProperty("os.name").lowercase().startsWith("win")
+
+// 1️⃣ 解压 AAR
+val unpackAar = tasks.register<Copy>("unpackAar") {
+    group = "gep"
+    val aarFile = layout.buildDirectory.file("outputs/aar/yue-plugin-debug.aar")
+    from(zipTree(aarFile))
+    into(layout.buildDirectory.dir("intermediates/aar_unzip"))
+}
+
+// 2️⃣ 转换 classes.jar → classes.dex（用 D8）
+val convertJarToDex = tasks.register<Exec>("convertJarToDex") {
+    group = "gep"
+    dependsOn(unpackAar)
+
+    val buildDirPath = layout.buildDirectory.asFile.get()
+    val unzipDir = File(buildDirPath, "intermediates/aar_unzip")
+    val sdkDirectory = android.sdkDirectory
+    val buildToolsVersion = android.buildToolsVersion
+    val d8Name = if (isWindows) "d8.bat" else "d8"
+
+    val d8Path = File(sdkDirectory, "build-tools/$buildToolsVersion/$d8Name")
+    if (!d8Path.exists()) {
+        throw GradleException("❌ D8 not found: ${d8Path.absolutePath}")
     }
 
-    packGep.dependsOn(convertJarToDex)
-    convertJarToDex.dependsOn(unpackAar)
-    unpackAar.dependsOn("bundleDebugAar")
-    tasks.build {
-        finalizedBy(packGep)
-    }
+    workingDir = unzipDir
+    commandLine(
+        d8Path.absolutePath,
+        "--output", unzipDir.absolutePath,
+        File(unzipDir, "classes.jar").absolutePath
+    )
+}
+
+// 3️⃣ 打 gep 包
+val packGep = tasks.register<Zip>("packGep") {
+    group = "gep"
+    dependsOn(convertJarToDex)
+
+    archiveFileName.set("yue.gep")
+    destinationDirectory.set(layout.buildDirectory.dir("outputs/gep"))
+    exclude("*.jar")
+    from(layout.buildDirectory.dir("intermediates/aar_unzip"))
+}
+
+packGep.dependsOn(convertJarToDex)
+convertJarToDex.dependsOn(unpackAar)
+unpackAar.dependsOn("bundleDebugAar")
+tasks.build {
+    finalizedBy(packGep)
 }
