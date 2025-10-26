@@ -1,33 +1,65 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
-import com.storyteller_f.version_manager.baseLibrary
-import com.storyteller_f.version_manager.commonAppDependency
-import com.storyteller_f.version_manager.unitTestDependency
-import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
-    id("com.storyteller_f.version_manager")
 }
 
 android {
     namespace = "com.storyteller_f.yue_plugin"
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 21
+        minSdk = libs.versions.minSdk.get().toInt()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    val javaVersion = JavaVersion.forClassVersion(libs.versions.jdk.get().toInt() + 44)
+    compileOptions {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
     }
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+    lint {
+        targetSdk = libs.versions.compileSdk.get().toInt()
+    }
 }
-baseLibrary()
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget(libs.versions.jdk.get())
+        optIn.add("kotlin.RequiresOptIn")
+    }
+}
 dependencies {
-    commonAppDependency()
-    unitTestDependency()
-    api("com.github.storytellerF.giant-explorer:giant-explorer-plugin-core:0.0.1-local")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+    implementation(libs.core.ktx)
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.fragment.ktx)
+    implementation(libs.activity.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    api(libs.giant.explorer.plugin.core)
+    api(libs.lifecycle.runtime.ktx)
 }
 //dx 命令执行需要jdk8
-val javaVersion = providers.exec {
+val javaVersion: String = providers.exec {
     commandLine("java", "-version")
 }.standardOutput.asText.get()
 if (javaVersion.contains("\"1.8")) {
@@ -37,7 +69,7 @@ if (javaVersion.contains("\"1.8")) {
         into(layout.buildDirectory.dir("intermediates/aar_unzip"))
     }
     val property = System.getProperty("os.name").orEmpty()
-    val isWindows = property.toLowerCaseAsciiOnly().startsWith("win")
+    val isWindows = property.lowercase().startsWith("win")
     val convertJarToDex = tasks.register<Exec>("convertJarToDex") {
         group = "gep"
         val buildDir = layout.buildDirectory.asFile.get().absolutePath

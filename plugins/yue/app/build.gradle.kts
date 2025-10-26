@@ -1,7 +1,3 @@
-import com.storyteller_f.version_manager.Versions
-
-val versionManager: String by project
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -12,12 +8,11 @@ plugins {
 
 android {
     namespace = "com.storyteller_f.yue"
-    compileSdk = 34
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.storyteller_f.yue"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = libs.versions.minSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -33,9 +28,10 @@ android {
             )
         }
     }
+    val javaVersion = JavaVersion.forClassVersion(libs.versions.jdk.get().toInt() + 44)
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -43,33 +39,24 @@ android {
     buildFeatures {
         viewBinding = true
     }
-}
-
-dependencies {
-
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    implementation(project(":yue-plugin"))
-    //fixme
-    constraints {
-        listOf(
-            "composite-compiler-ksp",
-            "ext-func-compiler",
-            "ui-list-annotation-compiler-ksp",
-        ).forEach {
-            ksp("${Versions.JITPACK_RELEASE_GROUP}:$it:$versionManager")
-        }
+    lint {
+        targetSdk = libs.versions.compileSdk.get().toInt()
     }
 }
 
-val userHome: String = System.getProperty("user.home")
+dependencies {
+    implementation(libs.core.ktx)
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.constraintlayout)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    implementation(project(":yue-plugin"))
+}
+
 val buildPath: String = layout.buildDirectory.asFile.get().absolutePath
 song {
     transfers.set(listOf("$buildPath/intermediates/apk/debug/app-debug.apk"))
