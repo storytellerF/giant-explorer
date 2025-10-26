@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -33,9 +35,6 @@ android {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         viewBinding = true
     }
@@ -43,7 +42,11 @@ android {
         targetSdk = libs.versions.compileSdk.get().toInt()
     }
 }
-
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget(libs.versions.jdk.get())
+    }
+}
 dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
