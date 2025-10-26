@@ -58,12 +58,11 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 }
 
-
 val env: MutableMap<String, String> = System.getenv()
 group = group.takeIf { it.toString().contains(".") } ?: env["GROUP"] ?: "com.storyteller_f"
 version = version.takeIf { it != "unspecified" } ?: env["VERSION"] ?: "0.0.1-local"
 
-println("$group $version ${env["GROUP"]} ${env["VERSION"]}")
+println("group: $group version: $version envGroup: ${env["GROUP"]} envVersion: ${env["VERSION"]}")
 afterEvaluate {
     publishing {
         publications {
