@@ -1,4 +1,4 @@
 jdk:
     - openjdk21
 install:
-    - sh ./app/GiantExplorer/publish.sh
+    - cd app/GiantExplorer && sh ./publish.sh
