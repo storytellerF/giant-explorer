@@ -1,12 +1,12 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
     repositories {
         mavenLocal()
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven {
-            url = uri("https://jitpack.io")
-        }
+        maven("https://jitpack.io")
     }
 }
 dependencyResolutionManagement {
@@ -15,6 +15,7 @@ dependencyResolutionManagement {
         mavenLocal()
         google()
         mavenCentral()
+        maven("https://jitpack.io")
     }
 }
 rootProject.name = "yue"

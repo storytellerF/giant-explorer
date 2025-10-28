@@ -1,3 +1,4 @@
+import com.storyteller_f.jksify.getenv
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -6,6 +7,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     id("com.storyteller_f.song")
     id("com.google.devtools.ksp")
+    id("com.storyteller_f.jksify")
 }
 
 android {
@@ -20,7 +22,27 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    val signPath: String? = getenv("storyteller_f_sign_path")
+    val signKey: String? = getenv("storyteller_f_sign_key")
+    val signAlias: String? = getenv("storyteller_f_sign_alias")
+    val signStorePassword: String? = getenv("storyteller_f_sign_store_password")
+    val signKeyPassword: String? = getenv("storyteller_f_sign_key_password")
 
+    signingConfigs {
+        val signStorePath = when {
+            signPath != null -> File(signPath)
+            signKey != null -> layout.buildDirectory.file("signing/signing_key.jks").get().asFile
+            else -> null
+        }
+        if (signStorePath != null && signAlias != null && signStorePassword != null && signKeyPassword != null) {
+            create("release") {
+                keyAlias = signAlias
+                keyPassword = signKeyPassword
+                storeFile = signStorePath
+                storePassword = signStorePassword
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -28,6 +50,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val releaseSignConfig = signingConfigs.findByName("release")
+            if (releaseSignConfig != null)
+                signingConfig = releaseSignConfig
         }
     }
     val javaVersion = JavaVersion.forClassVersion(libs.versions.jdk.get().toInt() + 44)
