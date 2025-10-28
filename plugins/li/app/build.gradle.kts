@@ -1,9 +1,11 @@
+import com.storyteller_f.jksify.getenv
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("com.storyteller_f.jksify")
 }
 
 android {
@@ -22,16 +24,22 @@ android {
         viewBinding = true
     }
     signingConfigs {
-        val path = System.getenv("storyteller_f_sign_path")
-        val alias = System.getenv("storyteller_f_sign_alias")
-        val storePassword = System.getenv("storyteller_f_sign_store_password")
-        val keyPassword = System.getenv("storyteller_f_sign_key_password")
-        if (path != null && alias != null && storePassword != null && keyPassword != null) {
+        val signPath: String? = getenv("storyteller_f_sign_path")
+        val signKey: String? = getenv("storyteller_f_sign_key")
+        val signAlias: String? = getenv("storyteller_f_sign_alias")
+        val signStorePassword: String? = getenv("storyteller_f_sign_store_password")
+        val signKeyPassword: String? = getenv("storyteller_f_sign_key_password")
+        val signStorePath = when {
+            signPath != null -> File(signPath)
+            signKey != null -> layout.buildDirectory.file("signing/signing_key.jks").get().asFile
+            else -> null
+        }
+        if (signStorePath != null && signAlias != null && signStorePassword != null && signKeyPassword != null) {
             create("release") {
-                keyAlias = alias
-                this.keyPassword = keyPassword
-                storeFile = file(path)
-                this.storePassword = storePassword
+                keyAlias = signAlias
+                keyPassword = signKeyPassword
+                storeFile = signStorePath
+                storePassword = signStorePassword
             }
         }
     }

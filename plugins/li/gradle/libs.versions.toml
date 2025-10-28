@@ -16,6 +16,7 @@ material = "1.13.0"
 multidex = "2.0.1"
 navigationUiKtx = "2.9.5"
 navigationFragmentKtx = "2.9.5"
+jksifyGradlePlugin = "43d82c9377"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -32,6 +33,7 @@ giant-explorer-plugin-core = { module = "com.github.storytellerF.giant-explorer:
 junit = { module = "junit:junit", version.ref = "junit" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+com-storyteller_f-jksify-gradle-plugin = { module = "com.github.storytellerF.jksify:com.storyteller_f.jksify.gradle.plugin", version.ref = "jksifyGradlePlugin" }
 
 [plugins]
 
