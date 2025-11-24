@@ -114,11 +114,8 @@ class RequestPathDialog :
                 }
             }
         }
-        binding.filter.setOnClick {
-            request(FilterDialogFragment::class.java)
-        }
         binding.sort.setOnClick {
-            request(SortDialogFragment::class.java)
+            SortFilterBottomSheet().show(childFragmentManager, "SortFilter")
         }
     }
 

@@ -3,17 +3,14 @@ package com.storyteller_f.giant_explorer.control
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
-import android.os.Build
 import android.view.DragEvent
 import android.view.View
 import androidx.activity.ComponentActivity
-import androidx.annotation.RequiresApi
 import androidx.core.view.DragStartHelper
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -37,11 +34,10 @@ import com.storyteller_f.common_ui.setVisible
 import com.storyteller_f.common_vm_ktx.VMScope
 import com.storyteller_f.common_vm_ktx.combineDao
 import com.storyteller_f.common_vm_ktx.debounce
-import com.storyteller_f.common_vm_ktx.distinctUntilChangedBy
 import com.storyteller_f.common_vm_ktx.svm
 import com.storyteller_f.common_vm_ktx.update
 import com.storyteller_f.common_vm_ktx.vm
-import com.storyteller_f.common_vm_ktx.wait5
+import com.storyteller_f.common_vm_ktx.wait4
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.model.FileInfo
@@ -50,7 +46,6 @@ import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.file_system_ktx.isFile
 import com.storyteller_f.file_system_local.permission.checkFilePermission
 import com.storyteller_f.file_system_local.permission.requestFilePermission
-import com.storyteller_f.filter_core.Filter
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.PC_END_ON
 import com.storyteller_f.giant_explorer.R
@@ -58,12 +53,7 @@ import com.storyteller_f.giant_explorer.database.AppDatabase
 import com.storyteller_f.giant_explorer.database.requireDatabase
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileBinding
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileGridBinding
-import com.storyteller_f.giant_explorer.dialog.activeFilters
-import com.storyteller_f.giant_explorer.dialog.activeSortChains
 import com.storyteller_f.giant_explorer.model.FileModel
-import com.storyteller_f.slim_ktx.same
-import com.storyteller_f.sort_core.config.SortChain
-import com.storyteller_f.sort_core.config.SortChains
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
 import com.storyteller_f.ui_list.core.AbstractViewHolder
 import com.storyteller_f.ui_list.core.BindingViewHolder
@@ -211,11 +201,10 @@ class FileListObserver<T>(
             combineDao(
                 session.fileInstance,
                 fileListViewModel.filterHiddenFile,
-                activeFilters.same,
-                activeSortChains.same,
+                currentSortFilterConfig,
                 fileListViewModel.displayGrid
-            ).wait5().distinctUntilChanged().debounce(DEFAULT_DEBOUNCE)
-                .state { (fileInstance, filterHiddenFile, filters, sortChains, d5) ->
+            ).wait4().distinctUntilChanged().debounce(DEFAULT_DEBOUNCE)
+                .state { (fileInstance, filterHiddenFile, sortFilterConfig, d5) ->
                     val display = if (d5) "grid" else ""
 
                     data.observerInScope(
@@ -223,8 +212,7 @@ class FileListObserver<T>(
                         FileExplorerSearch(
                             fileInstance,
                             filterHiddenFile,
-                            filters,
-                            sortChains,
+                            sortFilterConfig,
                             display
                         )
                     ) { pagingData ->
@@ -234,11 +222,6 @@ class FileListObserver<T>(
         }
     }
 }
-
-private val <T> LiveData<List<T>>.same
-    get() = distinctUntilChangedBy { sort1, sort2 ->
-        sort1.same(sort2)
-    }
 
 interface FileItemHolderEvent {
     fun onClick(view: View, itemHolder: FileItemHolder)
@@ -265,9 +248,7 @@ class FileGridViewHolder(private val binding: ViewHolderFileGridBinding) :
         binding.fileName.text = itemHolder.file.name
         binding.fileIcon.fileIcon(itemHolder.file.item)
         binding.symLink.isVisible = itemHolder.file.isSymLink
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            itemHolder.file.item.dragSupport(itemView)
-        }
+        itemHolder.file.item.dragSupport(itemView)
     }
 }
 
@@ -310,16 +291,13 @@ class FileViewHolder(private val binding: ViewHolderFileBinding) :
 
         binding.detail.text = item.permissions.toString()
         binding.symLink.isVisible = file.isSymLink
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            file.item.dragSupport(binding.root)
-        }
+        file.item.dragSupport(binding.root)
         itemView.setOnClick {
             it.findFragmentOrNull<FileItemHolderEvent>()?.onClick(it, itemHolder)
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 private fun FileInfo.dragSupport(root: View) {
     DragStartHelper(root) { view: View, _: DragStartHelper ->
         val clipData = ClipData.newPlainText(FileListFragment.CLIP_DATA_KEY, uri.toString())
@@ -376,8 +354,7 @@ suspend fun format1024(args: Long): String {
 data class FileExplorerSearch(
     val path: FileInstance,
     val filterHiddenFile: Boolean,
-    val filters: List<Filter<FileInfo>>,
-    val sort: List<SortChain<FileInfo>>,
+    val sortFilterConfig: SortFilterConfig,
     val display: String
 )
 
@@ -389,30 +366,29 @@ fun fileSearchService(
             searchQuery.path.list()
         }
 
-        val filterList = searchQuery.filters
-        val sortChains = searchQuery.sort
+        val config = searchQuery.sortFilterConfig
 
         // 判断是否需要隐藏，如果为true 代表不隐藏
         val filterPredicate: (FileInfo) -> Boolean = {
-            (!searchQuery.filterHiddenFile || !it.kind.isHidden) && (
-                filterList.isEmpty() || filterList.any { f ->
-                    f.filter(it)
-                }
-                )
+            !searchQuery.filterHiddenFile || !it.kind.isHidden
         }
         val directories = listSafe.directories
         val files = listSafe.files
 
-        if (sortChains.isNotEmpty()) {
-            val sortChains1 = SortChains(sortChains)
-            directories.sortWith(sortChains1)
-            files.sortWith(sortChains1)
-        }
-        val listFiles = if (searchQuery.filterHiddenFile || filterList.isNotEmpty()) {
-            directories.filter(filterPredicate).plus(files.filter(filterPredicate))
+        // 应用过滤和排序
+        val filteredDirs = if (searchQuery.filterHiddenFile || config.filterHidden) {
+            config.apply(directories.filter(filterPredicate))
         } else {
-            directories.plus(files)
+            config.sort(directories)
         }
+
+        val filteredFiles = if (searchQuery.filterHiddenFile || config.filterHidden) {
+            config.apply(files.filter(filterPredicate))
+        } else {
+            config.sort(files)
+        }
+
+        val listFiles = filteredDirs.plus(filteredFiles)
         val total = listFiles.size
         val index = start - 1
         val startPosition = index * count

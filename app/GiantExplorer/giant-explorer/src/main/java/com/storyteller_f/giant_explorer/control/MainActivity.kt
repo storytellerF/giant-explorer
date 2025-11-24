@@ -58,8 +58,7 @@ import com.storyteller_f.giant_explorer.control.root.RootAccessActivity
 import com.storyteller_f.giant_explorer.control.task.BackgroundTaskConfigActivity
 import com.storyteller_f.giant_explorer.databinding.ActivityMainBinding
 import com.storyteller_f.giant_explorer.dialog.FileOperationDialog
-import com.storyteller_f.giant_explorer.dialog.FilterDialogFragment
-import com.storyteller_f.giant_explorer.dialog.SortDialogFragment
+import com.storyteller_f.giant_explorer.dialog.SortFilterBottomSheet
 import com.storyteller_f.giant_explorer.dialog.VolumeSpaceDialog
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
 import com.storyteller_f.giant_explorer.service.FileOperateService
@@ -259,8 +258,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
             android.R.id.home -> drawableToggle.onOptionsItemSelected(item)
             R.id.filterHiddenFile -> toggleHiddenFile(item)
             R.id.newWindow -> newWindow()
-            R.id.filter -> request(FilterDialogFragment::class)
-            R.id.sort -> request(SortDialogFragment::class)
+            R.id.sort -> SortFilterBottomSheet().show(supportFragmentManager, "SortFilter")
             R.id.open_settings -> startActivity(Intent(this, SettingsActivity::class.java))
             R.id.open_root_access -> startActivity(Intent(this, RootAccessActivity::class.java))
             R.id.about -> startActivity(Intent(this, AboutActivity::class.java))

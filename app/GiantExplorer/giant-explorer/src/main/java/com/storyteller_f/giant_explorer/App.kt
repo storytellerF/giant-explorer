@@ -12,33 +12,19 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.android.material.color.DynamicColors
-import com.storyteller_f.config_core.EditorKey
-import com.storyteller_f.config_core.editor
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileCreatePolicy
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system_local.permission.checkFilePermission
-import com.storyteller_f.filter_core.config.FilterConfig
-import com.storyteller_f.filter_core.config.FilterConfigItem
-import com.storyteller_f.filter_core.filterConfigAdapterFactory
 import com.storyteller_f.giant_explorer.control.plugin.PluginManager
 import com.storyteller_f.giant_explorer.database.FileMDRecord
 import com.storyteller_f.giant_explorer.database.FileSizeRecord
 import com.storyteller_f.giant_explorer.database.FileTorrentRecord
 import com.storyteller_f.giant_explorer.database.requireDatabase
-import com.storyteller_f.giant_explorer.dialog.FilterDialogFragment
-import com.storyteller_f.giant_explorer.dialog.SortDialogFragment
-import com.storyteller_f.giant_explorer.dialog.activeFilters
-import com.storyteller_f.giant_explorer.dialog.activeSortChains
-import com.storyteller_f.giant_explorer.dialog.buildFilters
-import com.storyteller_f.giant_explorer.dialog.buildSorts
 import com.storyteller_f.giant_explorer.utils.getTorrentName
 import com.storyteller_f.slim_ktx.exceptionMessage
-import com.storyteller_f.sort_core.config.SortConfig
-import com.storyteller_f.sort_core.config.SortConfigItem
-import com.storyteller_f.sort_core.config.sortConfigAdapterFactory
 import com.storyteller_f.ui_list.core.holders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -104,22 +90,6 @@ class App : Application() {
             }
             refreshPlugin(this@App)
         }
-        activeFilters.value =
-            EditorKey.createEditorKey(filesDir.absolutePath, FilterDialogFragment.SUFFIX).editor(
-                FilterConfig.emptyFilterListener,
-                filterConfigAdapterFactory,
-                FilterDialogFragment.factory
-            ).lastConfig?.run {
-                configItems.filterIsInstance<FilterConfigItem>().buildFilters()
-            }
-        activeSortChains.value =
-            EditorKey.createEditorKey(filesDir.absolutePath, SortDialogFragment.suffix).editor(
-                SortConfig.emptySortListener,
-                sortConfigAdapterFactory,
-                SortDialogFragment.adapterFactory
-            ).lastConfig?.run {
-                configItems.filterIsInstance<SortConfigItem>().buildSorts()
-            }
     }
 }
 

@@ -137,7 +137,6 @@ dependencies {
     implementation(libs.service)
     // Optional: Provides remote file system support
     implementation(libs.nio)
-    handleShun()
     implementation(project(":giant-explorer-plugin-core"))
 
     implementation(libs.simplemagic)
@@ -176,24 +175,6 @@ kotlin {
         freeCompilerArgs = listOf("-Xcontext-parameters")
         jvmTarget = JvmTarget.JVM_21
         optIn = listOf("kotlin.RequiresOptIn")
-    }
-}
-
-fun DependencyHandlerScope.handleShun() {
-    //filter & sort
-    val filterArtifact = listOf("config-core", "sort-core", "filter-core", "filter-ui", "sort-ui")
-
-    val filterModules = filterArtifact.mapNotNull {
-        findProject(":filter:$it")
-    }
-    if (filterModules.size == filterArtifact.size) {
-        filterModules.forEach {
-            implementation(it)
-        }
-    } else {
-        filterArtifact.forEach {
-            implementation("com.github.storytellerF.Shun:$it:1.0.0")
-        }
     }
 }
 

@@ -12,11 +12,6 @@
         android:icon="@drawable/ic_baseline_add_to_photos_24"
         android:title="@string/new_window"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/filter"
-        android:icon="@drawable/baseline_filter_list_24"
-        android:title="@string/filter"
-        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/sort"

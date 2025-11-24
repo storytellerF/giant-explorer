@@ -29,6 +29,15 @@
     <string name="plugin_manager">插件管理</string>
     <string name="filter">过滤</string>
     <string name="sort">排序</string>
+    <string name="sort_and_filter">排序与过滤</string>
+    <string name="sort_by">排序方式</string>
+    <string name="sort_by_name">按名称</string>
+    <string name="sort_by_size">按大小</string>
+    <string name="sort_by_time">按时间</string>
+    <string name="sort_direction">排序方向</string>
+    <string name="sort_ascending">正向（升序）</string>
+    <string name="sort_descending">逆向（降序）</string>
+    <string name="filter_options">过滤选项</string>
     <string name="switch_root">切换</string>
     <string name="paste">粘贴</string>
     <string name="background_task_manage">后台任务管理</string>
