@@ -1,6 +1,6 @@
 buildscript {
     dependencies {
-        classpath(libs.com.storyteller.f.jksify.gradle.plugin)
+        classpath(libs.jksify.gradle.plugin)
     }
 }
 
