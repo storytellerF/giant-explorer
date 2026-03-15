@@ -7,7 +7,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     id("com.storyteller_f.song")
     id("com.google.devtools.ksp")
-    id("com.storyteller_f.jksify")
+    id("com.storytellerF.jksify")
 }
 
 android {
