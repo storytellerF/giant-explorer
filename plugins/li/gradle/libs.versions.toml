@@ -17,6 +17,8 @@ material = "1.13.0"
 navigationUiKtx = "2.9.7"
 navigationFragmentKtx = "2.9.7"
 jksifyGradlePlugin = "1.0.0-SNAPSHOT"
+agp = "9.1.0"
+ksp = "2.3.6"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -35,5 +37,8 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 jksify-gradle-plugin = { module = "com.storytellerF.jksify:jksify-plugin", version.ref = "jksifyGradlePlugin" }
 
 [plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]
