@@ -1,18 +1,14 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
-buildscript {
-    dependencies {
-        classpath(libs.navigation.safe.args.gradle.plugin)
-    }
-}
 plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.ksp) apply false
-    id("com.starter.easylauncher") version "6.4.1" apply false
-    id("androidx.room") version "2.8.4" apply false
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    alias(libs.plugins.easylauncher) apply false
+    alias(libs.plugins.room) apply false
+    alias(libs.plugins.safeArgs) apply false
     alias(libs.plugins.kotlinCompose) apply false
+    alias(libs.plugins.detekt)
 }
 
 subprojects {

@@ -3,13 +3,13 @@ import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.application")
+    alias(libs.plugins.androidApplication)
     id("kotlin-parcelize")
-    id("androidx.navigation.safeargs.kotlin")
+    alias(libs.plugins.safeArgs)
 
-    id("com.google.devtools.ksp")
-    id("com.starter.easylauncher")
-    id("androidx.room")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.easylauncher)
+    alias(libs.plugins.room)
     alias(libs.plugins.kotlinCompose)
 }
 

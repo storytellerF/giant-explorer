@@ -39,6 +39,7 @@ kspVersion = "2.3.6"
 commonUiList = "1.0.0-SNAPSHOT"
 workMultiprocess = "2.11.1"
 workTesting = "2.11.1"
+easylauncher = "6.4.1"
 
 [libraries]
 activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -104,5 +105,8 @@ logback-android = { module = "com.github.tony19:logback-android", version.ref = 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinCompose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+room = { id = "androidx.room", version.ref = "roomCompiler" }
+easylauncher = { id = "com.starter.easylauncher", version.ref = "easylauncher" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
+safeArgs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navVersion" }
