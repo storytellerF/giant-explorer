@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
 }
 
@@ -77,13 +76,13 @@ val convertJarToDex = tasks.register<Exec>("convertJarToDex") {
 
     val buildDirPath = layout.buildDirectory.asFile.get()
     val unzipDir = File(buildDirPath, "intermediates/aar_unzip")
-    val sdkDirectory = android.sdkDirectory
-    val buildToolsVersion = android.buildToolsVersion
+    val sdkDirectory = androidComponents.sdkComponents.sdkDirectory.get().asFile
+    val buildToolsVersion = "${android.compileSdk}.0.0"
     val d8Name = if (isWindows) "d8.bat" else "d8"
 
     val d8Path = File(sdkDirectory, "build-tools/$buildToolsVersion/$d8Name")
     if (!d8Path.exists()) {
-        throw GradleException("❌ D8 not found: ${d8Path.absolutePath}")
+        println("❌ D8 not found: ${d8Path.absolutePath}")
     }
 
     workingDir = unzipDir

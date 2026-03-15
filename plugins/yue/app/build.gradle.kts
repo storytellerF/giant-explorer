@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
     id("com.storyteller_f.song")
     id("com.google.devtools.ksp")
@@ -88,7 +87,7 @@ dependencies {
 val buildPath: String = layout.buildDirectory.asFile.get().absolutePath
 song {
     transfers.set(listOf("$buildPath/intermediates/apk/debug/app-debug.apk"))
-    adb.set(android.adbExecutable.absolutePath)
+    adb.set(androidComponents.sdkComponents.adb.get().asFile.absolutePath)
     paths.set(listOf())
     packages.set(listOf("com.storyteller_f.giant_explorer" to "files/plugins"))
     outputName.set("yue.apk")
