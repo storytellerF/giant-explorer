@@ -1,6 +1,6 @@
 [versions]
-activityKtx = "1.11.0"
-agp = "8.13.1"
+activityKtx = "1.12.4"
+agp = "8.13.2"
 appcompat = "1.7.1"
 compileSdk = "36"
 core = "5.0.3"
@@ -10,35 +10,35 @@ fragmentKtx = "1.8.9"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 leakcanaryAndroid = "2.14"
-loggingInterceptor = "5.2.1"
+loggingInterceptor = "5.3.2"
 material = "1.13.0"
-materialVersion = "1.9.4"
+materialVersion = "1.10.4"
 minSdk = "26"
 constraintlayout = "2.2.1"
 detektVersion = "1.23.8"
-kotlin = "2.2.20"
+kotlin = "2.3.10"
 browserVersion = "1.9.0"
-fileSystemVersion = "b41ca6990d"
+fileSystemVersion = "1.0.0-SNAPSHOT"
 glideVersion = "5.0.5"
-lifecycleService = "2.9.4"
+lifecycleService = "2.10.0"
 logbackAndroidVersion = "3.0.0"
 multidex = "2.0.1"
-navigationFragmentKtx = "2.9.5"
-navVersion = "2.9.5"
+navigationFragmentKtx = "2.9.7"
+navVersion = "2.9.7"
 retrofit = "3.0.0"
 retrofitMock = "3.0.0"
-roomCompiler = "2.8.3"
-roomTestingVersion = "2.8.3"
+roomCompiler = "2.8.4"
+roomTestingVersion = "2.8.4"
 simplemagicVersion = "1.17"
 startup = "2.4.0"
-uiTooling = "1.9.4"
-windowVersion = "1.5.0"
-webkitVersion = "1.14.0"
+uiTooling = "1.10.4"
+windowVersion = "1.5.1"
+webkitVersion = "1.15.0"
 preferenceKtxVersion = "1.2.1"
-kspVersion = "2.2.20-2.0.4"
-commonUiList = "a0fa18ddda"
-workMultiprocess = "2.11.0"
-workTesting = "2.11.0"
+kspVersion = "2.3.6"
+commonUiList = "1.0.0-SNAPSHOT"
+workMultiprocess = "2.11.1"
+workTesting = "2.11.1"
 
 [libraries]
 activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -53,12 +53,18 @@ androidx-work-multiprocess = { module = "androidx.work:work-multiprocess", versi
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workMultiprocess" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 browser = { module = "androidx.browser:browser", version.ref = "browserVersion" }
-common-ktx = { module = "com.github.storytellerF.common-ui-list:common-ktx", version.ref = "commonUiList" }
-common-pr = { module = "com.github.storytellerF.common-ui-list:common-pr", version.ref = "commonUiList" }
-common-ui = { module = "com.github.storytellerF.common-ui-list:common-ui", version.ref = "commonUiList" }
-compat-ktx = { module = "com.github.storytellerF.common-ui-list:compat-ktx", version.ref = "commonUiList" }
-composite-compiler-ksp = { module = "com.github.storytellerF.common-ui-list:composite-compiler-ksp", version.ref = "commonUiList" }
-composite-definition = { module = "com.github.storytellerF.common-ui-list:composite-definition", version.ref = "commonUiList" }
+common-ktx = { module = "com.storytellerF.common_ui_list:common-ktx", version.ref = "commonUiList" }
+common-pr = { module = "com.storytellerF.common_ui_list:common-pr", version.ref = "commonUiList" }
+common-ui = { module = "com.storytellerF.common_ui_list:common-ui", version.ref = "commonUiList" }
+compat-ktx = { module = "com.storytellerF.common_ui_list:compat-ktx", version.ref = "commonUiList" }
+composite-compiler-ksp = { module = "com.storytellerF.common_ui_list:composite-compiler-ksp", version.ref = "commonUiList" }
+composite-definition = { module = "com.storytellerF.common_ui_list:composite-definition", version.ref = "commonUiList" }
+slim-ktx = { module = "com.storytellerF.common_ui_list:slim-ktx", version.ref = "commonUiList" }
+ext-func-compiler = { module = "com.storytellerF.common_ui_list:ext-func-compiler", version.ref = "commonUiList" }
+ui-list = { module = "com.storytellerF.common_ui_list:ui-list", version.ref = "commonUiList" }
+view-holder-compose = { module = "com.storytellerF.common_ui_list:view-holder-compose", version.ref = "commonUiList" }
+ui-list-annotation-compiler-ksp = { module = "com.storytellerF.common_ui_list:ui-list-annotation-compiler-ksp", version.ref = "commonUiList" }
+ui-list-annotation-definition = { module = "com.storytellerF.common_ui_list:ui-list-annotation-definition", version.ref = "commonUiList" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 core = { module = "com.github.topjohnwu.libsu:core", version.ref = "core" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -66,15 +72,15 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 detekt-rules-libraries = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detektVersion" }
 detekt-rules-ruleauthors = { module = "io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors", version.ref = "detektVersion" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
-ext-func-compiler = { module = "com.github.storytellerF.common-ui-list:ext-func-compiler", version.ref = "commonUiList" }
+
 ext-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
-file-system-archive = { module = "com.github.storytellerF.AFS:file-system-archive", version.ref = "fileSystemVersion" }
-file-system = { module = "com.github.storytellerF.AFS:file-system", version.ref = "fileSystemVersion" }
-file-system-ktx = { module = "com.github.storytellerF.AFS:file-system-ktx", version.ref = "fileSystemVersion" }
-file-system-local = { module = "com.github.storytellerF.AFS:file-system-local", version.ref = "fileSystemVersion" }
-file-system-memory = { module = "com.github.storytellerF.AFS:file-system-memory", version.ref = "fileSystemVersion" }
-file-system-remote = { module = "com.github.storytellerF.AFS:file-system-remote", version.ref = "fileSystemVersion" }
-file-system-root = { module = "com.github.storytellerF.AFS:file-system-root", version.ref = "fileSystemVersion" }
+file-system-archive = { module = "com.storytellerF.AFS:file-system-archive", version.ref = "fileSystemVersion" }
+file-system = { module = "com.storytellerF.AFS:file-system", version.ref = "fileSystemVersion" }
+file-system-ktx = { module = "com.storytellerF.AFS:file-system-ktx", version.ref = "fileSystemVersion" }
+file-system-local = { module = "com.storytellerF.AFS:file-system-local", version.ref = "fileSystemVersion" }
+file-system-memory = { module = "com.storytellerF.AFS:file-system-memory", version.ref = "fileSystemVersion" }
+file-system-remote = { module = "com.storytellerF.AFS:file-system-remote", version.ref = "fileSystemVersion" }
+#file-system-root = { module = "com.storytellerF.AFS:file-system-root", version.ref = "fileSystemVersion" }
 fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -89,12 +95,7 @@ retrofit-mock = { module = "com.squareup.retrofit2:retrofit-mock", version.ref =
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 service = { module = "com.github.topjohnwu.libsu:service", version.ref = "core" }
 simplemagic = { module = "com.j256.simplemagic:simplemagic", version.ref = "simplemagicVersion" }
-slim-ktx = { module = "com.github.storytellerF.common-ui-list:slim-ktx", version.ref = "commonUiList" }
 startup = { module = "com.github.storytellerF.Bao:startup", version.ref = "startup" }
-ui-list-annotation-compiler-ksp = { module = "com.github.storytellerF.common-ui-list:ui-list-annotation-compiler-ksp", version.ref = "commonUiList" }
-ui-list-annotation-definition = { module = "com.github.storytellerF.common-ui-list:ui-list-annotation-definition", version.ref = "commonUiList" }
-ui-list = { module = "com.github.storytellerF.common-ui-list:ui-list", version.ref = "commonUiList" }
-view-holder-compose = { module = "com.github.storytellerF.common-ui-list:view-holder-compose", version.ref = "commonUiList" }
 webkit = { module = "androidx.webkit:webkit", version.ref = "webkitVersion" }
 window = { module = "androidx.window:window", version.ref = "windowVersion" }
 room-testing = { module = "androidx.room:room-testing", version.ref = "roomTestingVersion" }

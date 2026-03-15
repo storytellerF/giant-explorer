@@ -149,16 +149,16 @@ dependencies {
 
     androidTestImplementation(libs.room.testing)
 
-    val liPluginModule = findProject(":li-plugin")
-    if (liPluginModule != null) {
-        implementation(liPluginModule)
-    }
+//    val liPluginModule = findProject(":li-plugin")
+//    if (liPluginModule != null) {
+//        implementation(liPluginModule)
+//    }
     implementation(libs.logback.android)
 
     implementation(libs.file.system.remote)
     implementation(libs.file.system.ktx)
     implementation(libs.file.system)
-    implementation(libs.file.system.root)
+//    implementation(libs.file.system.root)
     implementation(libs.file.system.archive)
     implementation(libs.file.system.memory)
     implementation(libs.file.system.local)

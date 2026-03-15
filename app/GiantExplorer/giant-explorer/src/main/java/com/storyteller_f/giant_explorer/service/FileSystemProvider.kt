@@ -47,7 +47,7 @@ class FileSystemProvider : ContentProvider() {
             if (fileInstance.fileKind().isFile) {
                 MatrixCursor(fileProjection).apply {
                     val file = fileInstance.getFileInfo()
-                    addRow(arrayOf(file.name, file.fullPath, fileInstance.size()))
+                    addRow(arrayOf(file.name, file.fullPath, fileInstance.size().toString()))
                 }
             } else {
                 queryFileInstanceChild(fileInstance)
@@ -69,7 +69,7 @@ class FileSystemProvider : ContentProvider() {
                 arrayOf(
                     it.name,
                     it.fullPath,
-                    0,
+                    "0",
                     DocumentsContract.Document.MIME_TYPE_DIR
                 )
             )
@@ -79,7 +79,7 @@ class FileSystemProvider : ContentProvider() {
                 arrayOf(
                     it.name,
                     it.fullPath,
-                    (it.kind as FileKind.File).size,
+                    (it.kind as FileKind.File).size.toString(),
                     singleton.getMimeTypeFromExtension(it.extension)
                 )
             )

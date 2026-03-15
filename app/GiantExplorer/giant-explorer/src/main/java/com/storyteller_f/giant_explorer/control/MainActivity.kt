@@ -49,7 +49,6 @@ import com.storyteller_f.file_system.rawTree
 import com.storyteller_f.file_system_local.FileSystemUriStore
 import com.storyteller_f.file_system_local.getCurrentUserEmulatedPath
 import com.storyteller_f.file_system_local.instance.DocumentLocalFileInstance
-import com.storyteller_f.file_system_root.RootAccessFileInstance
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.plugin.PluginManageActivity
@@ -71,7 +70,6 @@ import com.storyteller_f.ui_list.core.DataItemHolder
 import com.storyteller_f.ui_list.event.viewBinding
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ipc.RootService
-import com.topjohnwu.superuser.nio.FileSystemManager
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -388,12 +386,12 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     private val fileConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             service?.let {
-                RootAccessFileInstance.registerLibSuRemote(FileSystemManager.getRemote(service))
+//                RootAccessFileInstance.registerLibSuRemote(FileSystemManager.getRemote(service))
             }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            RootAccessFileInstance.removeLibSuRemote()
+//            RootAccessFileInstance.removeLibSuRemote()
         }
     }
 

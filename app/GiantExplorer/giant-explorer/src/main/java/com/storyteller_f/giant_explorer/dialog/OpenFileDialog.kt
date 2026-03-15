@@ -89,7 +89,7 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
             val deduceSuccess = it?.contentType != null
             binding.typeDeduced.isEnabled = deduceSuccess
             if (deduceSuccess) {
-                binding.typeDeduced.text = it?.mimeType
+                binding.typeDeduced.text = it.mimeType
             }
             binding.openByPicture.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "image"))
             binding.openByText.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "text"))
