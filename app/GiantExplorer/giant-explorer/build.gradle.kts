@@ -4,11 +4,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
 
-    id("kotlin-kapt")
     id("com.google.devtools.ksp")
     id("com.starter.easylauncher")
     id("androidx.room")
@@ -57,11 +55,6 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            resValue(
-                "string",
-                "leak_canary_display_activity_label",
-                defaultConfig.applicationId?.substringAfterLast(".") ?: "Leaks"
-            )
         }
         release {
             isMinifyEnabled = true
@@ -112,7 +105,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     debugImplementation(libs.leakcanary.android)
-    implementation(libs.androidx.multidex)
     implementation(libs.slim.ktx)
     implementation(libs.androidx.material)
     implementation(libs.androidx.ui.tooling)

@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
     `maven-publish`
 }
 android {
@@ -58,19 +57,23 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 }
 
-val env: MutableMap<String, String> = System.getenv()
-group = group.takeIf { it.toString().contains(".") } ?: env["GROUP"] ?: "com.storyteller_f"
-version = version.takeIf { it != "unspecified" } ?: env["VERSION"] ?: "0.0.1-local"
-
-println("group: $group version: $version envGroup: ${env["GROUP"]} envVersion: ${env["VERSION"]}")
-afterEvaluate {
-    publishing {
-        publications {
-            register<MavenPublication>("release") {
-                val component = components.find {
-                    it.name == "java" || it.name == "release"
-                }
-                from(component)
+println("group: $group version: $version")
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/storytellerF/giant-explorer")
+            // 最好通过命令行传递
+            credentials {
+                username = project.findProperty("gpr.user") as String
+                password = project.findProperty("gpr.key") as String
             }
         }
     }

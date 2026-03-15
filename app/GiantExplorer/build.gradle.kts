@@ -8,10 +8,9 @@ buildscript {
 }
 plugins {
     alias(libs.plugins.androidApplication) apply false
-    alias(libs.plugins.jetbrainsKotlinAndroid) apply false
     alias(libs.plugins.ksp) apply false
     id("com.starter.easylauncher") version "6.4.1" apply false
-    id("androidx.room") version "2.8.3" apply false
+    id("androidx.room") version "2.8.4" apply false
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
     alias(libs.plugins.kotlinCompose) apply false
 }

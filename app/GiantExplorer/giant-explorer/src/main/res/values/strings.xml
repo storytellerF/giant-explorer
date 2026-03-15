@@ -72,4 +72,5 @@
     <string name="is_webdav" translatable="false">is webdav</string>
     <string name="preview_archive">预览压缩文件</string>
     <string name="manage_permission">管理权限</string>
+    <string name="leak_canary_display_activity_label" translatable="false">Giant Explorer Leaks</string>
 </resources>
