@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.storytellerF.jksify")
 }
@@ -46,11 +45,6 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            resValue(
-                "string",
-                "leak_canary_display_activity_label",
-                defaultConfig.applicationId?.substringAfterLast(".") ?: "Leaks"
-            )
         }
         release {
             isMinifyEnabled = true
@@ -87,19 +81,18 @@ kotlin {
 }
 
 dependencies {
-    "implementation"(libs.androidx.core.ktx)
-    "implementation"(libs.androidx.appcompat)
-    "implementation"(libs.material)
-    "implementation"(libs.androidx.fragment.ktx)
-    "implementation"(libs.androidx.activity.ktx)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.activity.ktx)
 
-    "debugImplementation"(libs.leakcanary.android)
-    "implementation"(libs.androidx.multidex)
-    "testImplementation"(libs.junit)
-    "androidTestImplementation"(libs.androidx.junit)
-    "androidTestImplementation"(libs.androidx.espresso.core)
-    "implementation"(libs.androidx.navigation.fragment.ktx)
-    "implementation"(libs.androidx.navigation.ui.ktx)
+    debugImplementation(libs.leakcanary.android)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.constraintlayout)
     implementation(project(":plugin"))
 }
