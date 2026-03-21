@@ -39,7 +39,7 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven { setUrl("https://jitpack.io") }
-        maven { setUrl("https://artifactory.cronapp.io/public-release/") }
+        //maven { setUrl("https://artifactory.cronapp.io/public-release/") }
     }
 }
 rootProject.name = "GiantExplorer"

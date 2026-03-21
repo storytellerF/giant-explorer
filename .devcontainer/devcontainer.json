@@ -1,0 +1,17 @@
+{
+	"name": "giant-explorer Dev Container",
+	"dockerComposeFile": [
+		"./docker-compose.yml"
+	],
+	"service": "main",
+	"workspaceFolder": "/workspace/giant-explorer",
+	"shutdownAction": "stopCompose",
+	"remoteUser": "debian",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// 在此处添加你需要的 VS Code 插件
+			]
+		}
+	}
+}

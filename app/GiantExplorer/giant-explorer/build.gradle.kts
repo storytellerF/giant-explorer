@@ -85,7 +85,7 @@ android {
     }
 }
 dependencies {
-    implementation(libs.startup)
+//    implementation(libs.startup)
     implementation(libs.slim.ktx)
     implementation(libs.common.ktx)
     implementation(libs.compat.ktx)
