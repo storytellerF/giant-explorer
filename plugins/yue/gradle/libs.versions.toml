@@ -24,14 +24,14 @@ songVersion = "2.0"
 [libraries]
 activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-jksify-gradle-plugin = { module = "com.storytellerF.jksify:jksify-plugin", version.ref = "jksify" }
+jksify-gradle-plugin = { module = "com.storyteller_f.jksify:jksify-plugin", version.ref = "jksify" }
 com-storyteller_f-song-gradle-plugin = { module = "com.github.storytellerF.song:com.storyteller_f.song.gradle.plugin", version.ref = "songVersion" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 ext-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
 fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
-giant-explorer-plugin-core = { module = "com.storytellerF.giant_explorer:giant-explorer-plugin-core", version.ref = "giantExplorerPluginCore" }
+giant-explorer-plugin-core = { module = "com.storyteller_f.giant_explorer:giant-explorer-plugin-core", version.ref = "giantExplorerPluginCore" }
 junit = { module = "junit:junit", version.ref = "junit" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 material = { module = "com.google.android.material:material", version.ref = "material" }

@@ -13,7 +13,7 @@ pluginManagement {
             }
             mavenContent {
                 @Suppress("UnstableApiUsage")
-                includeGroupAndSubgroups("com.storytellerF.jksify")
+                includeGroupAndSubgroups("com.storyteller_f.jksify")
             }
         }
         mavenCentral()
@@ -36,7 +36,7 @@ dependencyResolutionManagement {
                 password = providers.gradleProperty("gpr.key").get()
             }
             mavenContent {
-                includeGroupAndSubgroups("com.storytellerF.giant_explorer")
+                includeGroupAndSubgroups("com.storyteller_f.giant_explorer")
             }
         }
         mavenCentral()

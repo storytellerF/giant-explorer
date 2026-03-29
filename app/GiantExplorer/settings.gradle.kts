@@ -22,6 +22,7 @@ dependencyResolutionManagement {
                 password = providers.gradleProperty("gpr.key").get()
             }
             mavenContent {
+                includeGroupAndSubgroups("com.storyteller_f.common_ui_list")
                 includeGroupAndSubgroups("com.storytellerF.common_ui_list")
             }
         }
@@ -34,7 +35,7 @@ dependencyResolutionManagement {
                 password = providers.gradleProperty("gpr.key").get()
             }
             mavenContent {
-                includeGroupAndSubgroups("com.storytellerF.AFS")
+                includeGroupAndSubgroups("com.storyteller_f.afs")
             }
         }
         mavenCentral()
