@@ -78,6 +78,9 @@ android {
         includeInBundle = false
         includeInApk = false
     }
+    packaging {
+        resources.merges += "META-INF/LICENSE.md"
+    }
     buildFeatures {
         compose = true
         viewBinding = true
@@ -85,6 +88,11 @@ android {
     }
 }
 dependencies {
+    constraints {
+        implementation("org.bouncycastle:bcpkix-jdk18on:1.85") {
+            because("Align SSHJ's PKIX and utility modules with SMBJ's 1.85 provider release line")
+        }
+    }
     implementation(libs.common.vm.ktx)
     implementation(libs.compat.ktx)
     implementation(libs.common.ui)
