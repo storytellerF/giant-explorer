@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Giant.Platform" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:navigationBarColor">@color/md_theme_dark_surface</item>
+    </style>
+
+    <style name="Theme.Giant.Base" parent="Theme.Giant.Platform">
+        <item name="android:fontFamily">sans</item>
+
+        <item name="android:windowBackground">?attr/colorSurface</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:windowLightStatusBar">@bool/giant_light_system_bars</item>
+
+        <item name="toolbarStyle">@style/Widget.Giant.Toolbar</item>
+
+        <item name="materialButtonStyle">@style/Widget.Giant.Button</item>
+
+        <item name="android:editTextStyle">@style/Widget.Giant.EditText</item>
+
+        <item name="editTextStyle">@style/Widget.Giant.EditText</item>
+
+        <item name="textInputStyle">@style/Widget.Giant.TextInput</item>
+
+        <item name="floatingActionButtonStyle">@style/Widget.Giant.Fab</item>
+
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Giant.Dialog</item>
+
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Giant.BottomSheet</item>
+    </style>
+
+    <style name="TextAppearance.Giant.Title" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+
+        <item name="android:fontFamily">sans-serif-medium</item>
+
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="TextAppearance.Giant.Subtitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="TextAppearance.Giant.Body" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Giant.Caption" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="TextAppearance.Giant.Label" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">?attr/colorPrimary</item>
+
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ShapeAppearance.Giant.Card" parent="">
+        <item name="cornerFamily">rounded</item>
+
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <style name="Widget.Giant.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">?attr/colorSurface</item>
+
+        <item name="titleTextAppearance">@style/TextAppearance.Giant.Subtitle</item>
+
+        <item name="titleTextColor">?attr/colorOnSurface</item>
+
+        <item name="subtitleTextColor">?attr/colorOnSurfaceVariant</item>
+
+        <item name="navigationIconTint">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.Giant.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">14dp</item>
+
+        <item name="android:minHeight">48dp</item>
+
+        <item name="android:textAllCaps">false</item>
+
+        <item name="android:textSize">14sp</item>
+
+        <item name="android:paddingStart">20dp</item>
+
+        <item name="android:paddingEnd">20dp</item>
+    </style>
+
+    <style name="Widget.Giant.Button.Secondary" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">14dp</item>
+
+        <item name="android:minHeight">48dp</item>
+
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Giant.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="cornerRadius">14dp</item>
+
+        <item name="android:minHeight">48dp</item>
+
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Giant.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/giant_field</item>
+
+        <item name="android:textColor">?attr/colorOnSurface</item>
+
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+
+        <item name="android:textSize">15sp</item>
+
+        <item name="android:minHeight">56dp</item>
+
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="Widget.Giant.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">14dp</item>
+
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+    </style>
+
+    <style name="Widget.Giant.Fab" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Giant.Card</item>
+
+        <item name="elevation">2dp</item>
+    </style>
+
+    <style name="ThemeOverlay.Giant.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Giant.Card</item>
+    </style>
+
+    <style name="ThemeOverlay.Giant.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Giant.BottomSheet</item>
+    </style>
+
+    <style name="Widget.Giant.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Giant.Card</item>
+    </style>
+
+    <bool name="giant_light_system_bars">true</bool>
+</resources>

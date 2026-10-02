@@ -1,8 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="path_man_cell_text_size">14dp</dimen>
+
+    <dimen name="path_man_cell_text_size">13sp</dimen>
+
     <dimen name="path_man_cell_horizontal_padding">10dp</dimen>
-    <dimen name="path_man_cell_vertical_margin">10dp</dimen>
+
+    <dimen name="path_man_cell_vertical_margin">8dp</dimen>
+
     <dimen name="path_man_cell_end_margin">10dp</dimen>
-    <dimen name="path_man_cell_corner">12dp</dimen>
+
+    <dimen name="path_man_cell_corner">10dp</dimen>
+
+    <dimen name="screen_padding">20dp</dimen>
+
+    <dimen name="section_gap">24dp</dimen>
+
+    <dimen name="row_gap">8dp</dimen>
+
+    <dimen name="toolbar_height">64dp</dimen>
 </resources>

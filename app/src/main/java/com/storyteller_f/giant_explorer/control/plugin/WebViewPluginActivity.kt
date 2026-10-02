@@ -29,6 +29,7 @@ import com.storyteller_f.common_ui.viewBinding
 import com.storyteller_f.file_system.ensureFile
 import com.storyteller_f.giant_explorer.databinding.ActivityWebviewPluginBinding
 import com.storyteller_f.giant_explorer.pluginManagerRegister
+import com.storyteller_f.giant_explorer.view.applyScreenInsets
 import com.storyteller_f.plugin_core.GiantExplorerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +55,7 @@ class WebViewPluginActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding
+        binding.root.applyScreenInsets()
         val uriData = intent.data
         val pluginName = intent.getStringExtra("plugin-name")!!
         messageChannel

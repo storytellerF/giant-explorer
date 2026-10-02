@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurface">
     <FrameLayout
-        android:layout_width="350dp"
-        android:layout_height="350dp"
-        android:padding="8dp">
-
+        android:layout_width="match_parent"
+        android:layout_height="360dp"
+        android:padding="20dp">
         <ProgressBar
             android:id="@+id/state_progress"
             style="?android:attr/progressBarStyle"
@@ -21,28 +21,28 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingStart="21dp"
                 android:paddingEnd="21dp">
-
                 <TextView
                     android:id="@+id/textView_task"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="20dp"
                     android:layout_weight="1"
-                    tools:text="大小：11111\n文件夹：1\n文件：1" />
+                    tools:text="大小：11111\n文件夹：1\n文件：1"
+                    android:textAppearance="@style/TextAppearance.Giant.Body" />
 
                 <TextView
                     android:id="@+id/textView_left"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    tools:text="大小：11111\n文件夹：1\n文件：1" />
+                    tools:text="大小：11111\n文件夹：1\n文件：1"
+                    android:textAppearance="@style/TextAppearance.Giant.Body" />
             </LinearLayout>
 
             <TextView
@@ -53,7 +53,8 @@
                 android:paddingTop="1dp"
                 android:paddingEnd="21dp"
                 android:paddingBottom="1dp"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.Giant.Body" />
 
             <TextView
                 android:id="@+id/textView_tip"
@@ -63,7 +64,8 @@
                 android:paddingTop="1dp"
                 android:paddingEnd="21dp"
                 android:paddingBottom="1dp"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.Giant.Body" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -77,11 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
+                <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
                     <TextView
                         android:id="@+id/textView_detail"
                         android:layout_width="match_parent"
@@ -89,41 +87,47 @@
                         android:paddingStart="21dp"
                         android:paddingTop="1dp"
                         android:paddingEnd="21dp"
-                        android:paddingBottom="1dp" />
+                        android:paddingBottom="1dp"
+                        android:textAppearance="@style/TextAppearance.Giant.Body" />
                 </FrameLayout>
             </ScrollView>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/close_when_error"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="close"
+                android:text="@string/close_dialog"
                 android:visibility="gone"
-                tools:visibility="visible" />
-
+                tools:visibility="visible"
+                style="@style/Widget.Giant.Button"
+                android:minHeight="48dp"
+                android:textAllCaps="false" />
         </LinearLayout>
 
         <FrameLayout
             android:id="@+id/state_done"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
             <TextView
                 android:id="@+id/done_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="50dp"
-                android:text="done"
-                android:textSize="30sp" />
+                android:text="@string/operation_task_done"
+                android:textSize="30sp"
+                android:textAppearance="@style/TextAppearance.Giant.Body" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/close_when_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="5dp"
-                android:text="close" />
+                android:text="@string/close_dialog"
+                style="@style/Widget.Giant.Button"
+                android:minHeight="48dp"
+                android:textAllCaps="false" />
         </FrameLayout>
     </FrameLayout>
 </FrameLayout>

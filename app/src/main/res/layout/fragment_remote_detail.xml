@@ -1,124 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".control.remote.RemoteDetailFragment">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    android:background="?android:attr/colorBackground"
+    android:fillViewport="true"
+    android:clipToPadding="false">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp">
-
-        <HorizontalScrollView
-            android:id="@+id/radio_group"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding"
+        android:paddingBottom="104dp"
+        android:id="@+id/radio_group">
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:text="@string/connection_detail_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Title" />
 
-            <RadioGroup
-                android:id="@+id/type_group"
-                android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/connection_detail_description"
+            android:textAppearance="@style/TextAppearance.Giant.Caption"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/protocol_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
+
+        <RadioGroup
+            android:id="@+id/type_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/giant_card"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/type_smb"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:minHeight="48dp"
+                android:text="@string/is_smb"
+                android:paddingHorizontal="8dp" />
 
-                <RadioButton
-                    android:id="@+id/type_smb"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/is_smb" />
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/type_sftp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/is_sftp"
+                android:paddingHorizontal="8dp" />
 
-                <RadioButton
-                    android:id="@+id/type_sftp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/is_sftp" />
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/type_ftp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/is_ftp"
+                android:paddingHorizontal="8dp" />
 
-                <RadioButton
-                    android:id="@+id/type_ftp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/is_ftp" />
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/type_ftps_explicit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/is_ftps_explicit"
+                android:paddingHorizontal="8dp" />
 
-                <RadioButton
-                    android:id="@+id/type_ftps_explicit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/is_ftps_explicit" />
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/type_ftps_implicit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/is_ftps_implicit"
+                android:paddingHorizontal="8dp" />
 
-                <RadioButton
-                    android:id="@+id/type_ftps_implicit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/is_ftps_implicit" />
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/type_webdav"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/is_webdav"
+                android:paddingHorizontal="8dp" />
+        </RadioGroup>
 
-                <RadioButton
-                    android:id="@+id/type_webdav"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/is_webdav" />
-            </RadioGroup>
-        </HorizontalScrollView>
-
-        <EditText
-            android:id="@+id/name_input"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintTop_toBottomOf="@id/radio_group" />
+            android:layout_height="wrap_content"
+            android:text="@string/server_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
 
-        <EditText
-            android:id="@+id/server_input"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/name_field"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:hint="@string/connection_name"
+            app:boxBackgroundMode="outline">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/name_input"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:singleLine="true"
+                android:minHeight="56dp"
+                android:background="@null"
+                android:imeOptions="actionNext"
+                android:padding="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/server_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
             android:hint="@string/server"
-            app:layout_constraintTop_toBottomOf="@id/name_input" />
+            app:boxBackgroundMode="outline">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/server_input"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"
+                android:singleLine="true"
+                android:minHeight="56dp"
+                android:background="@null"
+                android:imeOptions="actionNext"
+                android:padding="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/port_input"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/port_field"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
             android:hint="@string/port"
-            app:layout_constraintTop_toBottomOf="@id/server_input" />
+            app:boxBackgroundMode="outline">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/port_input"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:singleLine="true"
+                android:minHeight="56dp"
+                android:background="@null"
+                android:imeOptions="actionNext"
+                android:padding="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/user_input"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/credentials_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/user_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
             android:hint="@string/user"
-            app:layout_constraintTop_toBottomOf="@id/port_input" />
+            app:boxBackgroundMode="outline">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/user_input"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:singleLine="true"
+                android:minHeight="56dp"
+                android:background="@null"
+                android:imeOptions="actionNext"
+                android:padding="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/password_input"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_field"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
             android:hint="@string/password"
-            app:layout_constraintTop_toBottomOf="@id/user_input" />
+            app:boxBackgroundMode="outline"
+            app:endIconMode="password_toggle">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_input"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:minHeight="56dp"
+                android:background="@null"
+                android:imeOptions="actionNext"
+                android:padding="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/share_input"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/share_field"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
             android:hint="@string/share_name_for_smb"
-            app:layout_constraintTop_toBottomOf="@id/password_input" />
+            app:boxBackgroundMode="outline">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/share_input"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:singleLine="true"
+                android:minHeight="56dp"
+                android:background="@null"
+                android:imeOptions="actionNext"
+                android:padding="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/test_connection"
-            android:layout_width="wrap_content"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/test_connection"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/button_ok" />
+            android:text="@string/test_connection" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_ok"
-            android:layout_width="wrap_content"
+            style="@style/Widget.Giant.Button"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@android:string/ok"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/share_input" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginTop="8dp"
+            android:text="@string/save_connection" />
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>

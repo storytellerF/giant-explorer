@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="open_window_mode_labels">
+        <item>Standard window</item>
+
+        <item>Split screen</item>
+
+        <item>Freeform window</item>
+    </string-array>
+</resources>

@@ -81,7 +81,7 @@ class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(Fragmen
             it.type
         }.state {
             Log.i(TAG, "onViewCreated: mode $it")
-            binding.shareInput.isVisible = it == RemoteSchemes.SMB
+            binding.shareField.isVisible = it == RemoteSchemes.SMB
             if (it != "") {
                 val id = list[RemoteSchemes.EXCLUDE_HTTP_PROTOCOL.indexOf(it)]
                 if (binding.typeGroup.checkedRadioButtonId != id) {
@@ -95,7 +95,7 @@ class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(Fragmen
             model.data.update {
                 it!!.copy(type = RemoteSchemes.EXCLUDE_HTTP_PROTOCOL[indexOf])
             }
-            if (binding.portInput.text.isEmpty()) {
+            if (binding.portInput.text.isNullOrEmpty()) {
                 binding.portInput.setText(RemoteSchemes.DEFAULT_PORT[indexOf].toString())
             }
         }

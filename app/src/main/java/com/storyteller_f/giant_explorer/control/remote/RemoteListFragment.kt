@@ -51,7 +51,7 @@ class RemoteListFragment :
                         ListWithState.UIState(
                             false,
                             it.isNotEmpty(),
-                            empty = false,
+                            empty = it.isEmpty(),
                             progress = false,
                             null,
                             null
@@ -97,7 +97,7 @@ class RemoteAccessSpecViewHolder(
 
     override fun bindData(itemHolder: RemoteAccessSpecHolder) {
         val spec = itemHolder.spec
-        binding.url.text = spec.toRemoteSpec().toUri().toString()
-        binding.server.text = spec.server
+        binding.url.text = "${spec.type} · ${spec.server}:${spec.port}"
+        binding.server.text = spec.name.ifBlank { spec.server }
     }
 }

@@ -1,93 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minWidth="300dp"
-    android:orientation="vertical"
-    android:paddingHorizontal="20dp"
-    android:paddingVertical="18dp">
-
-    <TextView
-        android:id="@+id/fileName"
-        style="@style/TextAppearance.AppCompat.Title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="/storage/emulated/0/test.txt" />
-
-    <Button
-        android:id="@+id/typeDeduced"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textAllCaps="false"
-        app:layout_constraintEnd_toEndOf="@+id/fileName"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/fileName"
-        app:layout_constraintTop_toBottomOf="@+id/fileName"
-        tools:text="image/jpeg" />
-
-    <Button
-        android:id="@+id/type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textAllCaps="false"
-        app:layout_constraintEnd_toEndOf="@+id/typeDeduced"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/typeDeduced"
-        app:layout_constraintTop_toBottomOf="@+id/typeDeduced"
-        tools:text="image/jpeg" />
-
-    <androidx.constraintlayout.helper.widget.Flow
+    android:layout_height="wrap_content">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:constraint_referenced_ids="openByPicture,openByVideo,openByText,openByMusic,openByHex,openByAny"
-        app:flow_horizontalGap="5dp"
-        app:flow_wrapMode="aligned"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/type" />
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="18dp"
+        android:background="?attr/colorSurface">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/open_file_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Title"
+            android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/openByPicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/type_picture" />
+        <TextView
+            android:id="@+id/fileName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="/storage/emulated/0/test.txt"
+            android:textAppearance="@style/TextAppearance.Giant.Subtitle" />
 
-    <Button
-        android:id="@+id/openByVideo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/type_video" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/typeDeduced"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAllCaps="false"
+            tools:text="image/jpeg"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textColor="?attr/colorOnSurface"
+            android:text="@string/detected_type" />
 
-    <Button
-        android:id="@+id/openByText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/type_text" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAllCaps="false"
+            tools:text="image/jpeg"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textColor="?attr/colorOnSurface"
+            android:text="@string/extension_type" />
 
-    <Button
-        android:id="@+id/openByMusic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/type_audio" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/openByPicture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/type_picture"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorOnSurface" />
 
-    <Button
-        android:id="@+id/openByHex"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/type_hex" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/openByVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/type_video"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorOnSurface" />
 
-    <Button
-        android:id="@+id/openByAny"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/type_any" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/openByText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/type_text"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorOnSurface" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/openByMusic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/type_audio"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorOnSurface" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/openByHex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/type_hex"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorOnSurface" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/openByAny"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/type_any"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:minHeight="48dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorOnSurface" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

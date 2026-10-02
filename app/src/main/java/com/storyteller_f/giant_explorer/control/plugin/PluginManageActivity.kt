@@ -3,6 +3,7 @@ package com.storyteller_f.giant_explorer.control.plugin
 import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -18,6 +19,7 @@ import com.storyteller_f.file_system.operate.ScopeFileCopyOp
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.ActivityPluginManageBinding
 import com.storyteller_f.giant_explorer.dialog.RequestPathDialog
+import com.storyteller_f.giant_explorer.view.applyScreenInsets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,12 +36,21 @@ class PluginManageActivity : CommonActivity() {
 
         binding = ActivityPluginManageBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyScreenInsets()
 
         setSupportActionBar(binding.toolbar)
 
         val navController = findNavController(R.id.nav_host_fragment_content_plugin_manage)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        appBarConfiguration = AppBarConfiguration.Builder(emptySet<Int>())
+            .setFallbackOnNavigateUpListener {
+                finish()
+                true
+            }
+            .build()
         setupActionBarWithNavController(navController, appBarConfiguration)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            binding.fab.isVisible = destination.id == R.id.FirstFragment
+        }
         val pluginRoot = File(filesDir, "plugins")
         binding.fab.setOnClickListener {
             val requestPathDialogArgs = RequestPathDialog.bundle(this)

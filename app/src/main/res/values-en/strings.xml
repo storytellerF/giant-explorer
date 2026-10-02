@@ -1,58 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">giant-explorer</string>
+    <string name="app_name">Giant Explorer</string>
 
     <string name="string_add_file">add file</string>
+
     <string name="string_add">Add</string>
+
     <string name="string_add_directory">add directory</string>
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+
+    <string name="first_fragment_label">Plugins</string>
+
+    <string name="second_fragment_label">Plugin details</string>
+
     <string name="title_activity_settings">Settings</string>
+
     <string name="title_activity_root_access">Root Access</string>
-    <string name="title_activity_background_task_config">BackgroundTaskConfigActivity</string>
+
+    <string name="title_activity_background_task_config">Background tasks</string>
 
     <string name="add_background_task_description">add background task</string>
+
     <string name="delete">delete</string>
+
     <string name="move_to">move to</string>
+
     <string name="copy_to">copy to</string>
+
     <string name="copy_files">copy</string>
+
     <string name="properties">properties</string>
+
     <string name="filter_hidden_file">filter hidden files</string>
+
     <string name="new_window">new window</string>
+
     <string name="settings">settings</string>
+
     <string name="root_access">root access</string>
+
     <string name="about">about</string>
-    <string name="title_activity_plugin_manage">PluginManageActivity</string>
+
+    <string name="title_activity_plugin_manage">Plugins</string>
+
     <string name="operation_task_done">done</string>
+
     <string name="stay_screen_on">keep screen on</string>
+
     <string name="plugin_manager">plugin manager</string>
+
     <string name="filter">filter</string>
+
     <string name="sort">sort</string>
+
     <string name="switch_root">switch</string>
+
     <string name="paste">Paste</string>
+
     <string name="background_task_manage">background task</string>
+
     <string name="root_intro">Learn how to root device</string>
-    <string name="title_activity_remote_manager">RemoteManager</string>
+
+    <string name="title_activity_remote_manager">Remote connections</string>
+
     <string name="duration_ms">duration: %1$s ms</string>
+
     <string name="remote_access">remote access</string>
+
     <string name="item_show_as_linear">linear</string>
+
     <string name="item_show_as_grid">grid</string>
+
     <string name="type_picture">picture</string>
+
     <string name="type_video">video</string>
+
     <string name="type_text">plain text</string>
+
     <string name="type_audio">music</string>
+
     <string name="type_hex">hex binary</string>
+
     <string name="type_any">any</string>
+
     <string name="symlink_indicator_desc">indicate this file is symlink</string>
+
     <string name="open_window_mode">Open window mode %s</string>
+
     <string name="prompt_before_drag_drop">Prompt before drag&amp;drop</string>
+
     <string name="open_window_mode_dialog_title">Open window mode</string>
+
     <string name="server">server host</string>
+
     <string name="port">port</string>
+
     <string name="user">user name</string>
+
     <string name="password">password</string>
-    <string name="share_name_for_smb">share name for smb</string>
+
+    <string name="share_name_for_smb">Share name (SMB)</string>
+
     <string name="test_connection">test connection</string>
+
     <string name="preview_archive">preview archived file</string>
+
     <string name="manage_permission">manage permission</string>
+
+    <string name="browser_subtitle">Files and locations</string>
+
+    <string name="switch_display">Switch list and grid</string>
+
+    <string name="edit_path">Edit current path</string>
+
+    <string name="path_hint">Enter a folder path</string>
+
+    <string name="add_connection">Add connection</string>
+
+    <string name="add_plugin">Import plugin</string>
+
+    <string name="check_root">Check root access</string>
+
+    <string name="empty_list_help">Nothing here yet.</string>
+
+    <string name="files_heading">My files</string>
+
+    <string name="locations_heading">Locations</string>
+
+    <string name="locations_description">Local storage, document providers and remote connections</string>
+
+    <string name="connections_heading">Your connections</string>
+
+    <string name="connections_description">Access servers and shared folders. Use the add button to create a connection.</string>
+
+    <string name="plugins_heading">Extensions</string>
+
+    <string name="plugins_description">Add tools for viewing and processing files. Use the add button to import a plugin.</string>
+
+    <string name="tasks_heading">Background tasks</string>
+
+    <string name="tasks_description">Manage file processing by task type and enable or disable each task.</string>
+
+    <string name="connection_detail_heading">Connection setup</string>
+
+    <string name="connection_detail_description">Choose a protocol and enter server details. Test the connection before saving.</string>
+
+    <string name="protocol_heading">Protocol</string>
+
+    <string name="server_heading">Server details</string>
+
+    <string name="credentials_heading">Account and share</string>
+
+    <string name="connection_name">Connection name</string>
+
+    <string name="save_connection">Save connection</string>
+
+    <string name="new_task_heading">Add task</string>
+
+    <string name="new_task_description">Choose a processing type and a target folder.</string>
+
+    <string name="task_type">Task type</string>
+
+    <string name="target_folder">Target folder</string>
+
+    <string name="choose_folder">Choose folder</string>
+
+    <string name="enable_task">Enable this task</string>
+
+    <string name="save_task">Save task</string>
+
+    <string name="plugin_details">Plugin details</string>
+
+    <string name="plugin_location">Plugin file location</string>
+
+    <string name="root_heading">Root access</string>
+
+    <string name="root_description">Check whether this device grants root access. Regular file management works without root.</string>
+
+    <string name="open_root">Open root directory</string>
+
+    <string name="root_tools_heading">Root tools</string>
+
+    <string name="root_tools_description">Visit the official Magisk or KernelSU project to learn about device support.</string>
+
+    <string name="new_name_hint">File or folder name</string>
+
+    <string name="settings_general">File actions</string>
+
+    <string name="settings_windows">Multiple windows</string>
+
+    <string name="settings_window_summary">Choose how new windows open. Availability depends on your device.</string>
+
+    <string name="settings_confirm_summary">Confirm the destination before pasting or dropping files.</string>
+
+    <string name="about_description">Keep your files, connections and tools organized.</string>
+
+    <string name="about_repository">View project source</string>
+
+    <string name="about_version">Version %1$s</string>
+
+    <string name="image_preview">Image preview</string>
+
+    <string name="storage_heading">Storage and permissions</string>
+
+    <string name="task_path_help">Choose a folder for background processing</string>
+
+    <string name="open_file_heading">Choose how to open</string>
+
+    <string name="detected_type">Detecting file type</string>
+
+    <string name="extension_type">Unrecognized extension type</string>
+
+    <string name="is_smb">SMB</string>
+
+    <string name="is_sftp">SFTP</string>
+
+    <string name="is_ftp">FTP</string>
+
+    <string name="is_ftps_explicit">FTPS (explicit)</string>
+
+    <string name="is_ftps_implicit">FTPS (implicit)</string>
+
+    <string name="is_webdav">WebDAV</string>
+
+    <string name="close_dialog">Close</string>
+
+    <string name="plugin_type_shell">File operation plugin</string>
+
+    <string name="plugin_type_fragment">Native screen plugin</string>
+
+    <string name="plugin_type_html">Web plugin</string>
+
+    <string name="root_available">Root access granted</string>
+
+    <string name="root_unavailable">Root access has not been granted</string>
 </resources>

@@ -149,8 +149,8 @@ class PathMan @JvmOverloads constructor(
 
         context.theme.obtainStyledAttributes(
             intArrayOf(
-                com.google.android.material.R.attr.colorSecondary,
-                com.google.android.material.R.attr.colorOnSecondary
+                com.google.android.material.R.attr.colorSecondaryContainer,
+                com.google.android.material.R.attr.colorOnSecondaryContainer
             )
         ).useCompat({ recycle() }) {
             val color = it.getColor(secondaryIndex, 0)

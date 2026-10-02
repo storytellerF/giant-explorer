@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="50dp">
-
+    android:layout_height="64dp"
+    android:background="?android:attr/colorBackground"
+    android:paddingHorizontal="8dp">
     <com.storyteller_f.giant_explorer.view.PathMan
         android:id="@+id/path_man"
         android:layout_width="0dp"
@@ -18,14 +20,22 @@
         android:layout_height="match_parent"
         app:layout_constraintEnd_toStartOf="@id/edit_mode"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:inputType="textUri"
+        android:singleLine="true"
+        android:imeOptions="actionGo"
+        android:hint="@string/path_hint" />
 
     <ImageButton
         android:id="@+id/edit_mode"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:src="@drawable/icon_path_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="12dp"
+        app:tint="?attr/colorOnSurfaceVariant"
+        android:contentDescription="@string/edit_path" />
 </androidx.constraintlayout.widget.ConstraintLayout>

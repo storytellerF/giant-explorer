@@ -138,6 +138,15 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
             v.updatePadding(top = top)
             i
         }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.content) { view, insets ->
+            val safe = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                    WindowInsetsCompat.Type.displayCutout() or
+                    WindowInsetsCompat.Type.ime()
+            )
+            view.updatePadding(left = safe.left, right = safe.right, bottom = safe.bottom)
+            insets
+        }
         // 连接服务
         val fileOperateIntent = Intent(this, FileOperateService::class.java)
         startService(fileOperateIntent)
