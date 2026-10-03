@@ -40,11 +40,11 @@ class MainActivity : AppCompatActivity() {
     private fun setupFullscreen() {
         enableEdgeToEdge()
         binding.root.setOnApplyWindowInsetsListener { v, insets ->
-            val top = WindowInsetsCompat.toWindowInsetsCompat(
+            val safe = WindowInsetsCompat.toWindowInsetsCompat(
                 insets,
                 v
-            ).getInsets(WindowInsetsCompat.Type.statusBars()).top
-            v.updatePadding(top = top)
+            ).getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            v.updatePadding(left = safe.left, top = safe.top, right = safe.right, bottom = safe.bottom)
             insets
         }
     }
