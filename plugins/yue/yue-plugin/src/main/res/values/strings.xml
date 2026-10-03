@@ -3,4 +3,5 @@
     <string name="image_preview">图片预览</string>
     <string name="gallery_position">第 %1$d 张，共 %2$d 张</string>
     <string name="single_image_hint">完整画面 · 按比例显示</string>
+    <string name="image_load_failed">无法读取这张图片</string>
 </resources>

@@ -4,6 +4,8 @@
 
 giant-explorer 的插件
 
+独立应用可从系统文件选择器或 Giant 的文件菜单打开获授权的当前图片。安装在 Giant 内的 Fragment GEP 插件还可浏览同目录中的图片。
+
 ## Fragment GEP 打包
 
 在仓库根目录执行 `./gradlew :plugins:yue:yue-plugin:packGep`。

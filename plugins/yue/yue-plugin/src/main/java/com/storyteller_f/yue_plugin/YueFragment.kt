@@ -4,7 +4,6 @@ package com.storyteller_f.yue_plugin
 
 import android.net.Uri
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.storyteller_f.plugin_core.FileSystemProviderConstant
 import com.storyteller_f.plugin_core.GiantExplorerPlugin
 import com.storyteller_f.plugin_core.GiantExplorerPluginManager
 import kotlinx.coroutines.launch
@@ -81,32 +79,12 @@ class YueFragment : Fragment(), GiantExplorerPlugin {
     private suspend fun listFiles(u: Uri, list: MutableList<Uri>): Boolean {
         Log.i(TAG, "onViewCreated: ${u.authority}")
 
-        if (u.authority?.contains("storyteller") == true) {
-            val manager = plugin ?: return false
+        val manager = plugin
+        if (u.authority?.contains("storyteller") == true && manager != null) {
             val parentPath = manager.resolver.resolveParentUri(u)
-            val isolateRunning =
-                requireContext().javaClass.canonicalName == "com.storyteller_f.yue.MainActivity"
-            if (!isolateRunning) {
-                list.addAll(manager.listFiles(parentPath))
-            } else {
-                val parentUri = manager.resolver.resolveParentUri(u)
-                requireContext().contentResolver.query(parentUri, null, null, null, null)?.use {
-                    while (it.moveToNext()) {
-                        val path =
-                            it.getString(it.getColumnIndexOrThrow(FileSystemProviderConstant.FILE_PATH))
-                        val mimeType =
-                            it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_MIME_TYPE))
-                        Log.i(TAG, "listFiles: $path $mimeType")
-                        if (mimeType != null && mimeType.startsWith("image")) {
-                            list.add(
-                                Uri.Builder().scheme(u.scheme).authority(u.authority)
-                                    .path("/info$path").build()
-                            )
-                        }
-                    }
-                }
-            }
+            list.addAll(manager.listFiles(parentPath))
         } else {
+            // Standalone launches receive a grant for this image, not its parent directory.
             list.add(u)
         }
         return true
