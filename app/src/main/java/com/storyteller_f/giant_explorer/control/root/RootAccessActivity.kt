@@ -1,7 +1,6 @@
 package com.storyteller_f.giant_explorer.control.root
 
 import android.content.ComponentName
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -9,9 +8,10 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
+import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -35,8 +35,8 @@ class RootAccessActivity : AppCompatActivity() {
                 Log.i(TAG, "onCustomTabsServiceConnected: warmup $warmup")
                 newSession = client.newSession(object : CustomTabsCallback() {
                 })
-                newSession?.mayLaunchUrl(Uri.parse(MAGISK_URL), null, null)
-                newSession?.mayLaunchUrl(Uri.parse(KERNEL_SU_URL), null, null)
+                newSession?.mayLaunchUrl(MAGISK_URL.toUri(), null, null)
+                newSession?.mayLaunchUrl(KERNEL_SU_URL.toUri(), null, null)
             }
         }
 
@@ -53,7 +53,10 @@ class RootAccessActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_root_access)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_root_access
+        ) as NavHostFragment
+        val navController = navHost.navController
         appBarConfiguration = AppBarConfiguration.Builder(emptySet<Int>())
             .setFallbackOnNavigateUpListener {
                 finish()
@@ -81,7 +84,10 @@ class RootAccessActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_root_access)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_root_access
+        ) as NavHostFragment
+        val navController = navHost.navController
         return navController.navigateUp(appBarConfiguration) ||
             super.onSupportNavigateUp()
     }

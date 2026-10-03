@@ -5,7 +5,7 @@ package com.storyteller_f.giant_explorer.control.task
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -26,7 +26,10 @@ class BackgroundTaskConfigActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_background_task_config)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_background_task_config
+        ) as NavHostFragment
+        val navController = navHost.navController
         appBarConfiguration = AppBarConfiguration.Builder(emptySet<Int>())
             .setFallbackOnNavigateUpListener {
                 finish()
@@ -44,7 +47,10 @@ class BackgroundTaskConfigActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_background_task_config)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_background_task_config
+        ) as NavHostFragment
+        val navController = navHost.navController
         return navController.navigateUp(appBarConfiguration) ||
             super.onSupportNavigateUp()
     }

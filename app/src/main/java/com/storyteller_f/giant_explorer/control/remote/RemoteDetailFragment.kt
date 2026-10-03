@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(FragmentRemoteDetailBinding::inflate) {
     companion object {
@@ -96,7 +97,7 @@ class RemoteDetailFragment : SimpleFragment<FragmentRemoteDetailBinding>(Fragmen
                 it!!.copy(type = RemoteSchemes.EXCLUDE_HTTP_PROTOCOL[indexOf])
             }
             if (binding.portInput.text.isNullOrEmpty()) {
-                binding.portInput.setText(RemoteSchemes.DEFAULT_PORT[indexOf].toString())
+                binding.portInput.setText(String.format(Locale.ROOT, "%d", RemoteSchemes.DEFAULT_PORT[indexOf]))
             }
         }
     }

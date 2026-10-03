@@ -1,113 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="24dp">
-    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/properties"
-                android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
-                android:layout_marginBottom="12dp" />
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/giant_field"
-                android:padding="16dp"
-                tools:text="hello.txt"
-                android:textAppearance="@style/TextAppearance.Giant.Subtitle"
-                android:layout_marginBottom="8dp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/full_path"
-                style="@style/Widget.Giant.Button.Text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:padding="10dp"
-                android:textAllCaps="false"
-                android:textColor="?attr/colorPrimary"
-                tools:text="/sdcard/"
-                android:minHeight="48dp" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/property_accessed"
-                android:textAppearance="@style/TextAppearance.Giant.Label" />
-            <TextView
-                android:id="@+id/accessedTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/giant_field"
-                android:padding="16dp"
-                tools:text="2022"
-                android:textAppearance="@style/TextAppearance.Giant.Body"
-                android:layout_marginBottom="8dp" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/property_modified"
-                android:textAppearance="@style/TextAppearance.Giant.Label" />
-            <TextView
-                android:id="@+id/modifiedTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/giant_field"
-                android:padding="16dp"
-                tools:text="2022"
-                android:textAppearance="@style/TextAppearance.Giant.Body"
-                android:layout_marginBottom="8dp" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/property_created"
-                android:textAppearance="@style/TextAppearance.Giant.Label" />
-            <TextView
-                android:id="@+id/createdTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/giant_field"
-                android:padding="16dp"
-                tools:text="2022"
-                android:textAppearance="@style/TextAppearance.Giant.Body"
-                android:layout_marginBottom="8dp" />
-            <TextView
-                android:id="@+id/video_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/giant_field"
-                android:padding="16dp"
-                android:textAppearance="@style/TextAppearance.Giant.Body"
-                android:layout_marginBottom="8dp" />
-            <TextView
-                android:id="@+id/audio_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/giant_field"
-                android:padding="16dp"
-                android:textAppearance="@style/TextAppearance.Giant.Body"
-                android:layout_marginBottom="8dp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/dismiss_dialog"
-                style="@style/Widget.Giant.Button.Text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/dismiss_overlay" />
-        </LinearLayout>
-    </ScrollView>
-</FrameLayout>
+            android:text="@string/properties"
+            android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
+            android:layout_marginBottom="12dp" />
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/giant_field"
+            android:padding="16dp"
+            tools:text="hello.txt"
+            android:textAppearance="@style/TextAppearance.Giant.Subtitle"
+            android:layout_marginBottom="8dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/full_path"
+            style="@style/Widget.Giant.Button.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:padding="10dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorPrimary"
+            tools:text="/sdcard/"
+            android:minHeight="48dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/property_accessed"
+            android:textAppearance="@style/TextAppearance.Giant.Label" />
+        <TextView
+            android:id="@+id/accessedTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/giant_field"
+            android:padding="16dp"
+            tools:text="2022"
+            android:textAppearance="@style/TextAppearance.Giant.Body"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/property_modified"
+            android:textAppearance="@style/TextAppearance.Giant.Label" />
+        <TextView
+            android:id="@+id/modifiedTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/giant_field"
+            android:padding="16dp"
+            tools:text="2022"
+            android:textAppearance="@style/TextAppearance.Giant.Body"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/property_created"
+            android:textAppearance="@style/TextAppearance.Giant.Label" />
+        <TextView
+            android:id="@+id/createdTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/giant_field"
+            android:padding="16dp"
+            tools:text="2022"
+            android:textAppearance="@style/TextAppearance.Giant.Body"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:id="@+id/video_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/giant_field"
+            android:padding="16dp"
+            android:textAppearance="@style/TextAppearance.Giant.Body"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:id="@+id/audio_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/giant_field"
+            android:padding="16dp"
+            android:textAppearance="@style/TextAppearance.Giant.Body"
+            android:layout_marginBottom="8dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dismiss_dialog"
+            style="@style/Widget.Giant.Button.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/dismiss_overlay" />
+    </LinearLayout>
+</ScrollView>

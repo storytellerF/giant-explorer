@@ -5,7 +5,7 @@ import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -40,7 +40,10 @@ class PluginManageActivity : CommonActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_plugin_manage)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_plugin_manage
+        ) as NavHostFragment
+        val navController = navHost.navController
         appBarConfiguration = AppBarConfiguration.Builder(emptySet<Int>())
             .setFallbackOnNavigateUpListener {
                 finish()
@@ -85,7 +88,10 @@ class PluginManageActivity : CommonActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_plugin_manage)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_plugin_manage
+        ) as NavHostFragment
+        val navController = navHost.navController
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

@@ -56,7 +56,4 @@
         <item name="colorOutlineVariant">@color/md_theme_light_outlineVariant</item>
     </style>
 
-    <color name="colorFile">@color/md_theme_light_surface</color>
-
-    <color name="colorFolder">@color/md_theme_light_surface</color>
 </resources>

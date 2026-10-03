@@ -2,7 +2,6 @@ package com.storyteller_f.giant_explorer.control.root
 
 import android.content.Context
 import android.content.res.Resources
-import android.net.Uri
 import android.os.Build
 import android.util.DisplayMetrics
 import android.util.Size
@@ -11,6 +10,7 @@ import android.view.WindowMetrics
 import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.storyteller_f.common_ui.SimpleFragment
 import com.storyteller_f.giant_explorer.DEFAULT_WEB_VIEW_HEIGHT
 import com.storyteller_f.giant_explorer.databinding.FragmentRootIntroBinding
@@ -35,7 +35,7 @@ class RootIntroFragment : SimpleFragment<FragmentRootIntroBinding>(FragmentRootI
         val builder = CustomTabsIntent.Builder().setInitialActivityHeightPx((height * DEFAULT_WEB_VIEW_HEIGHT).toInt())
         if (newSession != null) builder.setSession(newSession)
         val customTabsIntent = builder.build()
-        customTabsIntent.launchUrl(requireContext(), Uri.parse(url))
+        customTabsIntent.launchUrl(requireContext(), url.toUri())
     }
 }
 

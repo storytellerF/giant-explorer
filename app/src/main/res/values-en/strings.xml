@@ -48,11 +48,7 @@
 
     <string name="plugin_manager">Plugins</string>
 
-    <string name="filter">filter</string>
-
     <string name="sort">Sort and filter</string>
-
-    <string name="switch_root">switch</string>
 
     <string name="paste">Paste</string>
 
@@ -65,10 +61,6 @@
     <string name="duration_ms">duration: %1$s ms</string>
 
     <string name="remote_access">Remote connections</string>
-
-    <string name="item_show_as_linear">linear</string>
-
-    <string name="item_show_as_grid">grid</string>
 
     <string name="type_picture">picture</string>
 
@@ -121,10 +113,6 @@
     <string name="check_root">Check root access</string>
 
     <string name="empty_list_help">Nothing here yet.</string>
-
-    <string name="files_heading">My files</string>
-
-    <string name="locations_heading">Locations</string>
 
     <string name="locations_description">Local storage, document providers and remote connections</string>
 
@@ -198,8 +186,6 @@
 
     <string name="about_version">Version %1$s</string>
 
-    <string name="image_preview">Image preview</string>
-
     <string name="storage_heading">Storage and permissions</string>
 
     <string name="task_path_help">Choose a folder for background processing</string>
@@ -209,18 +195,6 @@
     <string name="detected_type">Detecting file type</string>
 
     <string name="extension_type">Unrecognized extension type</string>
-
-    <string name="is_smb">SMB</string>
-
-    <string name="is_sftp">SFTP</string>
-
-    <string name="is_ftp">FTP</string>
-
-    <string name="is_ftps_explicit">FTPS (explicit)</string>
-
-    <string name="is_ftps_implicit">FTPS (implicit)</string>
-
-    <string name="is_webdav">WebDAV</string>
 
     <string name="close_dialog">Close</string>
 
@@ -233,4 +207,7 @@
     <string name="root_available">Root access granted</string>
 
     <string name="root_unavailable">Root access has not been granted</string>
+    <string name="plugin_name_version">%1$s - %2$s</string>
+    <string name="remote_endpoint">%1$s · %2$s:%3$s</string>
+    <string name="html_plugin_renderer_stopped">The preview process stopped. Open the file again to retry.</string>
 </resources>

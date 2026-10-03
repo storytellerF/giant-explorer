@@ -20,7 +20,9 @@ class PluginInfoFragment : SimpleFragment<FragmentPluginInfoBinding>(FragmentPlu
             val pluginConfiguration = withContext(Dispatchers.IO) {
                 pluginManagerRegister.resolvePluginName(args.pluginName, requireContext())
             }
-            binding.pluginName.text = "${args.pluginName} - ${pluginConfiguration.meta.version}"
+            binding.pluginName.text = getString(
+                R.string.plugin_name_version, args.pluginName, pluginConfiguration.meta.version
+            )
             binding.pluginPath.text = pluginConfiguration.meta.path
             binding.other.text = getString(
                 when (pluginConfiguration) {

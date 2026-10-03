@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
-import android.os.Build
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.TextUtils
@@ -243,7 +242,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
             val u = when {
                 uriFromText.scheme == ContentResolver.SCHEME_FILE -> uriFromText
                 it.uri != null -> it.uri
-                URLUtil.isNetworkUrl(text) -> Uri.parse(text)
+                URLUtil.isNetworkUrl(text) -> text.toUri()
                 filePathMatcher.matches(text) -> {
                     Uri.fromFile(File(text))
                 }
@@ -375,9 +374,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
 
             resolveInstalledPlugins(itemHolder, mimeTypeFromExtension, uri)
             resolveNoInstalledPlugins(mimeTypeFromExtension, fullPath, uri, key)
-            val isSupportArchiveFileInstance = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-            menu.findItem(R.id.preview_archive).isVisible =
-                isSupportArchiveFileInstance || itemHolder.file.item.extension == "zip"
+            menu.findItem(R.id.preview_archive).isVisible = true
 
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {

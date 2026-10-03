@@ -52,8 +52,6 @@
 
     <string name="plugin_manager">插件管理</string>
 
-    <string name="filter">过滤</string>
-
     <string name="sort">排序</string>
 
     <string name="sort_and_filter">排序与过滤</string>
@@ -74,8 +72,6 @@
 
     <string name="filter_options">过滤选项</string>
 
-    <string name="switch_root">切换</string>
-
     <string name="paste">粘贴</string>
 
     <string name="background_task_manage">后台任务管理</string>
@@ -85,10 +81,6 @@
     <string name="duration_ms">时长: %1$s ms</string>
 
     <string name="remote_access">远程访问</string>
-
-    <string name="item_show_as_linear">线性</string>
-
-    <string name="item_show_as_grid">网格</string>
 
     <string name="type_picture">图片</string>
 
@@ -142,8 +134,6 @@
 
     <string name="manage_permission">管理权限</string>
 
-    <string name="leak_canary_display_activity_label" translatable="false">Giant Explorer Leaks</string>
-
     <string name="browser_subtitle">文件与位置</string>
 
     <string name="switch_display">切换列表与网格</string>
@@ -159,10 +149,6 @@
     <string name="check_root">检查 root 权限</string>
 
     <string name="empty_list_help">这里还没有内容。</string>
-
-    <string name="files_heading">我的文件</string>
-
-    <string name="locations_heading">存储位置</string>
 
     <string name="locations_description">本地、文档目录与远程连接</string>
 
@@ -236,8 +222,6 @@
 
     <string name="about_version">版本 %1$s</string>
 
-    <string name="image_preview">图片预览</string>
-
     <string name="storage_heading">存储与权限</string>
 
     <string name="task_path_help">为后台处理选择目录</string>
@@ -259,4 +243,9 @@
     <string name="root_available">已获得 root 权限</string>
 
     <string name="root_unavailable">尚未获得 root 权限</string>
+    <string name="plugin_name_version">%1$s - %2$s</string>
+    <string name="remote_endpoint">%1$s · %2$s:%3$s</string>
+    <string name="magisk" translatable="false">Magisk</string>
+    <string name="kernel_su" translatable="false">KernelSU</string>
+    <string name="html_plugin_renderer_stopped">插件页面已停止运行，请重新打开文件。</string>
 </resources>

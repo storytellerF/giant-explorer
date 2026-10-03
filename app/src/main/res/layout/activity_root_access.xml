@@ -6,8 +6,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".control.root.RootAccessActivity"
-    android:background="?attr/colorSurface">
+    tools:context=".control.root.RootAccessActivity">
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -23,6 +23,7 @@
             android:textAppearance="@style/TextAppearance.Giant.Caption"
             android:layout_marginBottom="12dp" />
         <EditText
+            android:importantForAutofill="no"
             android:id="@+id/newName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

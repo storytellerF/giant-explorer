@@ -7,7 +7,7 @@
     <style name="Theme.Giant.Base" parent="Theme.Giant.Platform">
         <item name="android:fontFamily">sans</item>
 
-        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
 
         <item name="android:statusBarColor">@android:color/transparent</item>
 

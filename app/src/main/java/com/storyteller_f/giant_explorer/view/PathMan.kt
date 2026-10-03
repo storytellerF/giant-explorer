@@ -2,7 +2,6 @@ package com.storyteller_f.giant_explorer.view
 
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
-import android.os.Build
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
@@ -156,9 +155,7 @@ class PathMan @JvmOverloads constructor(
             val color = it.getColor(secondaryIndex, 0)
             val textColor = it.getColor(onSecondaryIndex, 0)
             background = GradientDrawable().apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    cornerRadius = cellCorner
-                }
+                cornerRadius = cellCorner
                 setColor(color)
             }
             setTextColor(textColor)
@@ -199,7 +196,7 @@ fun LayoutPathBinding.setup() {
     }
     pathEdit.setOnKeyListener { _: View?, keyCode: Int, _: KeyEvent? ->
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
-            val input = pathEdit.text.toString().trim { it <= ' ' }
+            val input = pathEdit.text.toString().trim()
             pathMan.redirect(input)
         }
         false

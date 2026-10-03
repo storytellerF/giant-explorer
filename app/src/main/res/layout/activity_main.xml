@@ -6,13 +6,11 @@
     android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".control.MainActivity"
-    android:background="?android:attr/colorBackground">
+    tools:context=".control.MainActivity">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground">
+        android:layout_height="match_parent">
         <FrameLayout
             android:id="@+id/toolbar_container"
             android:layout_width="match_parent"

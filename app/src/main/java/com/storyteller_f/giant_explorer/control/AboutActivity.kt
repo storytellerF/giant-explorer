@@ -1,8 +1,8 @@
 package com.storyteller_f.giant_explorer.control
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import androidx.core.net.toUri
 import com.storyteller_f.common_ui.CommonActivity
 import com.storyteller_f.giant_explorer.BuildConfig
 import com.storyteller_f.giant_explorer.R
@@ -19,7 +19,7 @@ class AboutActivity : CommonActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.version.text = getString(R.string.about_version, BuildConfig.VERSION_NAME)
         binding.repository.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PROJECT_URL)))
+            startActivity(Intent(Intent.ACTION_VIEW, PROJECT_URL.toUri()))
         }
     }
 

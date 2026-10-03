@@ -4,6 +4,7 @@ import android.content.Intent
 import android.util.Base64
 import android.webkit.WebView
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -29,19 +30,13 @@ class HtmlPluginReadTest {
             writeText("HTML bridge fixture")
         }
         val archive = File(context.cacheDir, "html-bridge-test.zip")
-        ZipOutputStream(archive.outputStream()).use { zip ->
-            zip.putNextEntry(ZipEntry("config"))
-            zip.write("1.0".toByteArray())
-            zip.closeEntry()
-            zip.putNextEntry(ZipEntry("index.html"))
-            zip.write(
-                """<html><head><title>pending</title></head><body><script>
-                function callback(id, result) { document.title = result; }
-                plugin.base64(file.fullPath(), "0");
-                </script></body></html>""".toByteArray()
-            )
-            zip.closeEntry()
-        }
+        writePlugin(archive, """<html><head><title>pending</title></head><body><script>
+            function callback(id, result) {
+                if (id === 0) plugin.base64(file.fullPath(), "1");
+                else document.title = result;
+            }
+            plugin.base64(file.fullPath(), "0");
+            </script></body></html>""")
         pluginManagerRegister.foundPlugin(archive)
         val intent = Intent(context, WebViewPluginActivity::class.java)
             .setData(FileSystemProviderResolver.share(false, original.toUri()))
@@ -71,4 +66,52 @@ class HtmlPluginReadTest {
         archive.delete()
         File(context.filesDir, "plugins/${archive.nameWithoutExtension}").deleteRecursively()
     }
+
+    @Test
+    fun rendererCrashClosesPreviewWithoutCrashingHost() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val archive = File(context.cacheDir, "html-renderer-test.zip")
+        writePlugin(archive, "<html><head><title>renderer-ready</title></head><body>Preview</body></html>")
+        pluginManagerRegister.foundPlugin(archive)
+        val intent = Intent(context, WebViewPluginActivity::class.java)
+            .putExtra("plugin-name", archive.name)
+        try {
+            ActivityScenario.launch<WebViewPluginActivity>(intent).use { scenario ->
+                // Instrumentation is a synchronous boundary; wait off the UI thread.
+                runBlocking {
+                    withTimeout(60_000) {
+                        while (true) {
+                            val ready = CompletableDeferred<Boolean>()
+                            scenario.onActivity { activity ->
+                                val view = activity.findViewById<WebView>(R.id.web_view)
+                                ready.complete(view.title == "renderer-ready")
+                            }
+                            if (ready.await()) break
+                            delay(100)
+                        }
+                        scenario.onActivity { activity ->
+                            activity.findViewById<WebView>(R.id.web_view).loadUrl("chrome://crash")
+                        }
+                        while (scenario.state != Lifecycle.State.DESTROYED) delay(100)
+                    }
+                }
+                assertEquals(Lifecycle.State.DESTROYED, scenario.state)
+            }
+        } finally {
+            archive.delete()
+            File(context.filesDir, "plugins/${archive.nameWithoutExtension}").deleteRecursively()
+        }
+    }
+
+    private fun writePlugin(archive: File, html: String) {
+        ZipOutputStream(archive.outputStream()).use { zip ->
+            zip.putNextEntry(ZipEntry("config"))
+            zip.write("1.0".toByteArray())
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry("index.html"))
+            zip.write(html.toByteArray())
+            zip.closeEntry()
+        }
+    }
+
 }

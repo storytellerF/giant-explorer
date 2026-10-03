@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -27,7 +27,10 @@ class RemoteManagerActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_remote_manager)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_remote_manager
+        ) as NavHostFragment
+        val navController = navHost.navController
         appBarConfiguration = AppBarConfiguration.Builder(emptySet<Int>())
             .setFallbackOnNavigateUpListener {
                 finish()
@@ -45,7 +48,10 @@ class RemoteManagerActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_remote_manager)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_remote_manager
+        ) as NavHostFragment
+        val navController = navHost.navController
         return navController.navigateUp(appBarConfiguration) ||
             super.onSupportNavigateUp()
     }
