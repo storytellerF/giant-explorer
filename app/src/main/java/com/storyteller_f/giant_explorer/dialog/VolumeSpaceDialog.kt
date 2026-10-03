@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.storage.StorageVolume
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
-import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.file_system_local.LocalFileSystemPaths
 import com.storyteller_f.file_system_local.getFree
@@ -23,7 +22,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class VolumeSpaceDialog :
-    SimpleDialogFragment<DialogVolumeSpaceBinding>(DialogVolumeSpaceBinding::inflate) {
+    GiantDialogFragment<DialogVolumeSpaceBinding>(DialogVolumeSpaceBinding::inflate) {
     override fun onBindViewEvent(binding: DialogVolumeSpaceBinding) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             requireContext().getStorageVolume().forEach {

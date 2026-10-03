@@ -8,6 +8,7 @@
         <menu>
             <item
                 android:id="@+id/add_file"
+                android:icon="@drawable/ic_overlay_file"
                 android:title="@string/string_add_file" />
             <item
                 android:id="@+id/add_directory"

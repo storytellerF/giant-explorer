@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="name_item_heading">命名新项目</string>
+    <string name="name_item_description">为新文件或文件夹输入名称。</string>
+    <string name="sort_filter_description">更改会立即应用到文件列表。</string>
+    <string name="open_file_description">选择打开此文件时使用的格式。</string>
+    <string name="suggested_formats">识别到的格式</string>
+    <string name="other_formats">打开为</string>
+    <string name="confirm_task_heading">确认传输内容</string>
+    <string name="destination_heading">目标位置</string>
+    <string name="choose_location_heading">选择位置</string>
+    <string name="choose_location_action">使用此文件夹</string>
+    <string name="task_progress_heading">文件操作</string>
+    <string name="waiting_heading">正在处理</string>
+    <string name="waiting_description">请稍候，操作完成后将自动关闭。</string>
+    <string name="dismiss_overlay">完成</string>
+    <string name="property_created">创建时间</string>
+    <string name="property_modified">修改时间</string>
+    <string name="property_accessed">访问时间</string>
+</resources>

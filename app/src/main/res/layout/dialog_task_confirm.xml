@@ -1,64 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="24dp"
-    tools:layout_width="300dp"
-    android:background="?attr/colorSurface">
-    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+    tools:layout_width="300dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/confirm_task_heading"
+            android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
+            android:layout_marginBottom="12dp" />
         <LinearLayout
             android:id="@+id/selected"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:minHeight="40dp"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="wrap_content"
+            android:orientation="vertical" />
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_double_arrow_24"
-            app:layout_constraintBottom_toBottomOf="@id/label_dest"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/label_dest"
-            android:importantForAccessibility="no" />
-
+            android:text="@string/destination_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginBottom="12dp" />
         <TextView
             android:id="@+id/label_dest"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@drawable/giant_field"
             android:padding="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/icon"
             tools:text="/storage/emulated/0/Movies"
             android:textAppearance="@style/TextAppearance.Giant.Body"
-            app:layout_constraintTop_toBottomOf="@id/selected"
             android:layout_marginTop="16dp" />
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/button_top"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="label_dest,selected" />
-
         <include
             android:id="@+id/include"
             layout="@layout/general_dialog_bottom"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_top" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>

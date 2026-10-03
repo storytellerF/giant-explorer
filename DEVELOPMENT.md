@@ -15,6 +15,8 @@ HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base
 
 ## 界面规范
 
+- 菜单和浮层共用 `design_styles.xml` 中的样式。内容弹窗继承 `GiantDialogFragment`，统一圆角、最大宽度和键盘缩放；长表单使用滚动容器。排序面板固定标题与完成按钮，只滚动选项区。文件菜单按传输、信息、删除分组，删除使用错误色。
+
 - `app/src/main/res/values/design_styles.xml` 定义共享文字、按钮、表单、工具栏与弹窗样式。颜色使用 Material 语义角色，浅色和深色主题共用这些组件。
 - 页面外边距使用 `screen_padding`，宽屏通过 `values-w600dp` 增大边距。交互控件至少保留 48dp 的触摸区域，长内容放入可滚动容器。
 - 原生界面沿用 ViewBinding；后台任务中的 Compose 行通过 `GiantComposeTheme` 读取宿主颜色。界面样式不单独维护业务状态。

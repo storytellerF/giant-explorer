@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.SortDirection
@@ -41,6 +43,17 @@ class SortFilterBottomSheet : BottomSheetDialogFragment() {
         }
 
         setupListeners()
+        binding.done.setOnClickListener { dismiss() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        (dialog as? BottomSheetDialog)?.behavior?.apply {
+            val screenHeight = resources.configuration.screenHeightDp * resources.displayMetrics.density
+            maxHeight = (screenHeight * MAX_HEIGHT_FRACTION).toInt()
+            skipCollapsed = true
+            state = BottomSheetBehavior.STATE_EXPANDED
+        }
     }
 
     private fun applyConfigToUI(config: SortFilterConfig) {
@@ -94,6 +107,10 @@ class SortFilterBottomSheet : BottomSheetDialogFragment() {
 
     private fun updateConfig() {
         currentSortFilterConfig.value = currentConfig
+    }
+
+    private companion object {
+        const val MAX_HEIGHT_FRACTION = 0.9f
     }
 
     override fun onDestroyView() {

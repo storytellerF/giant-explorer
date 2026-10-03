@@ -255,6 +255,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        androidx.core.view.MenuCompat.setGroupDividerEnabled(menu, true)
         return super.onCreateOptionsMenu(menu)
     }
 

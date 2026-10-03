@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item
-        android:id="@+id/delete"
-        android:title="@string/delete" />
-    <item
-        android:id="@+id/move_to"
-        android:title="@string/move_to" />
-    <item
-        android:id="@+id/copy_to"
-        android:title="@string/copy_to" />
-    <item
-        android:id="@+id/copy_file"
-        android:title="@string/copy_files" />
-    <item
-        android:id="@+id/properties"
-        android:title="@string/properties" />
-    <item
-        android:id="@+id/preview_archive"
-        android:title="@string/preview_archive"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:id="@+id/file_transfer_actions">
+        <item
+            android:id="@+id/copy_to"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:icon="@drawable/ic_overlay_copy"
+            android:title="@string/copy_to" />
+        <item
+            android:id="@+id/move_to"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:icon="@drawable/ic_baseline_double_arrow_24"
+            android:title="@string/move_to" />
+        <item
+            android:id="@+id/copy_file"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:icon="@drawable/baseline_link_24"
+            android:title="@string/copy_files" />
+    </group>
+    <group android:id="@+id/file_info_actions">
+        <item
+            android:id="@+id/properties"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:icon="@drawable/baseline_info_24"
+            android:title="@string/properties" />
+        <item
+            android:id="@+id/preview_archive"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:icon="@drawable/ic_baseline_folder_24"
+            android:title="@string/preview_archive" />
+    </group>
+    <group android:id="@+id/file_destructive_actions">
+        <item
+            android:id="@+id/delete"
+            app:iconTint="?attr/colorError"
+            android:icon="@drawable/ic_overlay_delete"
+            android:title="@string/delete" />
+    </group>
 </menu>

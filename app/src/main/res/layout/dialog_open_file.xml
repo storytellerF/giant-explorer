@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -8,105 +9,136 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="18dp"
-        android:background="?attr/colorSurface">
+        android:padding="24dp">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/open_file_heading"
-            android:textAppearance="@style/TextAppearance.Giant.Title"
+            android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
             android:layout_marginBottom="16dp" />
-
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/open_file_description"
+            android:textAppearance="@style/TextAppearance.Giant.Caption"
+            android:layout_marginBottom="12dp" />
         <TextView
             android:id="@+id/fileName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="/storage/emulated/0/test.txt"
-            android:textAppearance="@style/TextAppearance.Giant.Subtitle" />
-
+            android:textAppearance="@style/TextAppearance.Giant.Subtitle"
+            android:background="@drawable/giant_field"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/suggested_formats"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginBottom="12dp" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/typeDeduced"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:textAllCaps="false"
             tools:text="image/jpeg"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textColor="?attr/colorOnSurface"
-            android:text="@string/detected_type" />
-
+            android:text="@string/detected_type"
+            app:icon="@drawable/baseline_verified_24" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:textAllCaps="false"
             tools:text="image/jpeg"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textColor="?attr/colorOnSurface"
-            android:text="@string/extension_type" />
-
+            android:text="@string/extension_type"
+            app:icon="@drawable/baseline_art_track_24" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/other_formats"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginBottom="12dp" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openByPicture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/type_picture"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface" />
-
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="4dp"
+            app:icon="@drawable/ic_overlay_image" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openByVideo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/type_video"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface" />
-
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="4dp"
+            app:icon="@drawable/ic_overlay_video" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openByText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/type_text"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface" />
-
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="4dp"
+            app:icon="@drawable/ic_overlay_file" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openByMusic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/type_audio"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface" />
-
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="4dp"
+            app:icon="@drawable/ic_overlay_audio" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openByHex"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/type_hex"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface" />
-
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="4dp"
+            app:icon="@drawable/baseline_apps_24" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openByAny"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/type_any"
-            style="@style/Widget.Giant.Button.Secondary"
+            style="@style/Widget.Giant.DialogAction"
             android:minHeight="48dp"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface" />
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="4dp"
+            app:icon="@drawable/baseline_extension_24" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dismiss_dialog"
+            style="@style/Widget.Giant.Button.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/dismiss_overlay" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

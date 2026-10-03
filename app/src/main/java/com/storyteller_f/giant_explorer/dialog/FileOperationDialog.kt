@@ -6,7 +6,6 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.lifecycle.distinctUntilChanged
 import com.storyteller_f.common_pr.state
-import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.onVisible
 import com.storyteller_f.common_ui.pp
 import com.storyteller_f.common_ui.repeatOnViewResumed
@@ -27,7 +26,7 @@ import java.util.Locale
 import java.util.UUID
 
 class FileOperationDialog :
-    SimpleDialogFragment<DialogFileOperationBinding>(DialogFileOperationBinding::inflate) {
+    GiantDialogFragment<DialogFileOperationBinding>(DialogFileOperationBinding::inflate) {
     lateinit var binder: FileOperateBinder
 
     private val progressVM by keyPrefix(

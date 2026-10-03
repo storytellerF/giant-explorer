@@ -13,6 +13,12 @@
 
         <item name="android:windowLightStatusBar">@bool/giant_light_system_bars</item>
 
+        <item name="popupMenuStyle">@style/Widget.Giant.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.Giant.PopupMenu</item>
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.Giant.Menu</item>
+        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.Giant.Menu</item>
+        <item name="listPreferredItemHeightSmall">52dp</item>
+
         <item name="toolbarStyle">@style/Widget.Giant.Toolbar</item>
 
         <item name="materialButtonStyle">@style/Widget.Giant.Button</item>
@@ -149,7 +155,57 @@
     </style>
 
     <style name="Widget.Giant.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Giant.Card</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Giant.Sheet</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
+        <item name="paddingBottomSystemWindowInsets">true</item>
+        <item name="paddingLeftSystemWindowInsets">true</item>
+        <item name="paddingRightSystemWindowInsets">true</item>
+        <item name="android:maxWidth">640dp</item>
+    </style>
+
+    <style name="ThemeOverlay.Giant.ContentDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:windowBackground">@drawable/giant_dialog_surface</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimAmount">0.40</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="Widget.Giant.PopupMenu" parent="Widget.Material3.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/giant_popup_surface</item>
+        <item name="android:popupElevation">8dp</item>
+    </style>
+
+    <style name="TextAppearance.Giant.Menu" parent="TextAppearance.Giant.Body">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Giant.DialogTitle" parent="TextAppearance.Giant.Title">
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="Widget.Giant.DialogAction" parent="Widget.Giant.Button.Secondary">
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="iconGravity">start</item>
+        <item name="iconPadding">16dp</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Widget.Giant.Choice" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="android:background">@drawable/giant_choice_background</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Giant.Body</item>
+    </style>
+
+    <style name="ShapeAppearance.Giant.Sheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
     <bool name="giant_light_system_bars">true</bool>

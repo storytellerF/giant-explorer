@@ -1,46 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorSurface"
-    android:paddingTop="8dp">
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/positive"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@android:string/ok"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        style="@style/Widget.Giant.Button"
-        android:minHeight="48dp"
-        android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/request_screen_on" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/negative"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="@android:string/cancel"
-        app:layout_constraintBottom_toBottomOf="@+id/positive"
-        app:layout_constraintEnd_toStartOf="@+id/positive"
-        style="@style/Widget.Giant.Button.Text"
-        android:minHeight="48dp"
-        android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/request_screen_on" />
-
+    android:orientation="vertical"
+    android:paddingTop="12dp">
     <CheckBox
         android:id="@+id/request_screen_on"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/stay_screen_on"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:minHeight="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/positive" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/positive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@android:string/ok"
+        style="@style/Widget.Giant.Button" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/negative"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@android:string/cancel"
+        style="@style/Widget.Giant.Button.Text" />
+</LinearLayout>

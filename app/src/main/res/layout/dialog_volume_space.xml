@@ -7,16 +7,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
         android:orientation="vertical"
         android:padding="24dp">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/storage_heading"
-            android:textAppearance="@style/TextAppearance.Giant.Title"
+            android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
             android:layout_marginBottom="16dp" />
-
         <LinearLayout
             android:id="@+id/space_list"
             android:layout_width="match_parent"
@@ -27,7 +25,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/manage_permission"
             android:layout_width="match_parent"
@@ -38,5 +35,12 @@
             style="@style/Widget.Giant.Button"
             android:minHeight="48dp"
             android:textAllCaps="false" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dismiss_dialog"
+            style="@style/Widget.Giant.Button.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/dismiss_overlay" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

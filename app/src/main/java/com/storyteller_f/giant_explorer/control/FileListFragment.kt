@@ -10,8 +10,10 @@ import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
+import android.text.SpannableString
 import android.text.TextPaint
 import android.text.TextUtils
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -24,6 +26,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.MenuCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.iterator
@@ -32,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.storyteller_f.annotation_defination.BindClickEvent
 import com.storyteller_f.common_pr.dipToInt
 import com.storyteller_f.common_pr.response
@@ -358,6 +362,14 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     ) {
         PopupMenu(requireContext(), view).apply {
             inflate(R.menu.item_context_menu)
+            setForceShowIcon(true)
+            MenuCompat.setGroupDividerEnabled(menu, true)
+            val errorColor = MaterialColors.getColor(view, androidx.appcompat.R.attr.colorError)
+            menu.findItem(R.id.delete).apply {
+                title = SpannableString(title).apply {
+                    setSpan(ForegroundColorSpan(errorColor), 0, length, 0)
+                }
+            }
             val mimeTypeFromExtension =
                 MimeTypeMap.getSingleton().getMimeTypeFromExtension(File(fullPath).extension)
 

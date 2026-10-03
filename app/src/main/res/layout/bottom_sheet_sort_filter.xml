@@ -1,112 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fillViewport="true">
+    android:orientation="vertical">
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView android:layout_width="match_parent" android:layout_height="wrap_content" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:background="?attr/colorSurface">
+        android:paddingHorizontal="24dp">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_and_filter"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:paddingBottom="16dp"
-            android:textAppearance="@style/TextAppearance.Giant.Title" />
-
+            android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
+            android:layout_marginBottom="12dp" />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sort_by"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:textAppearance="@style/TextAppearance.Giant.Body" />
-
-        <RadioGroup
-            android:id="@+id/sort_type_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <RadioButton
-                android:id="@+id/sort_by_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sort_by_name"
-                android:padding="8dp"
-                android:minHeight="48dp" />
-
-            <RadioButton
-                android:id="@+id/sort_by_size"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sort_by_size"
-                android:padding="8dp"
-                android:minHeight="48dp" />
-
-            <RadioButton
-                android:id="@+id/sort_by_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sort_by_time"
-                android:padding="8dp"
-                android:minHeight="48dp" />
-        </RadioGroup>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sort_direction"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingTop="16dp"
-            android:paddingBottom="8dp"
-            android:textAppearance="@style/TextAppearance.Giant.Body" />
-
-        <RadioGroup
-            android:id="@+id/sort_direction_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <RadioButton
-                android:id="@+id/sort_ascending"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sort_ascending"
-                android:padding="8dp"
-                android:minHeight="48dp" />
-
-            <RadioButton
-                android:id="@+id/sort_descending"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sort_descending"
-                android:padding="8dp"
-                android:minHeight="48dp" />
-        </RadioGroup>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/filter_options"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingTop="16dp"
-            android:paddingBottom="8dp"
-            android:textAppearance="@style/TextAppearance.Giant.Body" />
-
-        <CheckBox
-            android:id="@+id/filter_hidden_files"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/filter_hidden_file"
-            android:padding="8dp"
-            android:minHeight="48dp" />
+            android:text="@string/sort_filter_description"
+            android:textAppearance="@style/TextAppearance.Giant.Caption"
+            android:layout_marginBottom="12dp" />
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clipToPadding="false">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sort_by"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textAppearance="@style/TextAppearance.Giant.Label" />
+            <RadioGroup
+                android:id="@+id/sort_type_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/sort_by_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sort_by_name"
+                    style="@style/Widget.Giant.Choice"
+                    android:layout_marginBottom="4dp" />
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/sort_by_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sort_by_size"
+                    style="@style/Widget.Giant.Choice"
+                    android:layout_marginBottom="4dp" />
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/sort_by_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sort_by_time"
+                    style="@style/Widget.Giant.Choice"
+                    android:layout_marginBottom="4dp" />
+            </RadioGroup>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sort_direction"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:textAppearance="@style/TextAppearance.Giant.Label" />
+            <RadioGroup
+                android:id="@+id/sort_direction_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/sort_ascending"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sort_ascending"
+                    style="@style/Widget.Giant.Choice"
+                    android:layout_marginBottom="4dp" />
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/sort_descending"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sort_descending"
+                    style="@style/Widget.Giant.Choice"
+                    android:layout_marginBottom="4dp" />
+            </RadioGroup>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_options"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:textAppearance="@style/TextAppearance.Giant.Label" />
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/filter_hidden_files"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_hidden_file"
+                android:padding="12dp"
+                android:minHeight="52dp"
+                android:background="@drawable/giant_choice_background" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/dismiss_overlay"
+        style="@style/Widget.Giant.Button" />
+</LinearLayout>

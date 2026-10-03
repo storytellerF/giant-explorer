@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/colorSurface">
+    android:layout_height="wrap_content">
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="360dp"
-        android:padding="20dp">
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:minHeight="240dp">
         <ProgressBar
             android:id="@+id/state_progress"
             style="?android:attr/progressBarStyle"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center" />
-
         <LinearLayout
             android:id="@+id/state_running"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/task_progress_heading"
+                android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
+                android:layout_marginBottom="12dp" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -35,7 +40,6 @@
                     android:layout_weight="1"
                     tools:text="大小：11111\n文件夹：1\n文件：1"
                     android:textAppearance="@style/TextAppearance.Giant.Body" />
-
                 <TextView
                     android:id="@+id/textView_left"
                     android:layout_width="wrap_content"
@@ -44,7 +48,6 @@
                     tools:text="大小：11111\n文件夹：1\n文件：1"
                     android:textAppearance="@style/TextAppearance.Giant.Body" />
             </LinearLayout>
-
             <TextView
                 android:id="@+id/textView_state"
                 android:layout_width="match_parent"
@@ -53,9 +56,7 @@
                 android:paddingTop="1dp"
                 android:paddingEnd="21dp"
                 android:paddingBottom="1dp"
-                android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.Giant.Body" />
-
             <TextView
                 android:id="@+id/textView_tip"
                 android:layout_width="match_parent"
@@ -64,9 +65,7 @@
                 android:paddingTop="1dp"
                 android:paddingEnd="21dp"
                 android:paddingBottom="1dp"
-                android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.Giant.Body" />
-
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"
@@ -74,11 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="21dp"
                 android:layout_marginEnd="21dp" />
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+            <ScrollView android:layout_width="match_parent" android:layout_height="160dp">
                 <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
                     <TextView
                         android:id="@+id/textView_detail"
@@ -91,7 +86,6 @@
                         android:textAppearance="@style/TextAppearance.Giant.Body" />
                 </FrameLayout>
             </ScrollView>
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/close_when_error"
                 android:layout_width="wrap_content"
@@ -103,31 +97,28 @@
                 android:minHeight="48dp"
                 android:textAllCaps="false" />
         </LinearLayout>
-
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/state_done"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
             <TextView
                 android:id="@+id/done_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="50dp"
                 android:text="@string/operation_task_done"
-                android:textSize="30sp"
-                android:textAppearance="@style/TextAppearance.Giant.Body" />
-
+                android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
+                android:paddingVertical="24dp" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/close_when_done"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
                 android:layout_marginEnd="5dp"
                 android:text="@string/close_dialog"
                 style="@style/Widget.Giant.Button"
                 android:minHeight="48dp"
                 android:textAllCaps="false" />
-        </FrameLayout>
+        </LinearLayout>
     </FrameLayout>
-</FrameLayout>
+</androidx.core.widget.NestedScrollView>
