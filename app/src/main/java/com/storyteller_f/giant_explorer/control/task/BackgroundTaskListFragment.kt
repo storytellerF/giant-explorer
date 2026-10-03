@@ -89,7 +89,8 @@ class BackgroundTaskListFragment : SimpleFragment<FragmentTaskListBinding>(Fragm
     }
 
     @BindClickEvent(BigTimeTaskItemHolder::class, "check")
-    fun onCheck(itemHolder: BigTimeTaskItemHolder) {
+    fun onCheck(bindingAdapterPosition: Int) {
+        val itemHolder = adapter.getItemHolder(bindingAdapterPosition) as? BigTimeTaskItemHolder ?: return
         scope.launch {
             val waitingDialog = waitingDialog()
             try {

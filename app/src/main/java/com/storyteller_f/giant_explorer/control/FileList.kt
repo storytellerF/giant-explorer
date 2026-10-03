@@ -62,10 +62,10 @@ import com.storyteller_f.giant_explorer.databinding.ViewHolderFileGridBinding
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileSentinelBinding
 import com.storyteller_f.giant_explorer.model.FileModel
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
-import com.storyteller_f.ui_list.core.AbstractViewHolder
 import com.storyteller_f.ui_list.core.BindingViewHolder
 import com.storyteller_f.ui_list.core.BuildBatch
 import com.storyteller_f.ui_list.core.DataItemHolder
+import com.storyteller_f.ui_list.core.ItemHolderProvider
 import com.storyteller_f.ui_list.data.SimpleResponse
 import com.storyteller_f.ui_list.event.findFragmentOrNull
 import com.storyteller_f.ui_list.source.SearchHandler
@@ -222,7 +222,7 @@ class FileListObserver<T>(
                 flash = ListWithState.Companion::remote
             )
             listWithState.setupDampingSwipeSupport { viewHolder, direction ->
-                val itemHolder = viewHolder.itemHolder as? FileItemHolder ?: return@setupDampingSwipeSupport
+                val itemHolder = viewHolder.fileItemOrNull() ?: return@setupDampingSwipeSupport
                 if (itemHolder.isSentinel) return@setupDampingSwipeSupport
                 if (direction == ItemTouchHelper.LEFT) {
                     session.selected.update {
@@ -574,11 +574,14 @@ fun List<DataItemHolder>?.toggle(
 }
 
 fun MutableLiveData<List<DataItemHolder>>.toggle(viewHolder: RecyclerView.ViewHolder) {
+    val itemHolder = viewHolder.fileItemOrNull() ?: return
     update {
-        val adapterViewHolder = viewHolder as AbstractViewHolder<out DataItemHolder>
         val (selectedHolders, currentSelected) =
-            it.toggle(adapterViewHolder.itemHolder)
+            it.toggle(itemHolder)
         viewHolder.itemView.isSelected = currentSelected
         selectedHolders
     }
 }
+
+internal fun RecyclerView.ViewHolder.fileItemOrNull(): FileItemHolder? =
+    (bindingAdapter as? ItemHolderProvider<*>)?.getItemHolder(bindingAdapterPosition) as? FileItemHolder

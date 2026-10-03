@@ -342,7 +342,8 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     }
 
     @BindClickEvent(FileItemHolder::class, "fileIcon")
-    fun fileMenu(view: View, itemHolder: FileItemHolder) {
+    fun fileMenu(view: View, viewholder: RecyclerView.ViewHolder) {
+        val itemHolder = viewholder.fileItemOrNull() ?: return
         val fullPath = itemHolder.file.fullPath
         val key = uuid.data.value ?: return
         // The row owns its URI; the observed directory can already have changed during navigation.

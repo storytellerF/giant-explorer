@@ -90,14 +90,11 @@ class RemoteAccessSpecViewHolder(
 ) : BindingViewHolder<RemoteAccessSpecHolder>(
     binding
 ) {
-    init {
-        itemView.setOnClick {
-            it.findFragmentOrNull<RemoteListFragment>()?.clickSpec(itemHolder.spec)
-        }
-    }
-
     override fun bindData(itemHolder: RemoteAccessSpecHolder) {
         val spec = itemHolder.spec
+        itemView.setOnClick {
+            it.findFragmentOrNull<RemoteListFragment>()?.clickSpec(spec)
+        }
         binding.url.text = itemView.context.getString(
             R.string.remote_endpoint, spec.type, spec.server, spec.port.toString()
         )
