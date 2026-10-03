@@ -2,7 +2,7 @@
 
 ## 本地构建与验证
 
-使用 JDK 21 和 Android SDK API 37，配置 `ANDROID_HOME` 或本地 `local.properties` 的 `sdk.dir` 后，在仓库根目录执行：
+使用 JDK 21 和 Android SDK API 37，通过仓库的 Gradle Wrapper 构建。依赖与插件版本集中维护在 `gradle/libs.versions.toml`，升级后同时验证 Debug、Release 与插件模块。配置 `ANDROID_HOME` 或本地 `local.properties` 的 `sdk.dir` 后，在仓库根目录执行：
 
 ```sh
 ./gradlew :app:assembleDebug :app:testDebugUnitTest :plugins:yue:yue-plugin:assembleDebug
@@ -21,7 +21,9 @@ HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base
 - 页面外边距使用 `screen_padding`，宽屏通过 `values-w600dp` 增大边距。交互控件至少保留 48dp 的触摸区域，长内容放入可滚动容器。
 - 原生界面沿用 ViewBinding；后台任务中的 Compose 行通过 `GiantComposeTheme` 读取宿主颜色。界面样式不单独维护业务状态。
 - 独立 Activity 使用 `applyScreenInsets()` 处理系统栏、刘海和键盘；主文件页分别处理顶部工具栏及底部内容区域。
-- 页面文案同时维护中文默认资源和 `values-en`，已有控件 ID 与导航参数保持稳定。
+- HTML 插件在 WebView 渲染进程退出时关闭预览，取消未完成的桥接调用，并销毁 WebView 与仍归 Android 所有的消息端口；已转交给 JavaScript 的端口不再重复传输或关闭。设备回归测试通过 `chrome://crash` 验证宿主应用仍能运行。WebKit 1.17.1 的检查器会误报 Kotlin 父类构造调用，因此仅该客户端实例局部抑制 `MissingOnRenderProcessGone`；升级到包含 [b/548989591 修复](https://android.googlesource.com/platform/frameworks/support/+/8003b908c7bfaecd6636512ad5cb1720a142ad51%5E%21/) 的稳定版后移除。
+- 页面文案同时维护中文默认资源和 `values-en`，已有控件 ID 与导航参数保持稳定。协议名、品牌名等不可翻译资源只在默认资源中定义；端口号保持不分组的 ASCII 数字格式。
+- Activity 背景由窗口主题绘制，避免页面根布局重复绘制同色背景。导航宿主使用 `FragmentContainerView`，从 `supportFragmentManager` 获取 `NavHostFragment.navController`，并验证 Activity 重建后仍保持正确目的地。
 
 界面改动后检查：文件列表与网格、抽屉、连接列表及表单、插件列表及详情、后台任务、root、设置、关于页、文件操作弹窗和图片浏览。至少覆盖浅色/深色、窄屏/横屏、大字号，以及表单打开键盘的状态。
 
@@ -37,7 +39,7 @@ HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base
 本地发布插件核心库需要 JDK 21、Android SDK（API 37）和可用的依赖下载环境，在仓库根目录执行：
 
 ```sh
-./gradlew :giant-explorer-plugin-core:publishToMavenLocal
+./gradlew :giant-explorer-plugin-core:publishToMavenLocal -PlocalUnsignedPublication=true
 ```
 
-产物写入本地 Maven 仓库；也可使用现有的 `publish-local.sh` 脚本。仓库不再提供 JitPack、GitHub Packages 或 GitHub Releases 发布流程。
+本地无签名模式不注册远端发布目标和签名附件，产物写入本地 Maven 仓库；也可使用现有的 `publish-local.sh` 脚本。仓库不再提供 JitPack、GitHub Packages 或 GitHub Releases 发布流程。

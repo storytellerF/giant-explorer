@@ -154,7 +154,7 @@ dependencies {
         exclude(group = "com.github.thegrizzlylabs", module = "sardine-android")
     }
     implementation(files("libs/sardine-android-0.9.aar"))
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.okhttp)
     implementation("org.simpleframework:simple-xml:2.7.1") {
         exclude(group = "xpp3")
         exclude(group = "stax")
@@ -176,7 +176,6 @@ configurations.all {
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs = listOf("-Xcontext-parameters")
         jvmTarget = JvmTarget.JVM_21
         optIn = listOf("kotlin.RequiresOptIn")
     }
