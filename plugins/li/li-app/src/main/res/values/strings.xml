@@ -1,12 +1,13 @@
-<resources>
-    <string name="app_name">li</string>
-    <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="leak_canary_display_activity_label">Li Leaks</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="zh">
+    <string name="app_name">Li</string>
+    <string name="first_fragment_label">Li · 压缩工具</string>
+    <string name="second_fragment_label">使用 Li</string>
+    <string name="intro_title">整理文件，轻装分享</string>
+    <string name="intro_body">Li 为 Giant Explorer 提供 ZIP 压缩与解压功能。请在 Giant 中选择文件并执行操作。</string>
+    <string name="intro_features">打包文件\n将文件或文件夹整理成 ZIP 压缩包。\n\n解压归档\n选择 ZIP 文件，将内容解压到指定位置。</string>
+    <string name="next">查看使用方法</string>
+    <string name="previous">返回 Li</string>
+    <string name="guide_title">在 Giant 中开始</string>
+    <string name="guide_body">此应用提供使用指引；文件选择、目标路径和任务进度由 Giant Explorer 提供。</string>
+    <string name="guide_steps">01  添加插件\n在 Giant 的插件管理中导入 Li 的 GEP 插件包。\n\n02  选择操作\n打开文件操作菜单，选择 archive 下的 compress 或 extract to。\n\n03  选择目标\n按提示指定目标位置，并在后台任务中查看进度。</string>
 </resources>

@@ -15,6 +15,14 @@ HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base
 
 ## 界面规范
 
+Li 和 Yue 独立应用使用 Material 3 浅色/深色主题、可滚动的介绍与使用指引页，并由 Activity 统一避让系统栏。Li 的压缩操作由 Giant 宿主提供，独立页展示操作指引；Yue 首页使用系统文件选择器打开图片。Yue 预览底部提示单独占据布局空间，不覆盖图片。
+
+Giant、Li、Yue 的启动图标使用矢量 adaptive icon，并提供单色图层；minSdk 26 下不再维护旧位图启动图标。Giant 和 Li 的 Debug 通知通过资源覆盖使用透明底单色图标，不改变 LeakCanary 的诊断行为。插件操作菜单读取已安装应用的图标；导入插件按入口类识别 Li/Yue，HTML 和未知插件使用类型图标，重命名插件包不会影响识别。
+
+主应用 EasyLauncher 任务显式跟踪 `src/main/res/**/ic_launcher*.xml`，图标变更会重新生成 Debug 标记；不要直接修改 `build/generated/res/easylauncherDebug` 中的产物。
+
+Debug 通知覆盖保留与 LeakCanary 2.14 相同的 `drawable-anydpi-v21` 限定符，避免系统优先选中依赖资源；对应 `lint.xml` 仅对该目录豁免 `ObsoleteSdkInt`。`keep_notification_icon.xml` 保留由依赖字节码引用的通知资源。升级 LeakCanary 时核对资源名称与限定符。
+
 - 菜单和浮层共用 `design_styles.xml` 中的样式。内容弹窗继承 `GiantDialogFragment`，统一圆角、最大宽度和键盘缩放；长表单使用滚动容器。路径选择的正文可滚动，操作区固定在底部；避免固定窗口高度遮挡软键盘上方的按钮。排序面板固定标题与完成按钮，只滚动选项区。文件菜单按传输、信息、删除分组，删除使用错误色。
 
 - `app/src/main/res/values/design_styles.xml` 定义共享文字、按钮、表单、工具栏与弹窗样式。颜色使用 Material 语义角色，浅色和深色主题共用这些组件。

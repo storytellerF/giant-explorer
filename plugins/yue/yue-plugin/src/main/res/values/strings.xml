@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-    <string name="gallery_hint">Swipe to browse images</string>
-
-    <string name="image_preview">Image preview</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="zh">
+    <string name="gallery_hint">左右滑动，浏览更多图片</string>
+    <string name="image_preview">图片预览</string>
+    <string name="gallery_position">第 %1$d 张，共 %2$d 张</string>
+    <string name="single_image_hint">完整画面 · 按比例显示</string>
 </resources>

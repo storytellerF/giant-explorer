@@ -1,0 +1,6 @@
+<resources>
+    <string name="gallery_hint">Swipe to browse more images</string>
+    <string name="image_preview">Image preview</string>
+    <string name="gallery_position">Image %1$d of %2$d</string>
+    <string name="single_image_hint">Full image · Fit to screen</string>
+</resources>

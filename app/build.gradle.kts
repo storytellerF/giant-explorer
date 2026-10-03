@@ -13,6 +13,13 @@ plugins {
     alias(libs.plugins.kotlinCompose)
 }
 
+// EasyLauncher must regenerate its Debug overlays when launcher artwork changes.
+tasks.matching { it.name.startsWith("easylauncher") }.configureEach {
+    inputs.files(fileTree("src/main/res") { include("**/ic_launcher*.xml") })
+        .withPropertyName("launcherArtwork")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 android {
     val id = "com.storyteller_f.giant_explorer"
     namespace = "com.storyteller_f.giant_explorer"

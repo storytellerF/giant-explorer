@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- Match LeakCanary 2.14's exact resource qualifier so Android selects our
+         notification override instead of the dependency's anydpi-v21 glyph. -->
+    <issue id="ObsoleteSdkInt">
+        <ignore path="src/debug/res/drawable-anydpi-v21" />
+    </issue>
+</lint>

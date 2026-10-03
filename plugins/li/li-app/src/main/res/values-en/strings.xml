@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Li</string>
+    <string name="first_fragment_label">Li · Archives</string>
+    <string name="second_fragment_label">Using Li</string>
+    <string name="intro_title">Pack files. Share simply.</string>
+    <string name="intro_body">Li brings ZIP compression and extraction to Giant Explorer. Select your files in Giant to get started.</string>
+    <string name="intro_features">Pack files\nBundle files or folders into a ZIP archive.\n\nExtract archives\nChoose a ZIP file and a destination for its contents.</string>
+    <string name="next">How to use Li</string>
+    <string name="previous">Back to Li</string>
+    <string name="guide_title">Start in Giant</string>
+    <string name="guide_body">This app provides guidance. Giant Explorer handles file selection, destinations and task progress.</string>
+    <string name="guide_steps">01  Add the plugin\nImport the Li GEP package in Giant’s plugin manager.\n\n02  Choose an action\nOpen the file action menu and choose compress or extract to under archive.\n\n03  Set a destination\nFollow the destination prompt and check progress in background tasks.</string>
+</resources>
