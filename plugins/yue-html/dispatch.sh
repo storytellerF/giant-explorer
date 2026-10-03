@@ -9,14 +9,23 @@ command_name="zip"
 command_path=$(command -v $command_name)
 
 if [ -x "$command_path" ]; then
-  zip build/yue-html.zip src/index.html src/imgTouchCanvas.js config
+  rm -f build/yue-html.zip
+  zip -j build/yue-html.zip src/index.html src/imgTouchCanvas.js config
 else
-    #windows 没有可靠的压缩指令，暂时仅打包
-  tar -cf build/yue-html.zip src/index.html src/imgTouchCanvas.js config
+  printWarningLabel "zip is required to build a valid HTML plugin archive"
+  exit 1
 fi
 checkLastResult "compress yue-html" $?
 
 archive=$(realpath build/yue-html.zip)
+p="$repo_root/build/yue-html"
+printWarningLabel "copy yue-html build to $p"
+mkdir -p "$p"
+cp build/yue-html.zip "$p/"
+
+if [ "${1:-}" = "--package-only" ]; then
+  exit 0
+fi
 package_name="com.storyteller_f.giant_explorer.debug"
 package_path="files/plugins"
 output_name="yue-html.zip"
@@ -52,8 +61,3 @@ else
     done
   fi
 fi
-
-p="$repo_root/build/yue-html"
-printWarningLabel "copy yue-html build to $p"
-mkdir -p "$p"
-cp build/yue-html.zip "$p/"

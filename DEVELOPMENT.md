@@ -9,7 +9,7 @@
 ./gradlew :app:lintDebug :app:detekt
 ```
 
-调试 APK 位于 `app/build/outputs/apk/debug/`。Yue HTML 插件可用 `bash plugins/yue-html/dispatch.sh` 打包。
+调试 APK 位于 `app/build/outputs/apk/debug/`。Yue HTML 插件可用 `bash plugins/yue-html/dispatch.sh --package-only` 打包（需要 `zip`）。ZIP 根目录包含 `config`、`index.html` 和 `imgTouchCanvas.js`。省略 `--package-only` 会同时尝试向已连接设备分发。
 
 ## 界面规范
 
