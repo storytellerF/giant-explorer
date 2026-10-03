@@ -27,6 +27,12 @@ HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base
 
 界面改动后检查：文件列表与网格、抽屉、连接列表及表单、插件列表及详情、后台任务、root、设置、关于页、文件操作弹窗和图片浏览。至少覆盖浅色/深色、窄屏/横屏、大字号，以及表单打开键盘的状态。
 
+## 依赖更新
+
+`.github/dependabot.yml` 每周一检查根 Gradle 多模块工程和 GitHub Actions。Gradle 更新按构建工具链、测试工具、Android、Storyteller、网络、密码学和通用工具分组；GitHub Actions 更新合并为一组。未匹配的依赖单独提出 PR，不自动合并，也不排除主版本升级。新增依赖时同步检查分组规则。
+
+这些分组用于常规版本更新；安全更新不受这些分组规则控制。本地维护的 AAR 不由 Dependabot 升级。配置合入默认分支后由 GitHub 执行，升级 PR 仍需通过构建与测试。
+
 ## 发布流程
 
 推送 `v*` 标签会触发 `.github/workflows/release.yml`：
