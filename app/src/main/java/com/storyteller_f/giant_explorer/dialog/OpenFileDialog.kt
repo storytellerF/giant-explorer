@@ -37,8 +37,11 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
 
     private val args by navArgs<OpenFileDialogArgs>()
     val uri by lazy { args.uri }
-    private val mimeTypeFromExtension = MimeTypeMap.getSingleton()
-        .getMimeTypeFromExtension(getExtension(uri.path!!))
+    private val mimeTypeFromExtension by lazy {
+        uri.path?.let { path ->
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(getExtension(path))
+        }
+    }
 
     @Parcelize
     class OpenFileResult(val mimeType: String) : Parcelable
@@ -66,9 +69,7 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
             }
         }
         binding.type.setOnClick {
-            if (mimeTypeFromExtension != null) {
-                openFile(mimeTypeFromExtension)
-            }
+            mimeTypeFromExtension?.let(::openFile)
         }
     }
 
