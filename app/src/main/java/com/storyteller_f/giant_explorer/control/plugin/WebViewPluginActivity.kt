@@ -27,6 +27,7 @@ import androidx.webkit.WebViewFeature
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.viewBinding
 import com.storyteller_f.file_system.ensureFile
+import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.giant_explorer.databinding.ActivityWebviewPluginBinding
 import com.storyteller_f.giant_explorer.pluginManagerRegister
 import com.storyteller_f.giant_explorer.view.applyScreenInsets
@@ -191,7 +192,7 @@ class WebViewPluginActivity : AppCompatActivity() {
             @JavascriptInterface
             override fun fullPath(): String {
                 val u = data ?: return ""
-                return FileSystemProviderResolver.resolve(u)?.path.toString()
+                return FileSystemProviderResolver.resolve(u)?.toString().orEmpty()
             }
 
             @JavascriptInterface
@@ -225,8 +226,11 @@ class WebViewPluginActivity : AppCompatActivity() {
         @JavascriptInterface
         fun base64(path: String, callbackId: String) {
             scope.launch {
-                val readBytes = context.fileInputStream1(path).readBytes()
-                val result = Base64.encodeToString(readBytes, Base64.NO_WRAP)
+                val result = withContext(Dispatchers.IO) {
+                    requireNotNull(getFileInstance(context, path.toUri())) {
+                        "Unsupported image URI"
+                    }.getFileInputStream().use { Base64.encodeToString(it.readBytes(), Base64.NO_WRAP) }
+                }
                 webView.post {
                     webView.callback(callbackId, "'$result'")
                     messageChannel?.let {

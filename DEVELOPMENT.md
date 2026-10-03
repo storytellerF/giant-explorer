@@ -11,6 +11,8 @@
 
 调试 APK 位于 `app/build/outputs/apk/debug/`。Yue HTML 插件可用 `bash plugins/yue-html/dispatch.sh --package-only` 打包（需要 `zip`）。ZIP 根目录包含 `config`、`index.html` 和 `imgTouchCanvas.js`。省略 `--package-only` 会同时尝试向已连接设备分发。
 
+HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base64(...)` 读取。保留 URI 的 scheme 和 authority，不要仅传递路径部分。
+
 ## 界面规范
 
 - `app/src/main/res/values/design_styles.xml` 定义共享文字、按钮、表单、工具栏与弹窗样式。颜色使用 Material 语义角色，浅色和深色主题共用这些组件。
