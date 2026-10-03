@@ -3,70 +3,80 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/choose_location_heading"
-        android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
-        android:layout_marginBottom="12dp"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="24dp" />
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:scrollbars="none">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="12dp"
-            android:paddingTop="8dp">
-            <ImageView
-                android:id="@+id/filterHiddenFile"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="8dp"
-                android:src="@drawable/ic_eye_blind"
-                android:contentDescription="@string/filter_hidden_file"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="?attr/colorOnSurfaceVariant" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/new_file"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
-                android:text="@string/string_add_directory"
-                style="@style/Widget.Giant.Button.Text"
-                android:minHeight="48dp"
-                android:textAllCaps="false" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/sort"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
-                android:text="@string/sort"
-                style="@style/Widget.Giant.Button.Text"
-                android:minHeight="48dp"
-                android:textAllCaps="false" />
-        </LinearLayout>
-    </HorizontalScrollView>
-    <include
-        android:id="@+id/path_man_layout"
-        layout="@layout/layout_path"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        app:layout_constraintEnd_toStartOf="@id/switchDisplay"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-    <com.storyteller_f.ui_list.ui.ListWithState
-        android:id="@+id/content"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_location_heading"
+                android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
+                android:layout_marginBottom="12dp"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="24dp" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:scrollbars="none">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingTop="8dp">
+                    <ImageView
+                        android:id="@+id/filterHiddenFile"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_eye_blind"
+                        android:contentDescription="@string/filter_hidden_file"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/new_file"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="@string/string_add_directory"
+                        style="@style/Widget.Giant.Button.Text"
+                        android:minHeight="48dp"
+                        android:textAllCaps="false" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/sort"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="@string/sort"
+                        style="@style/Widget.Giant.Button.Text"
+                        android:minHeight="48dp"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+            </HorizontalScrollView>
+            <include
+                android:id="@+id/path_man_layout"
+                layout="@layout/layout_path"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                app:layout_constraintEnd_toStartOf="@id/switchDisplay"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toolbar" />
+            <com.storyteller_f.ui_list.ui.ListWithState
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="240dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
     <include
         android:id="@+id/bottom"
         layout="@layout/general_dialog_bottom"

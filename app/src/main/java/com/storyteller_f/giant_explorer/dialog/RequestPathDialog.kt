@@ -45,8 +45,6 @@ class RequestPathDialog :
     Registry, FileItemHolderEvent {
     private val args by navArgs<RequestPathDialogArgs>()
 
-    override val fillsAvailableHeight = true
-
     private val observer = FileListObserver(this, {
         FileListFragmentArgs(args.start)
     }, activityScope)
