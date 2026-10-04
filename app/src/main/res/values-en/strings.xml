@@ -210,4 +210,8 @@
     <string name="plugin_name_version">%1$s - %2$s</string>
     <string name="remote_endpoint">%1$s · %2$s:%3$s</string>
     <string name="html_plugin_renderer_stopped">The preview process stopped. Open the file again to retry.</string>
+    <string name="operation_task_total">Total size: %1$d bytes\nFiles: %2$d\nFolders: %3$d</string>
+    <string name="operation_task_remaining">Remaining size: %1$d bytes\nRemaining files: %2$d\nRemaining folders: %3$d</string>
+    <string name="operation_task_failed">File operation failed: %1$s</string>
+    <string name="operation_task_unknown_error">Unable to complete the operation. Check the files and destination folder.</string>
 </resources>

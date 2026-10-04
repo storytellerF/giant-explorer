@@ -22,7 +22,6 @@ import com.storyteller_f.giant_explorer.databinding.DialogFileOperationBinding
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import java.util.Locale
 import java.util.UUID
 
 class FileOperationDialog :
@@ -134,12 +133,11 @@ class FileOperationDialog :
                     val task = binder.map[key]?.taskAssessResult
                     list.onVisible(binding.stateRunning)
                     Log.i(TAG, "onBindViewEvent: $key $task ${binder.map.keys}")
-                    binding.textViewTask.text = String.format(
-                        Locale.getDefault(),
-                        "total size: %d\ntotal file:%d\ntotal folder:%d",
-                        task?.size,
-                        task?.fileCount,
-                        task?.folderCount
+                    binding.textViewTask.text = getString(
+                        R.string.operation_task_total,
+                        task?.size ?: 0L,
+                        task?.fileCount ?: 0,
+                        task?.folderCount ?: 0
                     )
                 }
 
@@ -150,7 +148,10 @@ class FileOperationDialog :
 
                 FileOperateBinder.state_error -> {
                     val task = binder.map[key]
-                    binding.doneText.text = task?.message
+                    binding.doneText.text = getString(
+                        R.string.operation_task_failed,
+                        task?.message ?: getString(R.string.operation_task_unknown_error)
+                    )
                     list.onVisible(binding.stateDone)
                 }
 
@@ -173,7 +174,7 @@ class FileOperationDialog :
     }
 
     private fun presentTaskSnapshot(it: Triple<Int, Int, Long>) =
-        String.format(Locale.getDefault(), "size: %d\nleft file:%d\nleft folder:%d", it.third, it.first, it.second)
+        getString(R.string.operation_task_remaining, it.third, it.first, it.second)
 
     override fun onDestroyView() {
         super.onDestroyView()

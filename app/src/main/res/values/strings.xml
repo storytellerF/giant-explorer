@@ -248,4 +248,8 @@
     <string name="magisk" translatable="false">Magisk</string>
     <string name="kernel_su" translatable="false">KernelSU</string>
     <string name="html_plugin_renderer_stopped">插件页面已停止运行，请重新打开文件。</string>
+    <string name="operation_task_total">总大小：%1$d 字节\n文件：%2$d 个\n文件夹：%3$d 个</string>
+    <string name="operation_task_remaining">剩余大小：%1$d 字节\n剩余文件：%2$d 个\n剩余文件夹：%3$d 个</string>
+    <string name="operation_task_failed">文件操作失败：%1$s</string>
+    <string name="operation_task_unknown_error">无法完成操作，请检查文件和目标目录</string>
 </resources>
