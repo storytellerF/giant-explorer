@@ -18,16 +18,16 @@ jobs:
       storyteller_f_sign_store_password: ${{ secrets.STORE_PASSWORD }}
       storyteller_f_sign_key_password: ${{ secrets.KEY_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-cleanup: on-success
 
@@ -40,7 +40,7 @@ jobs:
         run: ./gradlew :app:assembleRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: giant-explorer-release
           path: app/build/outputs/apk/release/*.apk
@@ -50,16 +50,16 @@ jobs:
     name: Build Plugins
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-cleanup: on-success
 
@@ -70,21 +70,21 @@ jobs:
         run: bash plugins/yue-html/dispatch.sh
 
       - name: Upload li plugin
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: li-plugin-release
           path: plugins/li/li-plugin/build/outputs/gep/li.gep
           if-no-files-found: error
 
       - name: Upload yue plugin
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: yue-plugin-release
           path: plugins/yue/yue-plugin/build/outputs/gep/yue.gep
           if-no-files-found: error
 
       - name: Upload yue-html
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: yue-html-release
           path: build/yue-html/*.zip
@@ -95,16 +95,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-app, build-plugins]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-cleanup: on-success
 
