@@ -214,4 +214,22 @@
     <string name="operation_task_remaining">Remaining size: %1$d bytes\nRemaining files: %2$d\nRemaining folders: %3$d</string>
     <string name="operation_task_failed">File operation failed: %1$s</string>
     <string name="operation_task_unknown_error">Unable to complete the operation. Check the files and destination folder.</string>
+    <string name="storage_used">Used: %1$s</string>
+    <string name="storage_available">Available: %1$s</string>
+    <string name="storage_total">Total capacity: %1$s</string>
+    <string name="storage_capacity_help">Available space can hold new files. Used space includes system and reserved space.</string>
+    <string name="storage_loading">Reading storage capacity…</string>
+    <string name="storage_read_failed">Unable to read storage information. Check storage permissions.</string>
+    <string name="storage_empty">No storage devices found.</string>
+    <string name="storage_capacity_unavailable">Capacity is unavailable. Check the device status and storage permissions.</string>
+    <string name="storage_status_available">Available</string>
+    <string name="storage_status_read_only">Read only</string>
+    <string name="storage_status_unmounted">Not mounted</string>
+    <string name="storage_status_removed">Not connected</string>
+    <string name="storage_status_bad_removal">Device removed unexpectedly</string>
+    <string name="storage_status_checking">Checking</string>
+    <string name="storage_status_ejecting">Ejecting</string>
+    <string name="storage_status_unformatted">Not formatted</string>
+    <string name="storage_status_unmountable">Unable to mount</string>
+    <string name="storage_status_unavailable">Unavailable</string>
 </resources>

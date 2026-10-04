@@ -252,4 +252,22 @@
     <string name="operation_task_remaining">剩余大小：%1$d 字节\n剩余文件：%2$d 个\n剩余文件夹：%3$d 个</string>
     <string name="operation_task_failed">文件操作失败：%1$s</string>
     <string name="operation_task_unknown_error">无法完成操作，请检查文件和目标目录</string>
+    <string name="storage_used">已用：%1$s</string>
+    <string name="storage_available">可用：%1$s</string>
+    <string name="storage_total">总容量：%1$s</string>
+    <string name="storage_capacity_help">可用空间用于存放新文件。已用包含系统占用和预留空间。</string>
+    <string name="storage_loading">正在读取存储容量…</string>
+    <string name="storage_read_failed">无法读取存储信息，请检查存储权限。</string>
+    <string name="storage_empty">未发现存储设备。</string>
+    <string name="storage_capacity_unavailable">当前无法读取容量，请检查设备状态和存储权限。</string>
+    <string name="storage_status_available">可用</string>
+    <string name="storage_status_read_only">只读</string>
+    <string name="storage_status_unmounted">未挂载</string>
+    <string name="storage_status_removed">未连接</string>
+    <string name="storage_status_bad_removal">设备已意外移除</string>
+    <string name="storage_status_checking">正在检查</string>
+    <string name="storage_status_ejecting">正在移除</string>
+    <string name="storage_status_unformatted">未格式化</string>
+    <string name="storage_status_unmountable">无法挂载</string>
+    <string name="storage_status_unavailable">不可用</string>
 </resources>
