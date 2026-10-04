@@ -1,0 +1,8 @@
+<resources>
+    <color name="plugin_background">#F5F7FB</color>
+    <color name="plugin_surface">#FFFFFF</color>
+    <color name="plugin_ink">#172335</color>
+    <color name="plugin_muted">#546174</color>
+    <color name="plugin_accent">#315DA8</color>
+    <color name="plugin_on_accent">#FFFFFF</color>
+</resources>

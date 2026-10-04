@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="name_item_heading">Name your item</string>
+    <string name="name_item_description">Enter a name for the new file or folder.</string>
+    <string name="sort_filter_description">Changes apply immediately to your file list.</string>
+    <string name="open_file_description">Choose the format to use when opening this file.</string>
+    <string name="suggested_formats">Detected formats</string>
+    <string name="other_formats">Open as</string>
+    <string name="confirm_task_heading">Review your transfer</string>
+    <string name="destination_heading">Destination</string>
+    <string name="choose_location_heading">Choose a location</string>
+    <string name="choose_location_action">Use this folder</string>
+    <string name="task_progress_heading">File operation</string>
+    <string name="waiting_heading">Working on it</string>
+    <string name="waiting_description">Please wait for the operation to finish.</string>
+    <string name="dismiss_overlay">Done</string>
+    <string name="sort_and_filter">Sort and filter</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_size">Size</string>
+    <string name="sort_by_time">Modified time</string>
+    <string name="sort_direction">Direction</string>
+    <string name="sort_ascending">Ascending</string>
+    <string name="sort_descending">Descending</string>
+    <string name="filter_options">Visibility</string>
+    <string name="property_created">Created</string>
+    <string name="property_modified">Modified</string>
+    <string name="property_accessed">Accessed</string>
+</resources>

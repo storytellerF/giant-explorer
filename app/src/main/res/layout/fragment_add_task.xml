@@ -1,54 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    tools:context=".control.task.AddTaskFragment">
-
-    <Spinner
-        android:id="@+id/select_worker_name"
+    android:fillViewport="true"
+    android:clipToPadding="false">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding"
+        android:paddingBottom="104dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/new_task_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Title" />
 
-    <EditText
-        android:id="@+id/path"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toStartOf="@id/select_path"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/select_worker_name" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/new_task_description"
+            android:textAppearance="@style/TextAppearance.Giant.Caption"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/select_path"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="select"
-        app:layout_constraintBottom_toBottomOf="@id/path"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/path" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/task_type"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
 
-    <CheckBox
-        android:id="@+id/checkBox2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="enable"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/select_path" />
+        <Spinner
+            android:id="@+id/select_worker_name"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/giant_field"
+            android:paddingHorizontal="12dp"
+            android:contentDescription="@string/task_type" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="OK"
-        app:layout_constraintEnd_toEndOf="@+id/checkBox2"
-        app:layout_constraintStart_toStartOf="@+id/checkBox2"
-        app:layout_constraintTop_toBottomOf="@+id/checkBox2" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/target_folder"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:importantForAutofill="no"
+            android:id="@+id/path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/task_path_help"
+            android:inputType="textUri"
+            android:maxLines="3" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/select_path"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/choose_folder" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkBox2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:minHeight="48dp"
+            android:text="@string/enable_task" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button"
+            style="@style/Widget.Giant.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/save_task" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

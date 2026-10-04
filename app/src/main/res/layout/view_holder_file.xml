@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/background_folder"
-    android:padding="10dp">
-
+    android:padding="14dp"
+    android:layout_marginBottom="8dp"
+    android:minHeight="76dp">
     <TextView
         android:id="@+id/fileName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="14dp"
         android:textColor="?attr/colorOnSurface"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/fileIcon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="hello" />
+        tools:text="hello"
+        android:textAppearance="@style/TextAppearance.Giant.Subtitle"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/fileSize"
@@ -26,7 +31,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/fileName"
         app:layout_constraintTop_toBottomOf="@id/fileName"
-        tools:text="1024kb" />
+        tools:text="1024kb"
+        android:textAppearance="@style/TextAppearance.Giant.Caption"
+        android:layout_marginTop="3dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/fileMD"
@@ -35,7 +44,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/fileName"
         app:layout_constraintTop_toBottomOf="@id/fileSize"
-        tools:text="message digest" />
+        tools:text="message digest"
+        android:textAppearance="@style/TextAppearance.Giant.Caption"
+        android:layout_marginTop="3dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/detail"
@@ -44,7 +57,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/fileName"
         app:layout_constraintTop_toBottomOf="@id/fileMD"
-        tools:text="-rwx" />
+        tools:text="-rwx"
+        android:textAppearance="@style/TextAppearance.Giant.Caption"
+        android:layout_marginTop="3dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/torrentName"
@@ -53,7 +70,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/fileName"
         app:layout_constraintTop_toBottomOf="@id/detail"
-        tools:text="torrent name" />
+        tools:text="torrent name"
+        android:textAppearance="@style/TextAppearance.Giant.Caption"
+        android:layout_marginTop="3dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/modifiedTime"
@@ -62,17 +83,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/fileName"
         app:layout_constraintTop_toBottomOf="@id/torrentName"
-        tools:text="11点30分 2023年11月4日" />
+        tools:text="11点30分 2023年11月4日"
+        android:textAppearance="@style/TextAppearance.Giant.Caption"
+        android:layout_marginTop="3dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <ImageView
         android:id="@+id/fileIcon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/default_click"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/giant_icon_background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@drawable/ic_folder_explorer"
-        android:contentDescription="@string/file_icon_desc" />
+        android:contentDescription="@string/file_icon_desc"
+        android:padding="8dp" />
 
     <ImageView
         android:id="@+id/symLink"

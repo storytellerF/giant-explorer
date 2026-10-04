@@ -13,6 +13,13 @@ plugins {
     alias(libs.plugins.kotlinCompose)
 }
 
+// EasyLauncher must regenerate its Debug overlays when launcher artwork changes.
+tasks.matching { it.name.startsWith("easylauncher") }.configureEach {
+    inputs.files(fileTree("src/main/res") { include("**/ic_launcher*.xml") })
+        .withPropertyName("launcherArtwork")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 android {
     val id = "com.storyteller_f.giant_explorer"
     namespace = "com.storyteller_f.giant_explorer"
@@ -78,6 +85,9 @@ android {
         includeInBundle = false
         includeInApk = false
     }
+    packaging {
+        resources.merges += "META-INF/LICENSE.md"
+    }
     buildFeatures {
         compose = true
         viewBinding = true
@@ -85,6 +95,11 @@ android {
     }
 }
 dependencies {
+    constraints {
+        implementation("org.bouncycastle:bcpkix-jdk18on:1.85") {
+            because("Align SSHJ's PKIX and utility modules with SMBJ's 1.85 provider release line")
+        }
+    }
     implementation(libs.common.vm.ktx)
     implementation(libs.compat.ktx)
     implementation(libs.common.ui)
@@ -146,7 +161,7 @@ dependencies {
         exclude(group = "com.github.thegrizzlylabs", module = "sardine-android")
     }
     implementation(files("libs/sardine-android-0.9.aar"))
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.okhttp)
     implementation("org.simpleframework:simple-xml:2.7.1") {
         exclude(group = "xpp3")
         exclude(group = "stax")
@@ -168,7 +183,6 @@ configurations.all {
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs = listOf("-Xcontext-parameters")
         jvmTarget = JvmTarget.JVM_21
         optIn = listOf("kotlin.RequiresOptIn")
     }

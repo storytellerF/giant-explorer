@@ -12,6 +12,7 @@ import com.storyteller_f.compat_ktx.packageInfoCompat
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.pluginManagerRegister
+import com.storyteller_f.giant_explorer.view.applyScreenInsets
 import com.storyteller_f.plugin_core.GiantExplorerPlugin
 import com.storyteller_f.plugin_core.GiantExplorerPluginManager
 import com.storyteller_f.plugin_core.GiantExplorerService
@@ -111,6 +112,7 @@ class FragmentPluginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fragment_plugin)
+        findViewById<android.view.View>(R.id.content).applyScreenInsets()
         val uri = intent.data
         pluginName = intent.getStringExtra("plugin-name")!!
         val pluginManager = object : DefaultPluginManager(this) {

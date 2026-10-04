@@ -2,6 +2,7 @@
 
 package com.storyteller_f.giant_explorer.control
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
@@ -23,6 +24,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -138,6 +140,15 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
             v.updatePadding(top = top)
             i
         }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.content) { view, insets ->
+            val safe = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                    WindowInsetsCompat.Type.displayCutout() or
+                    WindowInsetsCompat.Type.ime()
+            )
+            view.updatePadding(left = safe.left, right = safe.right, bottom = safe.bottom)
+            insets
+        }
         // 连接服务
         val fileOperateIntent = Intent(this, FileOperateService::class.java)
         startService(fileOperateIntent)
@@ -244,8 +255,11 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         }
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        (menu as? MenuBuilder)?.setOptionalIconsVisible(true)
+        androidx.core.view.MenuCompat.setGroupDividerEnabled(menu, true)
         return super.onCreateOptionsMenu(menu)
     }
 

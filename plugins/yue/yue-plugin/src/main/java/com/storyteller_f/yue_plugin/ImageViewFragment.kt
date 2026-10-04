@@ -14,7 +14,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val arg_uri = "param1"
 private const val arg_position = "param2"
@@ -53,27 +56,29 @@ class ImageViewFragment : Fragment() {
         val u = uri ?: return
         val findViewById = view.findViewById<ImageView>(R.id.image_view)
 
-        try {
-            if (u.scheme == ContentResolver.SCHEME_FILE) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    (requireParentFragment() as? YueFragment)?.plugin?.fileInputStream(u)?.use {
-                        val decodeStream = BitmapFactory.decodeStream(it)
-                        findViewById.setImageBitmap(decodeStream)
+        val context = requireContext().applicationContext
+        val manager = (requireParentFragment() as? YueFragment)?.plugin
+        val imageLoadFailure = getString(R.string.image_load_failed)
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val bitmap = withContext(Dispatchers.IO) {
+                    val stream = if (u.scheme == ContentResolver.SCHEME_FILE && manager != null) {
+                        manager.fileInputStream(u)
+                    } else {
+                        context.contentResolver.openInputStream(u)
+                    }
+                    requireNotNull(stream) { imageLoadFailure }.use {
+                        requireNotNull(BitmapFactory.decodeStream(it)) { imageLoadFailure }
                     }
                 }
-            } else if (u.scheme == ContentResolver.SCHEME_CONTENT) {
-                val parcelFileDescriptor =
-                    requireContext().contentResolver.openFileDescriptor(u, "r")
-                parcelFileDescriptor.use {
-                    val fileDescriptor = parcelFileDescriptor?.fileDescriptor ?: return
-                    val decodeStream = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-                    findViewById.setImageBitmap(decodeStream)
-                }
+                findViewById.setImageBitmap(bitmap)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (e: Exception) {
+                val trimMargin = """$u
+                    |${e.localizedMessage}""".trimMargin()
+                view.findViewById<TextView>(R.id.status).text = trimMargin
             }
-        } catch (e: Exception) {
-            val trimMargin = """$u
-                |${e.localizedMessage}""".trimMargin()
-            view.findViewById<TextView>(R.id.status).text = trimMargin
         }
     }
 

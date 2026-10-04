@@ -1,44 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".control.plugin.PluginInfoFragment">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    android:fillViewport="true"
+    android:clipToPadding="false">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp">
-
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding"
+        android:paddingBottom="104dp">
         <TextView
-            android:id="@+id/plugin_name"
-            style="@style/TextAppearance.AppCompat.Title"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="plugin name" />
+            android:text="@string/plugin_details"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginBottom="16dp" />
 
         <TextView
-            android:id="@+id/plugin_path"
-            style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/plugin_name"
-            tools:text="plugin path" />
+            android:text="@string/plugin_details"
+            android:textAppearance="@style/TextAppearance.Giant.Title"
+            android:id="@+id/plugin_name" />
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/plugin_location"
+            android:textAppearance="@style/TextAppearance.Giant.Label"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/giant_card"
+            android:padding="20dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/plugin_location"
+                android:textAppearance="@style/TextAppearance.Giant.Body"
+                android:id="@+id/plugin_path"
+                android:textIsSelectable="true"
+                android:breakStrategy="simple" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/plugin_details"
+            android:textAppearance="@style/TextAppearance.Giant.Caption"
             android:id="@+id/other"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/plugin_path" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginTop="20dp"
+            android:textIsSelectable="true" />
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>

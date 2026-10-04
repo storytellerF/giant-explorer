@@ -53,9 +53,14 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 }
 
+val localUnsignedPublication = providers.gradleProperty("localUnsignedPublication")
+    .map(String::toBoolean).getOrElse(false)
+
 mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
+    if (!localUnsignedPublication) {
+        publishToMavenCentral()
+        signAllPublications()
+    }
     coordinates(
         groupId = "com.storyteller_f.giant_explorer",
         artifactId = "giant-explorer-plugin-core",

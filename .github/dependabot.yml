@@ -1,0 +1,61 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      build-toolchain:
+        patterns:
+          - "com.android*"
+          - "org.jetbrains.kotlin*"
+          - "com.google.devtools.ksp*"
+          - "com.vanniktech*"
+          - "com.starter.easylauncher*"
+          - "io.gitlab.arturbosch.detekt*"
+          - "gradle-wrapper"
+      testing:
+        patterns:
+          - "androidx.test*"
+          - "junit:*"
+          - "org.junit*"
+          - "com.squareup.leakcanary:*"
+      android:
+        patterns:
+          - "androidx.*"
+          - "com.google.android.material:*"
+        exclude-patterns:
+          - "androidx.test*"
+      storyteller:
+        patterns:
+          - "io.github.storytellerf:*"
+      networking:
+        patterns:
+          - "com.squareup.okhttp3:*"
+          - "com.squareup.retrofit2:*"
+          - "commons-net:*"
+          - "com.hierynomus:*"
+          - "com.github.thegrizzlylabs:*"
+      cryptography:
+        patterns:
+          - "org.bouncycastle:*"
+          - "com.madgag.spongycastle:*"
+      utilities:
+        patterns:
+          - "com.github.bumptech.glide:*"
+          - "com.github.tony19:*"
+          - "org.slf4j:*"
+          - "com.j256.simplemagic:*"
+          - "org.simpleframework:*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns:
+          - "*"

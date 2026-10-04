@@ -79,7 +79,8 @@ class PluginListFragment : SimpleFragment<FragmentPluginListBinding>(FragmentPlu
     }
 
     @BindClickEvent(PluginHolder::class)
-    fun clickPlugin(itemHolder: PluginHolder) {
+    fun clickPlugin(bindingAdapterPosition: Int) {
+        val itemHolder = adapter.getItemHolder(bindingAdapterPosition) ?: return
         findNavController().navigate(
             R.id.action_FirstFragment_to_SecondFragment,
             PluginInfoFragmentArgs(itemHolder.name).toBundle()

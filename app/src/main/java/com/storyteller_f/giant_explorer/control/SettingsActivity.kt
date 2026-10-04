@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
+import com.google.android.material.appbar.MaterialToolbar
 import com.storyteller_f.giant_explorer.R
+import com.storyteller_f.giant_explorer.view.applyScreenInsets
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -18,6 +20,8 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
+        findViewById<android.view.View>(android.R.id.content).applyScreenInsets()
+        setSupportActionBar(findViewById<MaterialToolbar>(R.id.toolbar))
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
@@ -27,14 +31,20 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             preferenceManager.findPreference<ListPreference>(getString(R.string.setting_key_open_window_mode))
                 ?.let {
-                    it.title = getString(R.string.open_window_mode, it.value)
+                    it.title = getString(R.string.open_window_mode, it.entry)
                     it.setOnPreferenceChangeListener { preference, newValue ->
-                        preference.title = getString(R.string.open_window_mode, newValue)
+                        val selected = it.findIndexOfValue(newValue.toString())
+                        preference.title = getString(R.string.open_window_mode, it.entries[selected])
                         if (newValue == getString(R.string.freeform_open_window_mode)) {
                             val context = preference.context
                             val packageManager = context.packageManager

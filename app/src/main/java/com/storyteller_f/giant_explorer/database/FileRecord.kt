@@ -1,13 +1,14 @@
 package com.storyteller_f.giant_explorer.database
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 class Converters {
     @TypeConverter
     fun parseUri(uriString: String?): Uri? {
-        return uriString?.let { Uri.parse(it) }
+        return uriString?.let { it.toUri() }
     }
 
     @TypeConverter

@@ -1,14 +1,21 @@
 package com.storyteller_f.giant_explorer.control.task
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Checkbox
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -19,11 +26,13 @@ import com.storyteller_f.annotation_defination.BindClickEvent
 import com.storyteller_f.annotation_defination.BindItemHolder
 import com.storyteller_f.annotation_defination.ItemHolder
 import com.storyteller_f.common_ui.*
+import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.task.ui_list.registerBigTimeTaskItemHolder
 import com.storyteller_f.giant_explorer.control.task.ui_list.registerTaskTypeHolder
 import com.storyteller_f.giant_explorer.database.BigTimeTask
 import com.storyteller_f.giant_explorer.database.requireDatabase
 import com.storyteller_f.giant_explorer.databinding.FragmentTaskListBinding
+import com.storyteller_f.giant_explorer.view.GiantComposeTheme
 import com.storyteller_f.slim_ktx.exceptionMessage
 import com.storyteller_f.ui_list.adapter.ManualAdapter
 import com.storyteller_f.ui_list.core.AbstractViewHolder
@@ -56,7 +65,14 @@ class BackgroundTaskListFragment : SimpleFragment<FragmentTaskListBinding>(Fragm
                 .shareIn(scope, SharingStarted.WhileSubscribed())
                 .collectLatest {
                     binding.content.flash(
-                        ListWithState.UIState(false, it.isNotEmpty(), empty = false, progress = false, null, null)
+                        ListWithState.UIState(
+                            false,
+                            it.isNotEmpty(),
+                            empty = it.isEmpty(),
+                            progress = false,
+                            null,
+                            null
+                        )
                     )
                     val list = mutableListOf<DataItemHolder>()
                     it.forEach { (category, result) ->
@@ -73,7 +89,8 @@ class BackgroundTaskListFragment : SimpleFragment<FragmentTaskListBinding>(Fragm
     }
 
     @BindClickEvent(BigTimeTaskItemHolder::class, "check")
-    fun onCheck(itemHolder: BigTimeTaskItemHolder) {
+    fun onCheck(bindingAdapterPosition: Int) {
+        val itemHolder = adapter.getItemHolder(bindingAdapterPosition) as? BigTimeTaskItemHolder ?: return
         scope.launch {
             val waitingDialog = waitingDialog()
             try {
@@ -106,7 +123,7 @@ data class TaskTypeHolder(val title: String) : DataItemHolder() {
 class TaskTypeViewHolder(edComposeView: EDComposeView) : ComposeViewHolder<TaskTypeHolder>(edComposeView) {
     override fun bindData(itemHolder: TaskTypeHolder) {
         edComposeView.composeView.setContent {
-            TaskType(itemHolder = itemHolder)
+            GiantComposeTheme { TaskType(itemHolder = itemHolder) }
         }
     }
 }
@@ -126,7 +143,7 @@ fun TaskType(@PreviewParameter(TaskTypeProvider::class) itemHolder: TaskTypeHold
             .fillMaxWidth()
             .padding(12.dp)
     ) {
-        Text(text = itemHolder.title)
+        Text(text = itemHolder.title, style = MaterialTheme.typography.subtitle1, color = MaterialTheme.colors.primary)
     }
 }
 
@@ -140,7 +157,7 @@ data class BigTimeTaskItemHolder(val bigTimeWorker: BigTimeTask) : DataItemHolde
 class BigTimeTaskViewHolder(edComposeView: EDComposeView) : ComposeViewHolder<BigTimeTaskItemHolder>(edComposeView) {
     override fun bindData(itemHolder: BigTimeTaskItemHolder) {
         edComposeView.composeView.setContent {
-            BigTimeTaskView(itemHolder = itemHolder, edComposeView)
+            GiantComposeTheme { BigTimeTaskView(itemHolder = itemHolder, edComposeView) }
         }
     }
 }
@@ -158,16 +175,30 @@ fun BigTimeTaskView(
     @PreviewParameter(BigTimeTaskProvider::class) itemHolder: BigTimeTaskItemHolder,
     edComposeView: EdComposeViewEventEmitter = EdComposeViewEventEmitter.default
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colors.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
     ) {
-        Text(text = itemHolder.bigTimeWorker.uri.toString(), modifier = Modifier.weight(1f))
-        Checkbox(
-            checked = itemHolder.bigTimeWorker.enable,
-            onCheckedChange = { edComposeView.notifyClickEvent("check") }
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = stringResource(R.string.target_folder), style = MaterialTheme.typography.subtitle2)
+                Text(
+                    text = itemHolder.bigTimeWorker.uri.toString(),
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.72f),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Checkbox(
+                checked = itemHolder.bigTimeWorker.enable,
+                onCheckedChange = { edComposeView.notifyClickEvent("check") }
+            )
+        }
     }
 }

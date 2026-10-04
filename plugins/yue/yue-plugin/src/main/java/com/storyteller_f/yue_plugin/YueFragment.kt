@@ -4,16 +4,15 @@ package com.storyteller_f.yue_plugin
 
 import android.net.Uri
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.storyteller_f.plugin_core.FileSystemProviderConstant
 import com.storyteller_f.plugin_core.GiantExplorerPlugin
 import com.storyteller_f.plugin_core.GiantExplorerPluginManager
 import kotlinx.coroutines.launch
@@ -46,17 +45,33 @@ class YueFragment : Fragment(), GiantExplorerPlugin {
         val list = mutableListOf<Uri>()
 
         val viewPager2 = view.findViewById<ViewPager2>(R.id.image_gallery)
-        val adapter = object : FragmentStateAdapter(childFragmentManager, lifecycle) {
+        val positionLabel = view.findViewById<TextView>(R.id.gallery_position)
+        val hint = view.findViewById<TextView>(R.id.name)
+        fun renderPosition(position: Int) {
+            positionLabel.text = getString(R.string.gallery_position, position + 1, list.size)
+            hint.setText(if (list.size > 1) R.string.gallery_hint else R.string.single_image_hint)
+        }
+        val adapter = object : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle) {
             override fun getItemCount() = list.size
 
             override fun createFragment(position: Int) =
                 ImageViewFragment.newInstance(list[position], position)
         }
         viewPager2.adapter = adapter
+        viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                if (list.isNotEmpty()) renderPosition(position)
+            }
+        })
         viewLifecycleOwner.lifecycleScope.launch {
             list.clear()
             if (listFiles(u, list)) {
                 adapter.notifyItemRangeInserted(0, list.size)
+                if (list.isNotEmpty()) {
+                    val initialPosition = list.indexOf(u).coerceAtLeast(0)
+                    viewPager2.setCurrentItem(initialPosition, false)
+                    renderPosition(initialPosition)
+                }
             }
         }
     }
@@ -64,32 +79,12 @@ class YueFragment : Fragment(), GiantExplorerPlugin {
     private suspend fun listFiles(u: Uri, list: MutableList<Uri>): Boolean {
         Log.i(TAG, "onViewCreated: ${u.authority}")
 
-        if (u.authority?.contains("storyteller") == true) {
-            val manager = plugin ?: return false
+        val manager = plugin
+        if (u.authority?.contains("storyteller") == true && manager != null) {
             val parentPath = manager.resolver.resolveParentUri(u)
-            val isolateRunning =
-                requireContext().javaClass.canonicalName == "com.storyteller_f.yue.MainActivity"
-            if (!isolateRunning) {
-                list.addAll(manager.listFiles(parentPath))
-            } else {
-                val parentUri = manager.resolver.resolveParentUri(u)
-                requireContext().contentResolver.query(parentUri, null, null, null, null)?.use {
-                    while (it.moveToNext()) {
-                        val path =
-                            it.getString(it.getColumnIndexOrThrow(FileSystemProviderConstant.FILE_PATH))
-                        val mimeType =
-                            it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_MIME_TYPE))
-                        Log.i(TAG, "listFiles: $path $mimeType")
-                        if (mimeType != null && mimeType.startsWith("image")) {
-                            list.add(
-                                Uri.Builder().scheme(u.scheme).authority(u.authority)
-                                    .path("/info$path").build()
-                            )
-                        }
-                    }
-                }
-            }
+            list.addAll(manager.listFiles(parentPath))
         } else {
+            // Standalone launches receive a grant for this image, not its parent directory.
             list.add(u)
         }
         return true

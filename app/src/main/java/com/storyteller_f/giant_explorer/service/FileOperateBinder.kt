@@ -2,10 +2,10 @@ package com.storyteller_f.giant_explorer.service
 
 import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import android.os.Binder
 import android.util.Log
 import androidx.annotation.WorkerThread
-import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
@@ -15,13 +15,17 @@ import com.storyteller_f.file_system.operate.FileOperationForemanProgressListene
 import com.storyteller_f.file_system.size
 import com.storyteller_f.giant_explorer.service.FileOperateService.FileOperateResultContainer
 import com.storyteller_f.plugin_core.GiantExplorerService
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okio.FileNotFoundException
-import java.io.File
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
-class FileOperateBinder(val context: Context) : Binder() {
+class FileOperateBinder(val context: Context, private val taskScope: CoroutineScope) : Binder() {
     var fileOperationProgressListener =
         mutableMapOf<String, MutableList<FileOperationForemanProgressListener>>()
     val map = mutableMapOf<String, TaskSession>()
@@ -82,9 +86,19 @@ class FileOperateBinder(val context: Context) : Binder() {
         key: String
     ) {
         whenStart(key)
-        thread {
-            runBlocking {
+        taskScope.launch {
+            try {
                 startCopyTask(dest, focused, deleteOrigin, selected, key)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Log.e(TAG, "Copy/move task failed: ${error.javaClass.simpleName}")
+                withContext(Dispatchers.Main) {
+                    val message = error.localizedMessage ?: "文件操作失败"
+                    map[key] = TaskSession(null, message)
+                    state.value = state_error
+                    fileOperateResultContainer.get()?.onError(message)
+                }
             }
         }
     }
@@ -145,9 +159,7 @@ class FileOperateBinder(val context: Context) : Binder() {
         key: String
     ) {
         state.postValue(state_computing)
-        val assessResult = runBlocking {
-            TaskAssessor(selected, context, dest).assess()
-        }
+        val assessResult = TaskAssessor(selected, context, dest).assess()
         whenRunning(key, assessResult)
         val copyForemanImpl = CopyForemanImpl(
             selected,
@@ -235,8 +247,14 @@ class FileOperateBinder(val context: Context) : Binder() {
             "webdav"
         )
 
-        fun checkOperationValid(path: String, dest: String): Boolean {
-            return dest.contains(path)
+        fun checkOperationValid(source: Uri, destination: Uri, isDirectory: Boolean = true): Boolean {
+            return isCopyDestinationValid(source.operationLocation(), destination.operationLocation(), isDirectory)
+        }
+
+        private fun Uri.operationLocation(): FileOperationLocation {
+            // The file-system library uses the first content path segment as its storage-tree key.
+            val root = if (scheme == ContentResolver.SCHEME_CONTENT) pathSegments.firstOrNull() else null
+            return FileOperationLocation(scheme, authority, root, path.orEmpty())
         }
     }
 }
@@ -268,19 +286,20 @@ class TaskAssessor(
         val size = detectorTasks.map {
             require(
                 FileOperateBinder.checkOperationValid(
-                    it.fullPath,
-                    dest.path
+                    it.uri,
+                    dest.uri,
+                    it.kind.isDirectory
                 )
             ) {
                 "不能将父文件夹移动到子文件夹"
             }
-            val fileInstance = getFileInstance(context, File(it.fullPath).toUri())!!
+            val fileInstance = getFileInstance(context, it.uri)!!
             if (!fileInstance.exists()) {
                 throw FileNotFoundException(fileInstance.path)
             }
             if (it.kind.isFile) {
                 count++
-                getFileInstance(context, File(it.fullPath).toUri())!!.size()
+                fileInstance.size()
             } else {
                 getDirectorySize(it)
             }
@@ -293,7 +312,7 @@ class TaskAssessor(
 
     private suspend fun getDirectorySize(file: FileInfo): Long {
         folderCount++
-        val fileInstance = getFileInstance(context, File(file.fullPath).toUri())
+        val fileInstance = getFileInstance(context, file.uri)
         val listSafe = fileInstance!!.list()
 
         val fileSize = listSafe.files.map {

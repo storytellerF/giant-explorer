@@ -1,0 +1,4 @@
+<!-- Override only the Debug dependency notification glyph; its diagnostic behavior is unchanged. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_notification" />
+</layer-list>

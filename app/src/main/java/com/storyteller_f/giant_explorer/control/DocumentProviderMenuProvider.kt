@@ -32,7 +32,7 @@ class DocumentProviderMenuProvider(
     }
 
     private fun inflateDefault(menu: Menu) {
-        menu.add("DEFAULT").setIcon(R.drawable.baseline_home_24).setOnMenuItemClickListener {
+        menu.add(R.string.open_root).setIcon(R.drawable.baseline_home_24).setOnMenuItemClickListener {
             switchUriRoot(File("/").toUri())
             true
         }
@@ -64,7 +64,7 @@ class DocumentProviderMenuProvider(
             Toast.makeText(activity, authority, Toast.LENGTH_SHORT).show()
             true
         }
-        add("ADD").setIcon(R.drawable.baseline_add_circle_24)
+        add(R.string.string_add_directory).setIcon(R.drawable.baseline_add_circle_24)
             .setOnMenuItemClickListener {
                 this@DocumentProviderMenuProvider.switchDocumentProviderRoot(authority, null)
                 true

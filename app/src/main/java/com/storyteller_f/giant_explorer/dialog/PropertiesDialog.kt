@@ -12,7 +12,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
-import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.setVisible
@@ -22,7 +21,7 @@ import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.DialogFilePropertiesBinding
 import kotlinx.coroutines.launch
 
-class PropertiesDialog : SimpleDialogFragment<DialogFilePropertiesBinding>(DialogFilePropertiesBinding::inflate) {
+class PropertiesDialog : GiantDialogFragment<DialogFilePropertiesBinding>(DialogFilePropertiesBinding::inflate) {
     private val args by navArgs<PropertiesDialogArgs>()
     override fun onBindViewEvent(binding: DialogFilePropertiesBinding) {
         listOf(

@@ -9,13 +9,15 @@ import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.util.Log
 import android.webkit.MimeTypeMap
-import com.storyteller_f.file_system.getFileInstance
+import com.storyteller_f.file_system.FileInstanceFactory
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
+import com.storyteller_f.file_system.simplePath
 import com.storyteller_f.file_system.size
 import com.storyteller_f.giant_explorer.control.plugin.FileSystemProviderResolver
 import com.storyteller_f.plugin_core.FileSystemProviderConstant
 import kotlinx.coroutines.runBlocking
+import java.util.ServiceLoader
 
 class FileSystemProvider : ContentProvider() {
 
@@ -24,14 +26,16 @@ class FileSystemProvider : ContentProvider() {
     private suspend fun current(uri: Uri): FileInstance? {
         val c = context ?: return null
         val path = FileSystemProviderResolver.resolve(uri) ?: return null
-        return getFileInstance(c, path)
+        val safeUri = path.buildUpon().path(simplePath(path.path!!)).build()
+        // Binder callers may have a boot context class loader without application factories.
+        val factories = ServiceLoader.load(FileInstanceFactory::class.java, c.classLoader)
+        return factories.firstNotNullOfOrNull { it.buildInstance(c, safeUri) }
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         return runBlocking {
             val fileInstance = current(uri) ?: return@runBlocking null
-            val fd = fileInstance.getFileInputStream().fd
-            ParcelFileDescriptor.dup(fd)
+            fileInstance.getFileInputStream().use { ParcelFileDescriptor.dup(it.fd) }
         }
     }
 

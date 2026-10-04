@@ -9,9 +9,10 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
-import android.os.Build
+import android.text.SpannableString
 import android.text.TextPaint
 import android.text.TextUtils
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -24,6 +25,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.view.MenuCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.iterator
@@ -32,6 +34,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.storyteller_f.annotation_defination.BindClickEvent
 import com.storyteller_f.common_pr.dipToInt
 import com.storyteller_f.common_pr.response
@@ -59,6 +62,7 @@ import com.storyteller_f.giant_explorer.control.plugin.FragmentPluginConfigurati
 import com.storyteller_f.giant_explorer.control.plugin.PluginConfiguration
 import com.storyteller_f.giant_explorer.control.plugin.ShellPluginConfiguration
 import com.storyteller_f.giant_explorer.control.plugin.WebViewPluginActivity
+import com.storyteller_f.giant_explorer.control.plugin.menuIcon
 import com.storyteller_f.giant_explorer.databinding.FragmentFileListBinding
 import com.storyteller_f.giant_explorer.dialog.NewNameDialog
 import com.storyteller_f.giant_explorer.dialog.OpenFileDialog
@@ -239,7 +243,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
             val u = when {
                 uriFromText.scheme == ContentResolver.SCHEME_FILE -> uriFromText
                 it.uri != null -> it.uri
-                URLUtil.isNetworkUrl(text) -> Uri.parse(text)
+                URLUtil.isNetworkUrl(text) -> text.toUri()
                 filePathMatcher.matches(text) -> {
                     Uri.fromFile(File(text))
                 }
@@ -338,15 +342,12 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     }
 
     @BindClickEvent(FileItemHolder::class, "fileIcon")
-    fun fileMenu(view: View, itemHolder: FileItemHolder) {
+    fun fileMenu(view: View, viewholder: RecyclerView.ViewHolder) {
+        val itemHolder = viewholder.fileItemOrNull() ?: return
         val fullPath = itemHolder.file.fullPath
-        val name = itemHolder.file.name
         val key = uuid.data.value ?: return
-        scope.launch {
-            val uri = observer.fileInstance?.toChild(name, FileCreatePolicy.NotCreate)?.uri
-                ?: return@launch
-            showMenu(view, fullPath, itemHolder, key, uri)
-        }
+        // The row owns its URI; the observed directory can already have changed during navigation.
+        showMenu(view, fullPath, itemHolder, key, itemHolder.file.item.uri)
     }
 
     private fun showMenu(
@@ -358,14 +359,20 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     ) {
         PopupMenu(requireContext(), view).apply {
             inflate(R.menu.item_context_menu)
+            setForceShowIcon(true)
+            MenuCompat.setGroupDividerEnabled(menu, true)
+            val errorColor = MaterialColors.getColor(view, androidx.appcompat.R.attr.colorError)
+            menu.findItem(R.id.delete).apply {
+                title = SpannableString(title).apply {
+                    setSpan(ForegroundColorSpan(errorColor), 0, length, 0)
+                }
+            }
             val mimeTypeFromExtension =
                 MimeTypeMap.getSingleton().getMimeTypeFromExtension(File(fullPath).extension)
 
             resolveInstalledPlugins(itemHolder, mimeTypeFromExtension, uri)
             resolveNoInstalledPlugins(mimeTypeFromExtension, fullPath, uri, key)
-            val isSupportArchiveFileInstance = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-            menu.findItem(R.id.preview_archive).isVisible =
-                isSupportArchiveFileInstance || itemHolder.file.item.extension == "zip"
+            menu.findItem(R.id.preview_archive).isVisible = true
 
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
@@ -408,12 +415,13 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         val group = liPlugin.group(listOf(uri), File(fullPath).extension)
         if (group.isNotEmpty()) {
             group.map {
-                menu.loopAdd(it.first).add(0, it.second, 0, configuration.meta.name).setOnMenuItemClickListener {
-                    scope.launch {
-                        liPlugin.start(uri, it.itemId)
+                menu.loopAdd(it.first).add(0, it.second, 0, configuration.meta.name)
+                    .setIcon(configuration.menuIcon).setOnMenuItemClickListener {
+                        scope.launch {
+                            liPlugin.start(uri, it.itemId)
+                        }
+                        return@setOnMenuItemClickListener true
                     }
-                    return@setOnMenuItemClickListener true
-                }
             }
         }
     }
@@ -492,7 +500,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
                 return@forEach
             }
             val subMenu = configuration.meta.subMenu
-            menu.loopAdd(listOf(subMenu)).add(pluginName).setOnMenuItemClickListener {
+            menu.loopAdd(listOf(subMenu)).add(pluginName).setIcon(configuration.menuIcon).setOnMenuItemClickListener {
                 startNotInstalledPlugin(configuration, mimeTypeFromExtension, fullPath, uri)
             }
         }
@@ -553,9 +561,14 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         val activityInfo = it.activityInfo ?: return
         val metaData = activityInfo.metaData ?: return
         val groups = metaData.getString("group")?.split("/") ?: return
-        val title = metaData.getString("title") ?: return
-        menu.loopAdd(groups).add(title).setOnMenuItemClickListener {
-            intent.setPackage(requireContext().packageName).component =
+        val packageManager = requireContext().packageManager
+        val title = when (val value = metaData.get("title")) {
+            is String -> value
+            is Int -> packageManager.getText(activityInfo.packageName, value, activityInfo.applicationInfo)
+            else -> null
+        } ?: it.loadLabel(packageManager)
+        menu.loopAdd(groups).add(title).setIcon(it.loadIcon(packageManager)).setOnMenuItemClickListener {
+            intent.setPackage(activityInfo.packageName).component =
                 ComponentName(activityInfo.packageName, activityInfo.name)
             startActivity(intent)
             return@setOnMenuItemClickListener true
@@ -620,7 +633,15 @@ private fun Menu.loopAdd(strings: List<String>): Menu {
         if (item != null && subMenu != null) {
             subMenu
         } else {
-            t.addSubMenu(e)
+            t.addSubMenu(e).apply {
+                this.item.setIcon(
+                    when (e.lowercase(java.util.Locale.ROOT)) {
+                        "archive", "compress", "extract to" -> R.drawable.ic_plugin_li
+                        "view" -> R.drawable.ic_plugin_yue
+                        else -> R.drawable.ic_plugin_generic
+                    }
+                )
+            }
         }
     }
 }

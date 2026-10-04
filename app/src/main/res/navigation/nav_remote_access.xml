@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_remote_access"
     app:startDestination="@id/RemoteListFragment">
-
     <fragment
         android:id="@+id/RemoteListFragment"
         android:name="com.storyteller_f.giant_explorer.control.remote.RemoteListFragment"
-        tools:layout="@layout/fragment_remote_list">
-
-        <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/RemoteDetailFragment" />
+        tools:layout="@layout/fragment_remote_list"
+        android:label="@string/title_activity_remote_manager">
+        <action android:id="@+id/action_FirstFragment_to_SecondFragment" app:destination="@id/RemoteDetailFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/RemoteDetailFragment"
         android:name="com.storyteller_f.giant_explorer.control.remote.RemoteDetailFragment"
-        tools:layout="@layout/fragment_remote_detail">
+        tools:layout="@layout/fragment_remote_detail"
+        android:label="@string/connection_detail_heading">
         <argument
             android:name="spec_id"
             android:defaultValue="0"
             app:argType="integer" />
 
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+        <action android:id="@+id/action_SecondFragment_to_FirstFragment" app:destination="@id/FirstFragment" />
     </fragment>
 </navigation>

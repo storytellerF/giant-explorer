@@ -1,12 +1,13 @@
-<resources>
-    <string name="app_name">yue</string>
-    <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label" translatable="false">Intro</string>
-    <string name="second_fragment_label" translatable="false">Second Fragment</string>
-    <string name="next" translatable="false">Next</string>
-    <string name="previous" translatable="false">Previous</string>
-
-    <string name="hello_first_fragment" translatable="false">Hello first fragment</string>
-    <string name="hello_second_fragment" translatable="false">Hello second fragment. Arg: %1$s</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="zh">
+    <string name="app_name">阅</string>
+    <string name="first_fragment_label">Yue · 图片浏览</string>
+    <string name="second_fragment_label">使用 Yue</string>
+    <string name="intro_title">给图片一个安静的空间</string>
+    <string name="intro_body">从设备中选择一张图片，在专注的深色画布中查看。</string>
+    <string name="intro_features">由你选择\n通过系统文件选择器打开图片。\n\n专注内容\n按比例显示图片，保留完整画面。</string>
+    <string name="next">选择图片</string>
+    <string name="previous">返回 Yue</string>
+    <string name="guide_title">浏览说明</string>
+    <string name="guide_body">Yue 可以独立打开图片，也可作为 Giant Explorer 的图片插件使用。</string>
+    <string name="guide_steps">01  选择图片\n回到首页，点击“选择图片”。\n\n02  查看画面\n图片按屏幕大小适配显示。\n\n03  在 Giant 中浏览\n导入 Yue 插件后，从文件菜单打开图片；多张图片时可左右滑动。</string>
 </resources>

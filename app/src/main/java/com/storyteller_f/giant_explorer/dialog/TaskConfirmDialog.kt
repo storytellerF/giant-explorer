@@ -1,7 +1,6 @@
 package com.storyteller_f.giant_explorer.dialog
 
 import android.os.Parcelable
-import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.setFragmentResult
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_vm_ktx.keyPrefix
@@ -13,7 +12,7 @@ import kotlinx.parcelize.Parcelize
 import java.io.File
 
 class TaskConfirmDialog :
-    SimpleDialogFragment<DialogTaskConfirmBinding>(DialogTaskConfirmBinding::inflate) {
+    GiantDialogFragment<DialogTaskConfirmBinding>(DialogTaskConfirmBinding::inflate) {
     private val sharePasteTargetViewModel by keyPrefix<SharePasteTargetViewModel>(
         { "shareTarget" },
         pvm({}) {

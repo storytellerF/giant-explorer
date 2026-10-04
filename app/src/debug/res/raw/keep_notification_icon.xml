@@ -1,0 +1,3 @@
+<!-- LeakCanary references this override from its dependency bytecode. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/leak_canary_leak" />

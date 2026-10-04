@@ -3,12 +3,14 @@ package com.storyteller_f.giant_explorer.control.remote
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import androidx.navigation.findNavController
+import androidx.core.view.isVisible
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.ActivityRemoteManagerBinding
+import com.storyteller_f.giant_explorer.view.applyScreenInsets
 
 class RemoteManagerActivity : AppCompatActivity() {
 
@@ -21,12 +23,24 @@ class RemoteManagerActivity : AppCompatActivity() {
 
         binding = ActivityRemoteManagerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyScreenInsets()
 
         setSupportActionBar(binding.toolbar)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_remote_manager)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_remote_manager
+        ) as NavHostFragment
+        val navController = navHost.navController
+        appBarConfiguration = AppBarConfiguration.Builder(emptySet<Int>())
+            .setFallbackOnNavigateUpListener {
+                finish()
+                true
+            }
+            .build()
         setupActionBarWithNavController(navController, appBarConfiguration)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            binding.fab.isVisible = destination.id == R.id.RemoteListFragment
+        }
 
         binding.fab.setOnClickListener {
             navController.navigate(R.id.RemoteDetailFragment)
@@ -34,7 +48,10 @@ class RemoteManagerActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_remote_manager)
+        val navHost = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment_content_remote_manager
+        ) as NavHostFragment
+        val navController = navHost.navController
         return navController.navigateUp(appBarConfiguration) ||
             super.onSupportNavigateUp()
     }

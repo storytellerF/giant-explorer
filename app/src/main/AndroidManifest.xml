@@ -120,6 +120,7 @@
         <provider
             android:name=".service.FileSystemProvider"
             android:authorities="${fileSystemProviderAuthority}"
+            android:grantUriPermissions="true"
             android:exported="true"
             android:permission="com.storyteller_f.giant_explorer.provider" />
         <provider

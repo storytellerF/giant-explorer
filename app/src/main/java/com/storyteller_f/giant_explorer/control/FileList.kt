@@ -54,6 +54,7 @@ import com.storyteller_f.file_system_local.permission.requestFilePermission
 import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.PC_END_ON
 import com.storyteller_f.giant_explorer.R
+import com.storyteller_f.giant_explorer.control.ui_list.buildFileItemHolder
 import com.storyteller_f.giant_explorer.database.AppDatabase
 import com.storyteller_f.giant_explorer.database.requireDatabase
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileBinding
@@ -61,10 +62,10 @@ import com.storyteller_f.giant_explorer.databinding.ViewHolderFileGridBinding
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileSentinelBinding
 import com.storyteller_f.giant_explorer.model.FileModel
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
-import com.storyteller_f.ui_list.core.AbstractViewHolder
 import com.storyteller_f.ui_list.core.BindingViewHolder
 import com.storyteller_f.ui_list.core.BuildBatch
 import com.storyteller_f.ui_list.core.DataItemHolder
+import com.storyteller_f.ui_list.core.ItemHolderProvider
 import com.storyteller_f.ui_list.data.SimpleResponse
 import com.storyteller_f.ui_list.event.findFragmentOrNull
 import com.storyteller_f.ui_list.source.SearchHandler
@@ -84,19 +85,12 @@ fun fileListAdapter() = SimpleSourceAdapter<FileItemHolder, FileViewHolder>(
     mapOf(
         FileItemHolder::class to BuildBatch(
             b2 = { parent, type ->
-                val inflater = LayoutInflater.from(parent.context)
-                when (type) {
-                    "grid" -> FileGridViewHolder(
-                        ViewHolderFileGridBinding.inflate(inflater, parent, false)
+                if (type == FILE_LIST_SENTINEL_TYPE) {
+                    FileSentinelViewHolder(
+                        ViewHolderFileSentinelBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                     )
-
-                    FILE_LIST_SENTINEL_TYPE -> FileSentinelViewHolder(
-                        ViewHolderFileSentinelBinding.inflate(inflater, parent, false)
-                    )
-
-                    else -> FileViewHolder(
-                        ViewHolderFileBinding.inflate(inflater, parent, false)
-                    )
+                } else {
+                    buildFileItemHolder(parent, type)
                 }
             }
         )
@@ -187,9 +181,14 @@ class FileListObserver<T>(
             listWithState.recyclerView.layoutManager = when {
                 it -> {
                     val spanCount = listWithState.context.run {
-                        resources.displayMetrics.widthPixels / 120.dipToInt
+                        (resources.displayMetrics.widthPixels / 120.dipToInt).coerceAtLeast(1)
                     }
-                    GridLayoutManager(listWithState.context, spanCount)
+                    GridLayoutManager(listWithState.context, spanCount).apply {
+                        spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                            override fun getSpanSize(position: Int): Int =
+                                if (adapter.peek(position)?.isSentinel == true) spanCount else 1
+                        }
+                    }
                 }
 
                 else -> LinearLayoutManager(listWithState.context)
@@ -223,7 +222,7 @@ class FileListObserver<T>(
                 flash = ListWithState.Companion::remote
             )
             listWithState.setupDampingSwipeSupport { viewHolder, direction ->
-                val itemHolder = viewHolder.itemHolder as? FileItemHolder ?: return@setupDampingSwipeSupport
+                val itemHolder = viewHolder.fileItemOrNull() ?: return@setupDampingSwipeSupport
                 if (itemHolder.isSentinel) return@setupDampingSwipeSupport
                 if (direction == ItemTouchHelper.LEFT) {
                     session.selected.update {
@@ -287,7 +286,7 @@ class FileItemHolder(
     val file: FileModel,
     val selected: List<DataItemHolder>,
     variant: String
-) : DataItemHolder(variant) {
+) : DataItemHolder(if (file.fullPath == FILE_LIST_SENTINEL_ID) FILE_LIST_SENTINEL_TYPE else variant) {
     override fun areItemsTheSame(other: DataItemHolder) =
         (other as FileItemHolder).file.fullPath == file.fullPath
 
@@ -312,6 +311,13 @@ class FileGridViewHolder(private val binding: ViewHolderFileGridBinding) :
         binding.fileIcon.fileIcon(itemHolder.file.item)
         binding.symLink.isVisible = itemHolder.file.isSymLink
         itemHolder.file.item.dragSupport(itemView)
+        binding.root.isSelected = itemHolder.selected.any { it.areItemsTheSame(itemHolder) }
+        binding.root.setBackgroundResource(
+            if (itemHolder.file.item.isFile) R.drawable.background_file else R.drawable.background_folder
+        )
+        itemView.setOnClick {
+            it.findFragmentOrNull<FileItemHolderEvent>()?.onClick(it, itemHolder)
+        }
     }
 }
 
@@ -568,11 +574,14 @@ fun List<DataItemHolder>?.toggle(
 }
 
 fun MutableLiveData<List<DataItemHolder>>.toggle(viewHolder: RecyclerView.ViewHolder) {
+    val itemHolder = viewHolder.fileItemOrNull() ?: return
     update {
-        val adapterViewHolder = viewHolder as AbstractViewHolder<out DataItemHolder>
         val (selectedHolders, currentSelected) =
-            it.toggle(adapterViewHolder.itemHolder)
+            it.toggle(itemHolder)
         viewHolder.itemView.isSelected = currentSelected
         selectedHolders
     }
 }
+
+internal fun RecyclerView.ViewHolder.fileItemOrNull(): FileItemHolder? =
+    (bindingAdapter as? ItemHolderProvider<*>)?.getItemHolder(bindingAdapterPosition) as? FileItemHolder

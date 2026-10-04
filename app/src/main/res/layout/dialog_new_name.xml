@@ -1,24 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <EditText
-        android:id="@+id/newName"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="201dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="New Name" />
-
-    <include
-        android:id="@+id/bottom"
-        layout="@layout/general_dialog_bottom" />
-</LinearLayout>
+        android:orientation="vertical"
+        android:padding="24dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/name_item_heading"
+            android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
+            android:layout_marginBottom="12dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/name_item_description"
+            android:textAppearance="@style/TextAppearance.Giant.Caption"
+            android:layout_marginBottom="12dp" />
+        <EditText
+            android:importantForAutofill="no"
+            android:id="@+id/newName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            tools:text="New Name"
+            android:hint="@string/new_name_hint"
+            android:singleLine="true"
+            android:layout_marginBottom="16dp"
+            android:imeOptions="actionDone" />
+        <include android:id="@+id/bottom" layout="@layout/general_dialog_bottom" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

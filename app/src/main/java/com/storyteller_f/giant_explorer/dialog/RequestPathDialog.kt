@@ -11,7 +11,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.fragment.navArgs
 import com.storyteller_f.common_ui.Registry
-import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.observeResponse
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.common_ui.scope
@@ -24,6 +23,7 @@ import com.storyteller_f.file_system.toChildEfficiently
 import com.storyteller_f.file_system.toParentEfficiently
 import com.storyteller_f.file_system_ktx.isDirectory
 import com.storyteller_f.file_system_local.getCurrentUserEmulatedPath
+import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.FileItemHolder
 import com.storyteller_f.giant_explorer.control.FileItemHolderEvent
 import com.storyteller_f.giant_explorer.control.FileListFragmentArgs
@@ -41,7 +41,7 @@ import kotlinx.parcelize.Parcelize
 import java.io.File
 
 class RequestPathDialog :
-    SimpleDialogFragment<DialogRequestPathBinding>(DialogRequestPathBinding::inflate),
+    GiantDialogFragment<DialogRequestPathBinding>(DialogRequestPathBinding::inflate),
     Registry, FileItemHolderEvent {
     private val args by navArgs<RequestPathDialogArgs>()
 
@@ -67,6 +67,8 @@ class RequestPathDialog :
     }
 
     override fun onBindViewEvent(binding: DialogRequestPathBinding) {
+        binding.bottom.requestScreenOn.visibility = View.VISIBLE
+        binding.bottom.positive.setText(R.string.choose_location_action)
         binding.bottom.requestScreenOn.setOnClick {
             it.keepScreenOn = it.isChecked
         }

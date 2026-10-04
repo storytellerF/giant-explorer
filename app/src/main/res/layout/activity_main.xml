@@ -1,71 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".control.MainActivity">
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <FrameLayout
             android:id="@+id/toolbar_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurfaceVariant"
+            android:background="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
-                app:titleTextColor="?attr/colorOnSurfaceVariant" />
+                android:layout_height="@dimen/toolbar_height"
+                app:titleTextColor="?attr/colorOnSurface"
+                style="@style/Widget.Giant.Toolbar"
+                android:background="?attr/colorSurface"
+                app:subtitle="@string/browser_subtitle" />
         </FrameLayout>
 
         <include
             android:id="@+id/path_man_layout"
             layout="@layout/layout_path"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="64dp"
             app:layout_constraintEnd_toStartOf="@id/switchDisplay"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar_container" />
+            app:layout_constraintTop_toBottomOf="@id/toolbar_container"
+            android:layout_marginStart="12dp" />
 
         <ImageButton
             android:id="@+id/switchDisplay"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:adjustViewBounds="true"
             android:src="@drawable/icon_display_type"
             app:layout_constraintBottom_toBottomOf="@id/path_man_layout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/path_man_layout" />
+            app:layout_constraintTop_toTopOf="@id/path_man_layout"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="12dp"
+            app:tint="?attr/colorOnSurfaceVariant"
+            android:contentDescription="@string/switch_display"
+            android:layout_marginEnd="8dp" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment_main"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="50dp"
             app:defaultNavHost="true"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar_container"
-            tools:layout="@layout/fragment_file_list" />
+            app:layout_constraintTop_toBottomOf="@id/path_man_layout"
+            tools:layout="@layout/fragment_file_list"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start" />
-
+        android:layout_gravity="start"
+        android:background="?attr/colorSurface"
+        app:headerLayout="@layout/navigation_header"
+        app:itemTextAppearance="@style/TextAppearance.Giant.Body"
+        app:itemShapeAppearanceOverlay="@style/ShapeAppearance.Giant.Card"
+        app:itemHorizontalPadding="20dp"
+        app:itemVerticalPadding="8dp" />
 </androidx.drawerlayout.widget.DrawerLayout>

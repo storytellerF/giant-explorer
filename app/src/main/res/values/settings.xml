@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="default_open_window_mode" translatable="false">normal</string>
+
     <string name="normal_open_window_mode" translatable="false">normal</string>
+
     <string name="adjacent_open_window_mode" translatable="false">split</string>
+
     <string name="freeform_open_window_mode" translatable="false">freeform</string>
+
     <string-array name="def_open_window_mode">
         <item>normal</item>
+
         <item>split</item>
+
         <item>freeform</item>
+    </string-array>
+
+    <string-array name="open_window_mode_labels">
+        <item>普通窗口</item>
+
+        <item>分屏窗口</item>
+
+        <item>自由窗口</item>
     </string-array>
 </resources>

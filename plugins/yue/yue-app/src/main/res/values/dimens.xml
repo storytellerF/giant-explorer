@@ -1,3 +1,3 @@
 <resources>
-    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="plugin_page_padding">24dp</dimen>
 </resources>

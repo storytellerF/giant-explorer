@@ -1,76 +1,251 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="zh">
-    <string name="app_name">giant-explorer</string>
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:locale="zh">
+    <string name="app_name">Giant Explorer</string>
 
     <string name="string_add_file">添加文件</string>
+
     <string name="string_add">添加</string>
+
     <string name="string_add_directory">添加文件夹</string>
-    <string name="first_fragment_label">插件列表</string>
+
+    <string name="first_fragment_label">插件管理</string>
+
     <string name="second_fragment_label">插件详情</string>
 
     <string name="title_activity_settings">设置</string>
+
     <string name="title_activity_root_access">Root Access</string>
-    <string name="title_activity_plugin_manage">PluginManageActivity</string>
-    <string name="title_activity_background_task_config">配置后台任务</string>
-    <string name="title_activity_remote_manager">远程管理</string>
+
+    <string name="title_activity_plugin_manage">插件管理</string>
+
+    <string name="title_activity_background_task_config">后台任务</string>
+
+    <string name="title_activity_remote_manager">远程连接</string>
 
     <string name="add_background_task_description">添加后台任务</string>
+
     <string name="delete">删除</string>
+
     <string name="move_to">移动到</string>
+
     <string name="copy_to">复制到</string>
+
     <string name="copy_files">复制</string>
+
     <string name="properties">属性</string>
+
     <string name="filter_hidden_file">过滤隐藏文件</string>
+
     <string name="new_window">新建窗口</string>
+
     <string name="settings">设置</string>
+
     <string name="root_access">root 访问</string>
+
     <string name="about">关于</string>
+
     <string name="operation_task_done">完成</string>
+
     <string name="stay_screen_on">保持常亮</string>
+
     <string name="plugin_manager">插件管理</string>
-    <string name="filter">过滤</string>
+
     <string name="sort">排序</string>
+
     <string name="sort_and_filter">排序与过滤</string>
+
     <string name="sort_by">排序方式</string>
+
     <string name="sort_by_name">按名称</string>
+
     <string name="sort_by_size">按大小</string>
+
     <string name="sort_by_time">按时间</string>
+
     <string name="sort_direction">排序方向</string>
+
     <string name="sort_ascending">正向（升序）</string>
+
     <string name="sort_descending">逆向（降序）</string>
+
     <string name="filter_options">过滤选项</string>
-    <string name="switch_root">切换</string>
+
     <string name="paste">粘贴</string>
+
     <string name="background_task_manage">后台任务管理</string>
+
     <string name="root_intro">了解如何root</string>
+
     <string name="duration_ms">时长: %1$s ms</string>
+
     <string name="remote_access">远程访问</string>
-    <string name="item_show_as_linear">线性</string>
-    <string name="item_show_as_grid">网格</string>
+
     <string name="type_picture">图片</string>
+
     <string name="type_video">视频</string>
+
     <string name="type_text">文本</string>
+
     <string name="type_audio">音乐</string>
+
     <string name="type_hex">十六进制</string>
+
     <string name="type_any">任意类型</string>
+
     <string name="symlink_indicator_desc">indicate this file is symlink</string>
+
     <string name="file_icon_desc" translatable="false">file icon</string>
+
     <string name="open_window_mode">打开新窗口的模式 %s</string>
+
     <string name="open_window_mode_dialog_title">打开新窗口的模式</string>
+
     <string name="setting_key_open_window_mode" translatable="false">open_window_mode</string>
+
     <string name="prompt_before_drag_drop">粘贴和拖拽之前需要手动同意</string>
+
     <string name="server">服务器</string>
+
     <string name="port">端口</string>
+
     <string name="user">用户名</string>
+
     <string name="password">密码</string>
-    <string name="share_name_for_smb">share name. for smb</string>
+
+    <string name="share_name_for_smb">共享名称（SMB）</string>
+
     <string name="test_connection">测试连接</string>
-    <string name="is_smb" translatable="false">is smb</string>
-    <string name="is_sftp" translatable="false">is sftp</string>
-    <string name="is_ftp" translatable="false">is ftp</string>
-    <string name="is_ftps_explicit" translatable="false">is ftps explicit</string>
-    <string name="is_ftps_implicit" translatable="false">is ftps implicit</string>
-    <string name="is_webdav" translatable="false">is webdav</string>
+
+    <string name="is_smb" translatable="false">SMB</string>
+
+    <string name="is_sftp" translatable="false">SFTP</string>
+
+    <string name="is_ftp" translatable="false">FTP</string>
+
+    <string name="is_ftps_explicit" translatable="false">FTPS（显式）</string>
+
+    <string name="is_ftps_implicit" translatable="false">FTPS（隐式）</string>
+
+    <string name="is_webdav" translatable="false">WebDAV</string>
+
     <string name="preview_archive">预览压缩文件</string>
+
     <string name="manage_permission">管理权限</string>
-    <string name="leak_canary_display_activity_label" translatable="false">Giant Explorer Leaks</string>
+
+    <string name="browser_subtitle">文件与位置</string>
+
+    <string name="switch_display">切换列表与网格</string>
+
+    <string name="edit_path">编辑当前位置</string>
+
+    <string name="path_hint">输入目录路径</string>
+
+    <string name="add_connection">添加连接</string>
+
+    <string name="add_plugin">导入插件</string>
+
+    <string name="check_root">检查 root 权限</string>
+
+    <string name="empty_list_help">这里还没有内容。</string>
+
+    <string name="locations_description">本地、文档目录与远程连接</string>
+
+    <string name="connections_heading">你的连接</string>
+
+    <string name="connections_description">集中访问服务器与共享文件夹。点击右下角添加连接。</string>
+
+    <string name="plugins_heading">扩展工具</string>
+
+    <string name="plugins_description">为文件添加浏览与处理能力。点击右下角导入插件。</string>
+
+    <string name="tasks_heading">后台任务</string>
+
+    <string name="tasks_description">按任务类型管理文件处理，随时启用或停用。</string>
+
+    <string name="connection_detail_heading">配置连接</string>
+
+    <string name="connection_detail_description">选择协议并填写服务器信息，保存前可先测试连接。</string>
+
+    <string name="protocol_heading">连接协议</string>
+
+    <string name="server_heading">服务器信息</string>
+
+    <string name="credentials_heading">账户与共享</string>
+
+    <string name="connection_name">连接名称</string>
+
+    <string name="save_connection">保存连接</string>
+
+    <string name="new_task_heading">添加任务</string>
+
+    <string name="new_task_description">选择处理方式和目标目录。</string>
+
+    <string name="task_type">任务类型</string>
+
+    <string name="target_folder">目标目录</string>
+
+    <string name="choose_folder">选择目录</string>
+
+    <string name="enable_task">启用此任务</string>
+
+    <string name="save_task">保存任务</string>
+
+    <string name="plugin_details">插件信息</string>
+
+    <string name="plugin_location">插件文件位置</string>
+
+    <string name="root_heading">Root 访问</string>
+
+    <string name="root_description">查看设备是否已授予 root 权限。普通文件管理无需 root。</string>
+
+    <string name="open_root">打开根目录</string>
+
+    <string name="root_tools_heading">Root 工具</string>
+
+    <string name="root_tools_description">查看 Magisk 或 KernelSU 的官方项目，了解设备支持情况。</string>
+
+    <string name="new_name_hint">文件或文件夹名称</string>
+
+    <string name="settings_general">文件操作</string>
+
+    <string name="settings_windows">多窗口</string>
+
+    <string name="settings_window_summary">选择新窗口的打开方式，实际支持取决于设备。</string>
+
+    <string name="settings_confirm_summary">执行粘贴或拖拽操作前，先确认目标位置。</string>
+
+    <string name="about_description">让文件、连接与工具井然有序。</string>
+
+    <string name="about_repository">查看项目源码</string>
+
+    <string name="about_version">版本 %1$s</string>
+
+    <string name="storage_heading">存储与权限</string>
+
+    <string name="task_path_help">为后台处理选择目录</string>
+
+    <string name="open_file_heading">选择打开方式</string>
+
+    <string name="detected_type">正在识别文件类型</string>
+
+    <string name="extension_type">未识别扩展名类型</string>
+
+    <string name="close_dialog">关闭</string>
+
+    <string name="plugin_type_shell">文件操作插件</string>
+
+    <string name="plugin_type_fragment">原生界面插件</string>
+
+    <string name="plugin_type_html">网页插件</string>
+
+    <string name="root_available">已获得 root 权限</string>
+
+    <string name="root_unavailable">尚未获得 root 权限</string>
+    <string name="plugin_name_version">%1$s - %2$s</string>
+    <string name="remote_endpoint">%1$s · %2$s:%3$s</string>
+    <string name="magisk" translatable="false">Magisk</string>
+    <string name="kernel_su" translatable="false">KernelSU</string>
+    <string name="html_plugin_renderer_stopped">插件页面已停止运行，请重新打开文件。</string>
 </resources>

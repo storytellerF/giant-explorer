@@ -1,14 +1,15 @@
 package com.storyteller_f.giant_explorer.dialog
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import android.webkit.MimeTypeMap
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.color.MaterialColors
 import com.j256.simplemagic.ContentInfo
 import com.j256.simplemagic.ContentInfoUtil
-import com.storyteller_f.common_ui.SimpleDialogFragment
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setFragmentResult
 import com.storyteller_f.common_ui.setOnClick
@@ -27,7 +28,7 @@ interface StringResult {
     fun onResult(string: String?)
 }
 
-class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFileBinding::inflate) {
+class OpenFileDialog : GiantDialogFragment<DialogOpenFileBinding>(DialogOpenFileBinding::inflate) {
 
     private val dataType by vm({}) {
         GenericValueModel<ContentInfo?>()
@@ -35,8 +36,11 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
 
     private val args by navArgs<OpenFileDialogArgs>()
     val uri by lazy { args.uri }
-    private val mimeTypeFromExtension = MimeTypeMap.getSingleton()
-        .getMimeTypeFromExtension(getExtension(uri.path!!))
+    private val mimeTypeFromExtension by lazy {
+        uri.path?.let { path ->
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(getExtension(path))
+        }
+    }
 
     @Parcelize
     class OpenFileResult(val mimeType: String) : Parcelable
@@ -64,9 +68,7 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
             }
         }
         binding.type.setOnClick {
-            if (mimeTypeFromExtension != null) {
-                openFile(mimeTypeFromExtension)
-            }
+            mimeTypeFromExtension?.let(::openFile)
         }
     }
 
@@ -92,11 +94,21 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
             if (deduceSuccess) {
                 binding.typeDeduced.text = it.mimeType
             }
-            binding.openByPicture.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "image"))
-            binding.openByText.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "text"))
-            binding.openByMusic.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "audio"))
-            binding.openByVideo.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "video"))
-            binding.openByHex.setBackgroundColor(mixColor(mimeTypeFromExtension, it, "application"))
+            binding.openByPicture.backgroundTintList = ColorStateList.valueOf(
+                mixColor(mimeTypeFromExtension, it, "image")
+            )
+            binding.openByText.backgroundTintList = ColorStateList.valueOf(
+                mixColor(mimeTypeFromExtension, it, "text")
+            )
+            binding.openByMusic.backgroundTintList = ColorStateList.valueOf(
+                mixColor(mimeTypeFromExtension, it, "audio")
+            )
+            binding.openByVideo.backgroundTintList = ColorStateList.valueOf(
+                mixColor(mimeTypeFromExtension, it, "video")
+            )
+            binding.openByHex.backgroundTintList = ColorStateList.valueOf(
+                mixColor(mimeTypeFromExtension, it, "application")
+            )
         }
     }
 
@@ -110,10 +122,16 @@ class OpenFileDialog : SimpleDialogFragment<DialogOpenFileBinding>(DialogOpenFil
         val fromName = if (mimeTypeFromExtension?.contains(t) == true) EXTENSION_TARGET else 0
         return (fromMagicNumber + fromName).let {
             when (it) {
-                MAGIC_TARGET -> Color.parseColor("#A25B32")
-                EXTENSION_TARGET -> Color.parseColor("#667DDA")
-                MIX_TARGET -> Color.parseColor("#D2D205")
-                else -> Color.GRAY
+                MAGIC_TARGET, EXTENSION_TARGET, MIX_TARGET -> MaterialColors.getColor(
+                    requireContext(),
+                    com.google.android.material.R.attr.colorPrimaryContainer,
+                    Color.LTGRAY
+                )
+                else -> MaterialColors.getColor(
+                    requireContext(),
+                    com.google.android.material.R.attr.colorSecondaryContainer,
+                    Color.LTGRAY
+                )
             }
         }
     }

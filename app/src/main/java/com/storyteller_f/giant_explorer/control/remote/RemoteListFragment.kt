@@ -11,6 +11,7 @@ import com.storyteller_f.common_ui.SimpleFragment
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
+import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.remote.RemoteListFragmentDirections.Companion.actionFirstFragmentToSecondFragment
 import com.storyteller_f.giant_explorer.control.remote.ui_list.registerRemoteAccessSpecHolder
 import com.storyteller_f.giant_explorer.database.RemoteAccessSpec
@@ -51,7 +52,7 @@ class RemoteListFragment :
                         ListWithState.UIState(
                             false,
                             it.isNotEmpty(),
-                            empty = false,
+                            empty = it.isEmpty(),
                             progress = false,
                             null,
                             null
@@ -89,15 +90,14 @@ class RemoteAccessSpecViewHolder(
 ) : BindingViewHolder<RemoteAccessSpecHolder>(
     binding
 ) {
-    init {
-        itemView.setOnClick {
-            it.findFragmentOrNull<RemoteListFragment>()?.clickSpec(itemHolder.spec)
-        }
-    }
-
     override fun bindData(itemHolder: RemoteAccessSpecHolder) {
         val spec = itemHolder.spec
-        binding.url.text = spec.toRemoteSpec().toUri().toString()
-        binding.server.text = spec.server
+        itemView.setOnClick {
+            it.findFragmentOrNull<RemoteListFragment>()?.clickSpec(spec)
+        }
+        binding.url.text = itemView.context.getString(
+            R.string.remote_endpoint, spec.type, spec.server, spec.port.toString()
+        )
+        binding.server.text = spec.name.ifBlank { spec.server }
     }
 }

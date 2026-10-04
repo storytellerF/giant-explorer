@@ -5,6 +5,7 @@ import android.view.View
 import androidx.navigation.fragment.navArgs
 import com.storyteller_f.common_ui.SimpleFragment
 import com.storyteller_f.common_ui.repeatOnViewResumed
+import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.FragmentPluginInfoBinding
 import com.storyteller_f.giant_explorer.pluginManagerRegister
 import kotlinx.coroutines.Dispatchers
@@ -19,18 +20,18 @@ class PluginInfoFragment : SimpleFragment<FragmentPluginInfoBinding>(FragmentPlu
             val pluginConfiguration = withContext(Dispatchers.IO) {
                 pluginManagerRegister.resolvePluginName(args.pluginName, requireContext())
             }
-            binding.pluginName.text = "${args.pluginName} - ${pluginConfiguration.meta.version}"
+            binding.pluginName.text = getString(
+                R.string.plugin_name_version, args.pluginName, pluginConfiguration.meta.version
+            )
             binding.pluginPath.text = pluginConfiguration.meta.path
-            when (pluginConfiguration) {
-                is ShellPluginConfiguration -> binding.other.text = pluginConfiguration.entryClass
-                is FragmentPluginConfiguration -> {
-                    binding.other.text = pluginConfiguration.startFragment
+            binding.other.text = getString(
+                when (pluginConfiguration) {
+                    is ShellPluginConfiguration -> R.string.plugin_type_shell
+                    is FragmentPluginConfiguration -> R.string.plugin_type_fragment
+                    is HtmlPluginConfiguration -> R.string.plugin_type_html
+                    else -> R.string.plugin_details
                 }
-
-                is HtmlPluginConfiguration -> {
-                    binding.other.text = pluginConfiguration.extractedPath
-                }
-            }
+            )
         }
     }
 

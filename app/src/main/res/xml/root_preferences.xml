@@ -1,20 +1,23 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <PreferenceCategory app:title="一般">
-
+    <PreferenceCategory app:title="@string/settings_general">
         <SwitchPreferenceCompat
             app:defaultValue="true"
             app:key="notify_before_paste"
-            app:title="@string/prompt_before_drag_drop" />
-
+            app:title="@string/prompt_before_drag_drop"
+            app:summary="@string/settings_confirm_summary" />
     </PreferenceCategory>
-    <ListPreference
-        android:defaultValue="@string/default_open_window_mode"
-        android:dialogTitle="@string/open_window_mode_dialog_title"
-        android:entries="@array/def_open_window_mode"
-        android:entryValues="@array/def_open_window_mode"
-        android:key="@string/setting_key_open_window_mode"
-        android:title="@string/open_window_mode" />
 
+    <PreferenceCategory app:title="@string/settings_windows">
+        <ListPreference
+            android:defaultValue="@string/default_open_window_mode"
+            android:dialogTitle="@string/open_window_mode_dialog_title"
+            android:entries="@array/open_window_mode_labels"
+            android:entryValues="@array/def_open_window_mode"
+            android:key="@string/setting_key_open_window_mode"
+            android:title="@string/open_window_mode"
+            app:summary="@string/settings_window_summary" />
+    </PreferenceCategory>
 </PreferenceScreen>

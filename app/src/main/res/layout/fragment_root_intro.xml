@@ -1,37 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".control.root.RootIntroFragment">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    android:fillViewport="true"
+    android:clipToPadding="false">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding"
+        android:paddingBottom="104dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/root_tools_heading"
+            android:textAppearance="@style/TextAppearance.Giant.Title" />
 
-        <Button
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/root_tools_description"
+            android:textAppearance="@style/TextAppearance.Giant.Caption"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button"
-            android:layout_width="wrap_content"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Magisk" />
+            android:layout_marginBottom="12dp"
+            android:text="@string/magisk" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/kernelSu"
-            android:layout_width="wrap_content"
+            style="@style/Widget.Giant.Button.Secondary"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="KernelSu" />
-
-        <androidx.constraintlayout.helper.widget.Flow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="button,kernelSu"
-            app:flow_horizontalGap="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginBottom="12dp"
+            android:text="@string/kernel_su" />
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>

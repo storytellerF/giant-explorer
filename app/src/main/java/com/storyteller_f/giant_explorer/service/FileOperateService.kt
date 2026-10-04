@@ -6,14 +6,20 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.IBinder
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 
 class FileOperateService : Service() {
+    private val taskScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     override fun onCreate() {
         Log.d(TAG, "onCreate() called")
         super.onCreate()
     }
 
     override fun onDestroy() {
+        taskScope.cancel()
         Log.d(TAG, "onDestroy() called")
         super.onDestroy()
     }
@@ -39,7 +45,7 @@ class FileOperateService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        return FileOperateBinder(applicationContext)
+        return FileOperateBinder(applicationContext, taskScope)
     }
 
     interface FileOperateResultContainer {

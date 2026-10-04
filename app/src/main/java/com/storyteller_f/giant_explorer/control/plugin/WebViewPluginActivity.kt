@@ -5,10 +5,12 @@ package com.storyteller_f.giant_explorer.control.plugin
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.net.http.SslError
-import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
+import android.view.ViewGroup
+import android.webkit.RenderProcessGoneDetail
+import android.widget.Toast
 import android.webkit.ConsoleMessage
 import android.webkit.JavascriptInterface
 import android.webkit.SslErrorHandler
@@ -18,20 +20,23 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.webkit.WebMessageCompat
 import androidx.webkit.WebMessagePortCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
-import com.storyteller_f.common_ui.scope
-import com.storyteller_f.common_ui.viewBinding
 import com.storyteller_f.file_system.ensureFile
+import com.storyteller_f.file_system.getFileInstance
+import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.databinding.ActivityWebviewPluginBinding
 import com.storyteller_f.giant_explorer.pluginManagerRegister
+import com.storyteller_f.giant_explorer.view.applyScreenInsets
 import com.storyteller_f.plugin_core.GiantExplorerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -41,34 +46,32 @@ import java.io.FileOutputStream
 import java.util.zip.ZipInputStream
 
 class WebViewPluginActivity : AppCompatActivity() {
-    private val binding by viewBinding(ActivityWebviewPluginBinding::inflate)
-    private val webView get() = binding.webView
-    private val messageChannel by lazy {
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL)) {
-            WebViewCompat.createWebMessageChannel(webView)
-        } else {
-            null
-        }
-    }
+    private var binding: ActivityWebviewPluginBinding? = null
+    private val webView get() = requireNotNull(binding).webView
+    private val webViewJob = SupervisorJob()
+    private val webViewScope = CoroutineScope(Dispatchers.Main.immediate + webViewJob)
+    private var pluginBridge: WebViewPluginObject? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding
+        val content = ActivityWebviewPluginBinding.inflate(layoutInflater)
+        binding = content
+        setContentView(content.root)
+        content.root.applyScreenInsets()
         val uriData = intent.data
         val pluginName = intent.getStringExtra("plugin-name")!!
-        messageChannel
         bindApi(webView, uriData)
-        scope.launch {
-            val revolvePluginName = pluginManagerRegister.resolvePluginName(
-                pluginName,
-                this@WebViewPluginActivity
-            ) as HtmlPluginConfiguration
-            setupWebView(revolvePluginName.extractedPath)
-            val indexFile = File(revolvePluginName.extractedPath, "index.html")
-            val toString = Uri.fromFile(indexFile).toString()
-            webView.loadDataWithBaseURL(BASE_URL, indexFile.readText(), null, null, null)
-            Log.i(TAG, "onCreate: $toString")
+        webViewScope.launch {
+            val (configuration, html) = withContext(Dispatchers.IO) {
+                val configuration = pluginManagerRegister.resolvePluginName(
+                    pluginName,
+                    this@WebViewPluginActivity
+                ) as HtmlPluginConfiguration
+                configuration to File(configuration.extractedPath, "index.html").readText()
+            }
+            setupWebView(configuration.extractedPath)
+            webView.loadDataWithBaseURL(BASE_URL, html, null, null, null)
         }
     }
 
@@ -92,7 +95,22 @@ class WebViewPluginActivity : AppCompatActivity() {
             }
         }
 
-        webView.webViewClient = object : WebViewClient() {
+        // WebKit 1.17.1 flags Kotlin super constructors even when this callback is implemented.
+        // Remove after upgrading to a stable release containing b/548989591.
+        @SuppressLint("MissingOnRenderProcessGone")
+        val client = object : WebViewClient() {
+            override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                Log.w(TAG, "Plugin renderer exited; crashed=${detail.didCrash()}")
+                releaseWebView()
+                Toast.makeText(
+                    this@WebViewPluginActivity,
+                    R.string.html_plugin_renderer_stopped,
+                    Toast.LENGTH_LONG
+                ).show()
+                finish()
+                return true
+            }
+
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
@@ -138,13 +156,11 @@ class WebViewPluginActivity : AppCompatActivity() {
                 request: WebResourceRequest?,
                 error: WebResourceError?
             ) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    Log.d(
-                        TAG,
-                        "onReceivedError() called with: view = $view, request = ${request?.url}, " +
-                            "error = ${error?.description} ${error?.errorCode}"
-                    )
-                }
+                Log.d(
+                    TAG,
+                    "onReceivedError() called with: view = $view, request = ${request?.url}, " +
+                        "error = ${error?.description} ${error?.errorCode}"
+                )
                 super.onReceivedError(view, request, error)
             }
 
@@ -160,6 +176,7 @@ class WebViewPluginActivity : AppCompatActivity() {
                 super.onReceivedSslError(view, handler, error)
             }
         }
+        webView.webViewClient = client
         webView.webChromeClient = object : WebChromeClient() {
             override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
                 Log.i(TAG, "onConsoleMessage: ${consoleMessage?.message()}")
@@ -169,6 +186,26 @@ class WebViewPluginActivity : AppCompatActivity() {
         webView.settings.apply {
             javaScriptEnabled = true
             allowFileAccess = true
+        }
+    }
+
+    override fun onDestroy() {
+        releaseWebView()
+        super.onDestroy()
+    }
+
+    private fun releaseWebView() {
+        webViewJob.cancel()
+        val content = binding ?: return
+        binding = null
+        pluginBridge?.close()
+        pluginBridge = null
+        content.webView.apply {
+            (parent as? ViewGroup)?.removeView(this)
+            removeJavascriptInterface("plugin")
+            removeJavascriptInterface("file")
+            webChromeClient = null
+            destroy()
         }
     }
 
@@ -182,15 +219,19 @@ class WebViewPluginActivity : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         }
-        webView.addJavascriptInterface(
-            WebViewPluginObject(webView, defaultPluginManager, scope, messageChannel),
-            "plugin"
-        )
+        val messageChannel = if (WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL)) {
+            WebViewCompat.createWebMessageChannel(webView)
+        } else {
+            null
+        }
+        val bridge = WebViewPluginObject(webView, defaultPluginManager, webViewScope, messageChannel)
+        pluginBridge = bridge
+        webView.addJavascriptInterface(bridge, "plugin")
         webView.addJavascriptInterface(object : WebViewFilePlugin {
             @JavascriptInterface
             override fun fullPath(): String {
                 val u = data ?: return ""
-                return FileSystemProviderResolver.resolve(u)?.path.toString()
+                return FileSystemProviderResolver.resolve(u)?.toString().orEmpty()
             }
 
             @JavascriptInterface
@@ -206,10 +247,21 @@ class WebViewPluginActivity : AppCompatActivity() {
         private val webView: WebView,
         private val defaultPluginManager: DefaultPluginManager,
         private val scope: CoroutineScope,
-        private val messageChannel: Array<WebMessagePortCompat>?,
+        messageChannel: Array<WebMessagePortCompat>?,
     ) {
 
         private val context = webView.context
+
+        // Accessed only on Main. A successful transfer gives ownership to JavaScript.
+        private var ownedPorts = messageChannel
+
+        @MainThread
+        fun close() {
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_PORT_CLOSE)) {
+                ownedPorts?.forEach { it.close() }
+            }
+            ownedPorts = null
+        }
 
         @JavascriptInterface
         fun requestPath(initUriString: String, callbackId: String) {
@@ -224,19 +276,17 @@ class WebViewPluginActivity : AppCompatActivity() {
         @JavascriptInterface
         fun base64(path: String, callbackId: String) {
             scope.launch {
-                val readBytes = context.fileInputStream1(path).readBytes()
-                val result = Base64.encodeToString(readBytes, Base64.NO_WRAP)
-                webView.post {
+                val result = withContext(Dispatchers.IO) {
+                    requireNotNull(getFileInstance(context, path.toUri())) {
+                        "Unsupported image URI"
+                    }.getFileInputStream().use { Base64.encodeToString(it.readBytes(), Base64.NO_WRAP) }
+                }
+                withContext(Dispatchers.Main.immediate) {
                     webView.callback(callbackId, "'$result'")
-                    messageChannel?.let {
-                        if (WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE)) {
-                            val webMessageCompat = WebMessageCompat(result, it)
-                            WebViewCompat.postWebMessage(
-                                webView,
-                                webMessageCompat,
-                                Uri.parse(BASE_URL)
-                            )
-                        }
+                    if (WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE)) {
+                        val message = WebMessageCompat(result, ownedPorts)
+                        WebViewCompat.postWebMessage(webView, message, BASE_URL.toUri())
+                        ownedPorts = null
                     }
                 }
             }

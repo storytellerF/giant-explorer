@@ -53,6 +53,8 @@ class WaitingViewModel : ViewModel() {
 }
 
 class WaitingDialog : DialogFragment(R.layout.dialog_waiting) {
+    override fun getTheme() = R.style.ThemeOverlay_Giant_ContentDialog
+
     private val model: WaitingViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Yue</string>
+    <string name="first_fragment_label">Yue · Images</string>
+    <string name="second_fragment_label">Using Yue</string>
+    <string name="intro_title">A quiet space for images.</string>
+    <string name="intro_body">Choose an image from your device and view it on a focused, dark canvas.</string>
+    <string name="intro_features">Your choice\nOpen images with the system file picker.\n\nFocus on the image\nFit the whole image on screen without cropping.</string>
+    <string name="next">Choose an image</string>
+    <string name="previous">Back to Yue</string>
+    <string name="guide_title">Viewing images</string>
+    <string name="guide_body">Use Yue on its own or as an image plugin in Giant Explorer.</string>
+    <string name="guide_steps">01  Choose an image\nReturn home and tap Choose an image.\n\n02  View the picture\nThe image fits the available screen space.\n\n03  Browse in Giant\nImport the Yue plugin and open an image from the file menu. Swipe when multiple images are available.</string>
+</resources>
