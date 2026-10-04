@@ -2,6 +2,7 @@ package com.storyteller_f.giant_explorer.service
 
 import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import android.os.Binder
 import android.util.Log
 import androidx.annotation.WorkerThread
@@ -246,8 +247,14 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
             "webdav"
         )
 
-        fun checkOperationValid(path: String, dest: String, isDirectory: Boolean = true): Boolean {
-            return isCopyDestinationValid(path, dest, isDirectory)
+        fun checkOperationValid(source: Uri, destination: Uri, isDirectory: Boolean = true): Boolean {
+            return isCopyDestinationValid(source.operationLocation(), destination.operationLocation(), isDirectory)
+        }
+
+        private fun Uri.operationLocation(): FileOperationLocation {
+            // The file-system library uses the first content path segment as its storage-tree key.
+            val root = if (scheme == ContentResolver.SCHEME_CONTENT) pathSegments.firstOrNull() else null
+            return FileOperationLocation(scheme, authority, root, path.orEmpty())
         }
     }
 }
@@ -279,8 +286,8 @@ class TaskAssessor(
         val size = detectorTasks.map {
             require(
                 FileOperateBinder.checkOperationValid(
-                    it.fullPath,
-                    dest.path,
+                    it.uri,
+                    dest.uri,
                     it.kind.isDirectory
                 )
             ) {
