@@ -37,6 +37,8 @@ Debug 通知覆盖保留与 LeakCanary 2.14 相同的 `drawable-anydpi-v21` 限�
 
 界面改动后检查：文件列表与网格、抽屉、连接列表及表单、插件列表及详情、后台任务、root、设置、关于页、文件操作弹窗和图片浏览。至少覆盖浅色/深色、窄屏/横屏、大字号，以及表单打开键盘的状态。
 
+后台复制、移动、删除和插件文件任务统一在服务的协程作用域中执行。`FileOperationEventBus.shared` 在任务结束时广播列表失效事件（包括失败和取消，以覆盖部分文件变更）。文件列表按视图的 STARTED 生命周期订阅并调用 Paging 刷新；事件保留最新一次，返回前台或重建视图后也会刷新，不依赖 Activity 的结果回调，也不弹出 Toast。
+
 ## 依赖更新
 
 common-ui-list 系列依赖通过 `commonUiList` 统一使用 `0.0.1-alpha2`，包括运行库、注解和 KSP 编译器。点击回调通过 `bindingAdapterPosition` 或 `viewholder` 从当前 adapter 的 `ItemHolderProvider` 获取条目；无效位置返回空时结束回调，不再读取 ViewHolder 上的旧 `itemHolder` 属性。库移除了 `SimpleDialogFragment`，宿主的 `GiantDialogFragment` 直接继承原生 `DialogFragment`，实现结果回传接口并在销毁视图时清理绑定。网格导航回归测试覆盖切换网格、进入子目录、系统返回三次及图标菜单绑定，连接设备后运行：
@@ -45,7 +47,7 @@ common-ui-list 系列依赖通过 `commonUiList` 统一使用 `0.0.1-alpha2`，�
 ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.storyteller_f.giant_explorer.control.FileGridNavigationTest,com.storyteller_f.giant_explorer.service.FileOperationRegressionTest
 ```
 
-`.github/dependabot.yml` 每周一检查根 Gradle 多模块工程和 GitHub Actions。Gradle 更新按构建工具链、测试工具、Android、Storyteller、网络、密码学和通用工具分组；GitHub Actions 更新合并为一组。未匹配的依赖单独提出 PR，不自动合并，也不排除主版本升级。新增依赖时同步检查分组规则。
+`.github/dependabot.yml` 每周一检查根 Gradle 多模块工程和 GitHub Actions。Gradle 更新统一合并为一组，GitHub Actions 更新单独合并为另一组；不再按 Gradle artifact 命名空间拆分。不自动合并，也不排除主版本升级。
 
 这些分组用于常规版本更新；安全更新不受这些分组规则控制。本地维护的 AAR 不由 Dependabot 升级。配置合入默认分支后由 GitHub 执行，升级 PR 仍需通过构建与测试。
 
