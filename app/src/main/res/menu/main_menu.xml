@@ -4,16 +4,19 @@
         <item
             android:id="@+id/filterHiddenFile"
             android:checkable="true"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/ic_eye_blind"
             android:title="@string/filter_hidden_file"
             app:showAsAction="ifRoom" />
         <item
             android:id="@+id/newWindow"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/ic_baseline_add_to_photos_24"
             android:title="@string/new_window"
             app:showAsAction="ifRoom" />
         <item
             android:id="@+id/sort"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/baseline_sort_24"
             android:title="@string/sort"
             app:showAsAction="ifRoom" />
@@ -22,31 +25,38 @@
         <item
             android:id="@+id/volume_space"
             android:title="@string/storage_heading"
-            android:icon="@drawable/ic_baseline_folder_24" />
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            android:icon="@drawable/baseline_storage_24" />
         <item
             android:id="@+id/remote_manager"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/baseline_cloud_24"
             android:title="@string/remote_access" />
         <item
             android:id="@+id/plugin_manager"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/baseline_extension_24"
             android:title="@string/plugin_manager" />
         <item
             android:id="@+id/open_root_access"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/ic_baseline_android_24"
             android:title="@string/root_access" />
         <item
             android:id="@+id/background_task"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/baseline_run_circle_24"
             android:title="@string/background_task_manage" />
     </group>
     <group android:id="@+id/application_actions">
         <item
             android:id="@+id/open_settings"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/ic_baseline_settings_24"
             android:title="@string/settings" />
         <item
             android:id="@+id/about"
+            app:iconTint="?attr/colorOnSurfaceVariant"
             android:icon="@drawable/baseline_info_24"
             android:title="@string/about" />
     </group>
