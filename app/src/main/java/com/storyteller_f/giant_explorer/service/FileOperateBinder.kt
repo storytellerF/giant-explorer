@@ -19,13 +19,15 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okio.FileNotFoundException
 import java.lang.ref.WeakReference
-import kotlin.concurrent.thread
 
-class FileOperateBinder(val context: Context, private val taskScope: CoroutineScope) : Binder() {
+class FileOperateBinder(
+    val context: Context,
+    private val taskScope: CoroutineScope,
+    private val events: FileOperationEventBus = FileOperationEventBus.shared
+) : Binder() {
     var fileOperationProgressListener =
         mutableMapOf<String, MutableList<FileOperationForemanProgressListener>>()
     val map = mutableMapOf<String, TaskSession>()
@@ -71,8 +73,8 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
      */
     fun delete(focused: FileInfo, selected: List<FileInfo>, key: String) {
         whenStart(key)
-        thread {
-            runBlocking {
+        taskScope.launch {
+            events.runTask {
                 startDeleteTask(focused, selected, key)
             }
         }
@@ -87,17 +89,19 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
     ) {
         whenStart(key)
         taskScope.launch {
-            try {
-                startCopyTask(dest, focused, deleteOrigin, selected, key)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                Log.e(TAG, "Copy/move task failed: ${error.javaClass.simpleName}")
-                withContext(Dispatchers.Main) {
-                    val message = error.localizedMessage ?: "文件操作失败"
-                    map[key] = TaskSession(null, message)
-                    state.value = state_error
-                    fileOperateResultContainer.get()?.onError(message)
+            events.runTask {
+                try {
+                    startCopyTask(dest, focused, deleteOrigin, selected, key)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (error: Exception) {
+                    Log.e(TAG, "Copy/move task failed: ${error.javaClass.simpleName}")
+                    withContext(Dispatchers.Main) {
+                        val message = error.localizedMessage ?: "文件操作失败"
+                        map[key] = TaskSession(null, message)
+                        state.value = state_error
+                        fileOperateResultContainer.get()?.onError(message)
+                    }
                 }
             }
         }
@@ -105,13 +109,13 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
 
     fun pluginTask(key: String, block: suspend GiantExplorerService.() -> Boolean) {
         whenStart(key)
-        thread {
+        taskScope.launch {
             val value = object : GiantExplorerService {
                 override fun reportRunning() {
                     whenRunning(key, TaskAssessResult(0, 0, 0))
                 }
             }
-            runBlocking {
+            events.runTask {
                 if (block.invoke(value)) {
                     whenEnd(key)
                 }
@@ -126,9 +130,7 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
         key: String
     ) {
         state.postValue(state_computing)
-        val assessResult = runBlocking {
-            TaskAssessor(selected, context, null).assess()
-        }
+        val assessResult = TaskAssessor(selected, context, null).assess()
         state.postValue(state_running)
         val deleteForemanImpl = DeleteForemanImpl(
             selected,

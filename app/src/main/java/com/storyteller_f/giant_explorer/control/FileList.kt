@@ -61,6 +61,7 @@ import com.storyteller_f.giant_explorer.databinding.ViewHolderFileBinding
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileGridBinding
 import com.storyteller_f.giant_explorer.databinding.ViewHolderFileSentinelBinding
 import com.storyteller_f.giant_explorer.model.FileModel
+import com.storyteller_f.giant_explorer.service.FileOperationEventBus
 import com.storyteller_f.ui_list.adapter.SimpleSourceAdapter
 import com.storyteller_f.ui_list.core.BindingViewHolder
 import com.storyteller_f.ui_list.core.BuildBatch
@@ -72,6 +73,7 @@ import com.storyteller_f.ui_list.source.SearchHandler
 import com.storyteller_f.ui_list.source.SimpleSearchRepository
 import com.storyteller_f.ui_list.ui.ListWithState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -214,6 +216,13 @@ class FileListObserver<T>(
         updatePath: (String) -> Unit
     ) {
         val owner = if (this is Fragment) viewLifecycleOwner else this
+        owner.lifecycleScope.launch {
+            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                FileOperationEventBus.shared.completions.collect {
+                    adapter.refresh()
+                }
+            }
+        }
         context {
             listWithState.sourceUp(
                 adapter,
