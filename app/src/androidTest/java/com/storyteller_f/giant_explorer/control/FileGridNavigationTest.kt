@@ -13,7 +13,10 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -21,7 +24,7 @@ import com.storyteller_f.giant_explorer.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import org.junit.Assert.assertTrue
+import org.hamcrest.Matchers.allOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -44,24 +47,20 @@ class FileGridNavigationTest {
                 }
                 awaitPage(scenario, "folder", grid = true)
                 repeat(3) {
-                    scenario.onActivity { activity ->
-                        val label = page(activity).descendants().filterIsInstance<TextView>()
-                            .first { it.id == R.id.fileName && it.text.toString() == "folder" }
-                        val clickable = generateSequence<View>(label) { it.parent as? View }
-                            .first { it.hasOnClickListeners() }
-                        assertTrue(clickable.performClick())
-                    }
+                    onView(allOf(withId(R.id.fileName), withText("folder"))).perform(click())
                     awaitPage(scenario, "nested.txt", grid = true)
                     pressBack()
                     awaitPage(scenario, "folder", grid = true)
                 }
-                scenario.onActivity { activity ->
-                    val row = page(activity).descendants().filterIsInstance<TextView>()
-                        .first { it.id == R.id.fileName && it.text.toString() == "notes.txt" }.parent as ViewGroup
-                    assertTrue(row.findViewById<View>(R.id.fileIcon).performClick())
-                }
-                onView(withText(R.string.copy_to)).check(matches(isDisplayed()))
-                onView(withText(R.string.copy_to)).perform(click())
+                // Espresso waits for layout/animations and clicks a visible anchor. Calling
+                // performClick directly can open the popup before the restored row is laid out.
+                onView(
+                    allOf(
+                        withId(R.id.fileIcon),
+                        withParent(hasDescendant(allOf(withId(R.id.fileName), withText("notes.txt"))))
+                    )
+                ).perform(click())
+                onView(withText(R.string.copy_to)).check(matches(isDisplayed())).perform(click())
                 onView(withText(R.string.choose_location_heading)).check(matches(isDisplayed()))
                 pressBack()
             }
