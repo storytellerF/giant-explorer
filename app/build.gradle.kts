@@ -96,7 +96,7 @@ android {
 }
 dependencies {
     constraints {
-        implementation("org.bouncycastle:bcpkix-jdk18on:1.85") {
+        implementation("org.bouncycastle:bcpkix-jdk18on:1.86") {
             because("Align SSHJ's PKIX and utility modules with SMBJ's 1.85 provider release line")
         }
     }
