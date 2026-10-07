@@ -37,15 +37,31 @@ Debug 通知覆盖保留与 LeakCanary 2.14 相同的 `drawable-anydpi-v21` 限�
 
 界面改动后检查：文件列表与网格、抽屉、连接列表及表单、插件列表及详情、后台任务、root、设置、关于页、文件操作弹窗和图片浏览。至少覆盖浅色/深色、窄屏/横屏、大字号，以及表单打开键盘的状态。
 
+存储弹窗通过 `StorageSpaceHost` 在 IO 调度器读取容量，视图按 STARTED 生命周期渲染；销毁视图时取消读取。容量统一使用系统本地化格式，明确展示已用、可用和总容量。可用取 `StatFs.availableBytes`，已用为总容量减可用（包含系统和预留空间）；未挂载或无法访问时显示说明，不显示虚假的零容量或原始挂载状态。
+
+后台复制、移动、删除和插件文件任务统一在服务的协程作用域中执行。`FileOperationEventBus.shared` 在任务结束时广播列表失效事件（包括失败和取消，以覆盖部分文件变更）。Paging 缓存属于 `FileListSearchViewModel.viewModelScope`，不能绑定会随导航销毁的视图作用域。文件列表的观察者与收集器均绑定当前视图；按 STARTED 生命周期订阅任务事件并调用 Paging 刷新；事件保留最新一次，返回前台或重建视图后也会刷新，不依赖 Activity 的结果回调，也不弹出 Toast。
+
+`FileOperationHost` 在应用的串行协调调度器上维护按任务编号隔离的不可变快照。快照包含操作类型、处理项、目标目录及数量是否已知，插件未报告数量时使用不定进度，不显示虚假的百分比。每次操作使用新编号，相同编号不会重复执行；弹窗通过参数记录编号，重建后订阅该任务，关闭一个弹窗不会清除其他任务状态。删除保持原始 URI，在服务内串行执行并重新检查存在性、文件类型和目录内容；已不存在的目标按成功处理并明确提示无需重复删除。权限失败且文件仍存在时保留失败结果，零字节文件使用数量进度。
+
+文件操作弹窗使用统一布局：状态标题、处理项与目标目录、进度、保留到结束后的数量/容量摘要，以及按需展开的详情。正文可滚动，底部取消和关闭操作固定。取消先进入 CANCELLING，执行线程确认退出后才进入 CANCELLED；已经提交的文件更改不回滚。计算和文件处理回调检查任务取消状态。后台运行保留任务快照，但不会在返回首页时重新弹出。
+
+状态测试覆盖复制、移动、删除和插件的准备、运行、停止中、成功、失败、取消，含无操作、零字节、空目录和混合目录。设备测试覆盖实际文件读写、源文件消失、目标失效、不可删除文件、实际取消，以及浅色/深色、小屏和大字号的弹窗渲染；运行：
+
+```sh
+./gradlew :app:testDebugUnitTest :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.storyteller_f.giant_explorer.service.FileOperationStateMatrixTest,com.storyteller_f.giant_explorer.control.FileOperationDialogStateTest
+```
+
+弹窗状态截图由设备测试写入应用外部图片目录的 `file-task-states/`，属于测试产物，不提交到仓库。
+
 ## 依赖更新
 
 common-ui-list 系列依赖通过 `commonUiList` 统一使用 `0.0.1-alpha2`，包括运行库、注解和 KSP 编译器。点击回调通过 `bindingAdapterPosition` 或 `viewholder` 从当前 adapter 的 `ItemHolderProvider` 获取条目；无效位置返回空时结束回调，不再读取 ViewHolder 上的旧 `itemHolder` 属性。库移除了 `SimpleDialogFragment`，宿主的 `GiantDialogFragment` 直接继承原生 `DialogFragment`，实现结果回传接口并在销毁视图时清理绑定。网格导航回归测试覆盖切换网格、进入子目录、系统返回三次及图标菜单绑定，连接设备后运行：
 
 ```sh
-./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.storyteller_f.giant_explorer.control.FileGridNavigationTest,com.storyteller_f.giant_explorer.service.FileOperationRegressionTest
+./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.storyteller_f.giant_explorer.control.FileGridNavigationTest,com.storyteller_f.giant_explorer.control.FileDeletionNavigationTest,com.storyteller_f.giant_explorer.service.FileOperationRegressionTest
 ```
 
-`.github/dependabot.yml` 每周一检查根 Gradle 多模块工程和 GitHub Actions。Gradle 更新按构建工具链、测试工具、Android、Storyteller、网络、密码学和通用工具分组；GitHub Actions 更新合并为一组。未匹配的依赖单独提出 PR，不自动合并，也不排除主版本升级。新增依赖时同步检查分组规则。
+`.github/dependabot.yml` 每周一检查根 Gradle 多模块工程和 GitHub Actions。Gradle 更新统一合并为一组，GitHub Actions 更新单独合并为另一组；不再按 Gradle artifact 命名空间拆分。不自动合并，也不排除主版本升级。
 
 这些分组用于常规版本更新；安全更新不受这些分组规则控制。本地维护的 AAR 不由 Dependabot 升级。配置合入默认分支后由 GitHub 执行，升级 PR 仍需通过构建与测试。
 
@@ -65,3 +81,12 @@ common-ui-list 系列依赖通过 `commonUiList` 统一使用 `0.0.1-alpha2`，�
 ```
 
 本地无签名模式不注册远端发布目标和签名附件，产物写入本地 Maven 仓库；也可使用现有的 `publish-local.sh` 脚本。仓库不再提供 JitPack、GitHub Packages 或 GitHub Releases 发布流程。
+
+File operations submitted by a file-list window retain their UUID task key and carry a sealed
+`FileTaskOrigin.Window` identity. The identity is saved across Activity recreation. The task Host
+atomically rejects another submission from that window while any task still requests its dialog,
+including completed results. `FileTaskDialogState` represents `Idle` or `Showing(taskKey)` without
+nullable state fields. Each Activity derives its dialog from durable task state, so another window
+cannot consume its presentation request. Closing a result or choosing background execution releases
+the window; task completion alone does not. Back and outside taps do not dismiss the task dialog.
+Non-window service callers use the explicit `Detached` origin and do not request an Activity dialog.

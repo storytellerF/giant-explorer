@@ -6,62 +6,55 @@ import android.net.Uri
 import android.os.Binder
 import android.util.Log
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.MutableLiveData
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
 import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.model.FileInfo
 import com.storyteller_f.file_system.operate.FileOperationForemanProgressListener
 import com.storyteller_f.file_system.size
+import com.storyteller_f.giant_explorer.App
+import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.service.FileOperateService.FileOperateResultContainer
 import com.storyteller_f.plugin_core.GiantExplorerService
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okio.FileNotFoundException
 import java.lang.ref.WeakReference
-import kotlin.concurrent.thread
 
-class FileOperateBinder(val context: Context, private val taskScope: CoroutineScope) : Binder() {
-    var fileOperationProgressListener =
-        mutableMapOf<String, MutableList<FileOperationForemanProgressListener>>()
-    val map = mutableMapOf<String, TaskSession>()
+class FileOperateBinder(
+    val context: Context,
+    private val taskScope: CoroutineScope,
+    private val events: FileOperationEventBus = FileOperationEventBus.shared
+) : Binder() {
+    val taskHost = FileOperationHost(
+        (context.applicationContext as App).hostCoordinationDispatcher,
+        taskScope.coroutineContext[Job]
+    )
+    private val deleteMutex = Mutex()
     private val progressListenerLocal = object : FileOperationForemanProgressListener {
-        override fun onProgress(progress: Int, key: String) {
-            fileOperationProgressListener[key]?.forEach { it.onProgress(progress, key) }
-        }
-
-        override fun onState(state: String?, key: String) {
-            fileOperationProgressListener[key]?.forEach { it.onState(state, key) }
-        }
-
-        override fun onTip(tip: String?, key: String) {
-            fileOperationProgressListener[key]?.forEach { it.onTip(tip, key) }
-        }
-
-        override fun onDetail(detail: String?, level: Int, key: String) {
-            fileOperationProgressListener[key]?.forEach { it.onDetail(detail, level, key) }
-        }
-
+        override fun onProgress(progress: Int, key: String) { taskHost.progress(key, progress) }
+        override fun onState(state: String?, key: String) { taskHost.report(key, message = state.orEmpty()) }
+        override fun onTip(tip: String?, key: String) { taskHost.report(key, detail = tip.orEmpty()) }
+        override fun onDetail(
+            detail: String?,
+            level: Int,
+            key: String
+        ) { taskHost.report(key, detail = detail.orEmpty()) }
         override fun onLeft(fileCount: Int, folderCount: Int, size: Long, key: String) {
-            fileOperationProgressListener[key]?.forEach {
-                it.onLeft(
-                    fileCount,
-                    folderCount,
-                    size,
-                    key
-                )
-            }
+            taskHost.progress(key, remaining = FileTaskCounts(fileCount, folderCount, size))
         }
-
-        override fun onComplete(dest: String?, isSuccess: Boolean, key: String) {
-            fileOperationProgressListener[key]?.forEach { it.onComplete(dest, isSuccess, key) }
-        }
+        override fun onComplete(dest: String?, isSuccess: Boolean, key: String) = Unit
     }
-    val state = MutableLiveData(state_null)
     var fileOperateResultContainer: WeakReference<FileOperateResultContainer> = WeakReference(null)
 
     /**
@@ -69,12 +62,17 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
      * @param selected  要删除的多个文件
      * @param focused     内存卡根部tree FileInfo
      */
-    fun delete(focused: FileInfo, selected: List<FileInfo>, key: String) {
-        whenStart(key)
-        thread {
-            runBlocking {
-                startDeleteTask(focused, selected, key)
-            }
+    fun delete(
+        focused: FileInfo,
+        selected: List<FileInfo>,
+        key: String,
+        origin: FileTaskOrigin = FileTaskOrigin.Detached
+    ) {
+        launchTask(
+            key,
+            FileTaskContext(FileOperationKind.DELETE, selected.firstOrNull()?.name.orEmpty(), origin = origin)
+        ) {
+            deleteMutex.withLock { startDeleteTask(focused, selected.distinctBy { it.uri }, key) }
         }
     }
 
@@ -83,40 +81,60 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
         selected: List<FileInfo>,
         focused: FileInfo?,
         deleteOrigin: Boolean,
-        key: String
+        key: String,
+        origin: FileTaskOrigin = FileTaskOrigin.Detached
     ) {
-        whenStart(key)
+        val operation = if (deleteOrigin) FileOperationKind.MOVE else FileOperationKind.COPY
+        launchTask(key, FileTaskContext(operation, selected.firstOrNull()?.name.orEmpty(), dest.path, origin)) {
+            startCopyTask(dest, focused, deleteOrigin, selected, key)
+        }
+    }
+
+    fun pluginTask(
+        key: String,
+        origin: FileTaskOrigin = FileTaskOrigin.Detached,
+        block: suspend GiantExplorerService.() -> Boolean
+    ) {
+        launchTask(key, FileTaskContext(FileOperationKind.PLUGIN, origin = origin)) {
+            val service = object : GiantExplorerService {
+                override fun reportRunning() { whenRunning(key, TaskAssessResult.empty, countsKnown = false) }
+            }
+            if (block(service)) whenEnd(key) else error(context.getString(R.string.operation_task_unknown_error))
+        }
+    }
+
+    private fun launchTask(key: String, taskContext: FileTaskContext, block: suspend () -> Unit) {
         taskScope.launch {
-            try {
-                startCopyTask(dest, focused, deleteOrigin, selected, key)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                Log.e(TAG, "Copy/move task failed: ${error.javaClass.simpleName}")
-                withContext(Dispatchers.Main) {
-                    val message = error.localizedMessage ?: "文件操作失败"
-                    map[key] = TaskSession(null, message)
-                    state.value = state_error
-                    fileOperateResultContainer.get()?.onError(message)
+            if (!whenStart(key, taskContext)) return@launch
+            val worker = currentCoroutineContext()[Job]!!
+            events.runTask {
+                try {
+                    taskHost.attachWorker(key, worker).join()
+                    block()
+                } catch (cancelled: CancellationException) {
+                    finishCancellation(key)
+                    throw cancelled
+                } catch (error: Exception) {
+                    if (!currentCoroutineContext().isActive) {
+                        finishCancellation(key)
+                        throw CancellationException("File task was cancelled", error)
+                    }
+                    Log.e(TAG, "File task failed: ${error.javaClass.simpleName}")
+                    val message = error.localizedMessage ?: context.getString(R.string.operation_task_unknown_error)
+                    taskHost.finish(key, FileTaskStatus.FAILED, message).join()
+                    withContext(Dispatchers.Main) {
+                        fileOperateResultContainer.get()?.onError(message)
+                    }
+                } finally {
+                    withContext(NonCancellable) { taskHost.detachWorker(key, worker).join() }
                 }
             }
         }
     }
 
-    fun pluginTask(key: String, block: suspend GiantExplorerService.() -> Boolean) {
-        whenStart(key)
-        thread {
-            val value = object : GiantExplorerService {
-                override fun reportRunning() {
-                    whenRunning(key, TaskAssessResult(0, 0, 0))
-                }
-            }
-            runBlocking {
-                if (block.invoke(value)) {
-                    whenEnd(key)
-                }
-            }
-        }
+    private suspend fun finishCancellation(key: String) = withContext(NonCancellable) {
+        taskHost.finish(key, FileTaskStatus.CANCELLED).join()
+        withContext(Dispatchers.Main) { fileOperateResultContainer.get()?.onCancel() }
     }
 
     @WorkerThread
@@ -125,11 +143,13 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
         selected: List<FileInfo>,
         key: String
     ) {
-        state.postValue(state_computing)
-        val assessResult = runBlocking {
-            TaskAssessor(selected, context, null).assess()
+        val assessResult = TaskAssessor(selected, context, null).assess()
+        if (assessResult.fileCount + assessResult.folderCount == 0) {
+            whenEnd(key, context.getString(R.string.operation_delete_already_absent))
+            fileOperateResultContainer.get()?.onSuccess(null, focused.uri)
+            return
         }
-        state.postValue(state_running)
+        whenRunning(key, assessResult)
         val deleteForemanImpl = DeleteForemanImpl(
             selected,
             context,
@@ -137,10 +157,9 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
             focused,
             key
         ).attachListener()
-        if (deleteForemanImpl.call()) {
-            whenEnd(key)
-            fileOperateResultContainer.get()?.onSuccess(null, focused.uri)
-        }
+        check(deleteForemanImpl.call()) { context.getString(R.string.operation_delete_failed) }
+        whenEnd(key)
+        fileOperateResultContainer.get()?.onSuccess(null, focused.uri)
     }
 
     /**
@@ -158,7 +177,9 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
         selected: List<FileInfo>,
         key: String
     ) {
-        state.postValue(state_computing)
+        require(dest.exists() && dest.fileKind().isDirectory) {
+            context.getString(R.string.file_task_target_unavailable)
+        }
         val assessResult = TaskAssessor(selected, context, dest).assess()
         whenRunning(key, assessResult)
         val copyForemanImpl = CopyForemanImpl(
@@ -170,69 +191,37 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
             focused,
             key
         ).attachListener()
-        if (copyForemanImpl.call()) {
-            whenEnd(key)
-            fileOperateResultContainer.get()?.onSuccess(dest.uri, focused?.uri)
-        }
+        check(copyForemanImpl.call()) { context.getString(R.string.operation_task_unknown_error) }
+        whenEnd(key)
+        fileOperateResultContainer.get()?.onSuccess(dest.uri, focused?.uri)
     }
 
-    private fun whenRunning(key: String, computeSize: TaskAssessResult) {
+    private fun whenRunning(key: String, computeSize: TaskAssessResult, countsKnown: Boolean = true) {
         Log.d(TAG, "whenRunning() called with: key = $key, computeSize = $computeSize")
-        map[key] = TaskSession(computeSize, null)
-        state.postValue(state_running)
+        taskHost.running(
+            key,
+            FileTaskCounts(computeSize.fileCount, computeSize.folderCount, computeSize.size),
+            countsKnown
+        )
     }
 
-    private fun whenStart(key: String) {
-        Log.d(TAG, "whenStart() called with: key = $key")
-        map.getOrPut(key) {
-            TaskSession(null, null)
-        }
-        state.value = state_null
+    private suspend fun whenStart(key: String, context: FileTaskContext): Boolean {
+        return taskHost.start(key, context).await()
     }
 
-    private fun whenEnd(key: String) {
-        Log.d(TAG, "whenEnd() called with: key = $key")
-        state.postValue(state_end)
-        map.remove(key)
+    private suspend fun whenEnd(key: String, message: String = "") {
+        taskHost.finish(key, FileTaskStatus.SUCCEEDED, message).join()
     }
 
-    private fun FileOperationForeman.attachListener(): FileOperationForeman {
+    private suspend fun FileOperationForeman.attachListener(): FileOperationForeman {
+        val worker = currentCoroutineContext()[Job]!!
+        cancellationCheck = { worker.ensureActive() }
         fileOperationForemanProgressListener = progressListenerLocal
         return this
     }
 
     companion object {
         private const val TAG = "FileOperateHandler"
-
-        /**
-         * 任务已重置
-         */
-        const val state_null = 0
-
-        /**
-         * 解析任务列表
-         */
-        const val state_detect = 1
-
-        /**
-         * 计算大小
-         */
-        const val state_computing = 2
-
-        /**
-         * 任务正在运行
-         */
-        const val state_running = 3
-
-        /**
-         * 任务正常结束
-         */
-        const val state_end = 4
-
-        /**
-         * 任务非正常结束
-         */
-        const val state_error = 5
 
         val supportUri = listOf(
             ContentResolver.SCHEME_CONTENT,
@@ -259,8 +248,6 @@ class FileOperateBinder(val context: Context, private val taskScope: CoroutineSc
     }
 }
 
-class TaskSession(val taskAssessResult: TaskAssessResult?, val message: CharSequence?)
-
 data class TaskAssessResult(val fileCount: Int, val folderCount: Int, val size: Long) {
     fun toOverview(fileCountExtra: Int = 0): TaskOverview {
         return TaskOverview(fileCount + fileCountExtra, folderCount, size)
@@ -282,35 +269,32 @@ class TaskAssessor(
     private var count = 0
     private var folderCount = 0
     suspend fun assess(): TaskAssessResult {
-        dest ?: return TaskAssessResult.empty
-        val size = detectorTasks.map {
-            require(
-                FileOperateBinder.checkOperationValid(
-                    it.uri,
-                    dest.uri,
-                    it.kind.isDirectory
-                )
-            ) {
-                "不能将父文件夹移动到子文件夹"
-            }
-            val fileInstance = getFileInstance(context, it.uri)!!
+        val size = detectorTasks.distinctBy { it.uri }.map { selected ->
+            currentCoroutineContext().ensureActive()
+            val fileInstance = requireNotNull(getFileInstance(context, selected.uri))
             if (!fileInstance.exists()) {
-                throw FileNotFoundException(fileInstance.path)
+                if (dest != null) throw FileNotFoundException(fileInstance.path)
+                return@map 0L
             }
-            if (it.kind.isFile) {
+            val file = fileInstance.getFileInfo()
+            if (dest != null) {
+                require(FileOperateBinder.checkOperationValid(file.uri, dest.uri, file.kind.isDirectory)) {
+                    "不能将父文件夹移动到子文件夹"
+                }
+            }
+            if (file.kind.isFile) {
                 count++
                 fileInstance.size()
             } else {
-                getDirectorySize(it)
+                getDirectorySize(file)
             }
-        }.plus(0).reduce { acc, l -> acc + l }
-        require(count.toLong() + folderCount.toLong() + size > 0L) {
-            "无合法任务"
-        }
+        }.sum()
+        if (dest != null) require(count + folderCount > 0) { "无合法任务" }
         return TaskAssessResult(count, folderCount, size)
     }
 
     private suspend fun getDirectorySize(file: FileInfo): Long {
+        currentCoroutineContext().ensureActive()
         folderCount++
         val fileInstance = getFileInstance(context, file.uri)
         val listSafe = fileInstance!!.list()
