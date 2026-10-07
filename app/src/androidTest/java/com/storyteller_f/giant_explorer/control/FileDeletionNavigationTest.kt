@@ -57,7 +57,7 @@ class FileDeletionNavigationTest {
                     }
                 }
                 val binder = withTimeout(10_000) { ready.await() }
-                scenario.onActivity { binder.delete(parent, listOf(selected, selected), "first-delete") }
+                scenario.onActivity { binder.delete(parent, listOf(selected, selected), "first-delete", it.taskOrigin) }
                 val first = withTimeout(10_000) {
                     binder.taskHost.tasks.first { it["first-delete"]?.status == FileTaskStatus.SUCCEEDED }
                 }.getValue("first-delete")
@@ -67,7 +67,7 @@ class FileDeletionNavigationTest {
                 awaitPage(scenario, "folder", absent = "notes.txt")
                 onView(withId(R.id.close_when_done)).perform(click())
 
-                scenario.onActivity { binder.delete(parent, listOf(selected), "repeat-delete") }
+                scenario.onActivity { binder.delete(parent, listOf(selected), "repeat-delete", it.taskOrigin) }
                 val repeated = withTimeout(10_000) {
                     binder.taskHost.tasks.first { it["repeat-delete"]?.status == FileTaskStatus.SUCCEEDED }
                 }.getValue("repeat-delete")

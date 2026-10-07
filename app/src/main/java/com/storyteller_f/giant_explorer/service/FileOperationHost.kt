@@ -19,7 +19,8 @@ enum class FileOperationKind { GENERIC, COPY, MOVE, DELETE, PLUGIN }
 data class FileTaskContext(
     val operation: FileOperationKind = FileOperationKind.GENERIC,
     val subject: String = "",
-    val destination: String = ""
+    val destination: String = "",
+    val origin: FileTaskOrigin = FileTaskOrigin.Detached
 )
 
 data class FileTaskCounts(val files: Int = 0, val folders: Int = 0, val bytes: Long = 0)
@@ -47,6 +48,12 @@ class FileOperationHost(coordination: CoroutineDispatcher, parent: Job?) {
 
     fun start(key: String, context: FileTaskContext = FileTaskContext()) = scope.async {
         if (mutableTasks.value.containsKey(key)) return@async false
+        val origin = context.origin
+        if (origin is FileTaskOrigin.Window &&
+            mutableTasks.value.dialogState(origin) is FileTaskDialogState.Showing
+        ) {
+            return@async false
+        }
         mutableTasks.value = mutableTasks.value + (key to FileTaskSnapshot(context = context))
         mutableStarts.emit(key)
         true

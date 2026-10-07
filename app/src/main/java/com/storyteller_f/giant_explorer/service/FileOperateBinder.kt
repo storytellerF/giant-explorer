@@ -62,8 +62,16 @@ class FileOperateBinder(
      * @param selected  要删除的多个文件
      * @param focused     内存卡根部tree FileInfo
      */
-    fun delete(focused: FileInfo, selected: List<FileInfo>, key: String) {
-        launchTask(key, FileTaskContext(FileOperationKind.DELETE, selected.firstOrNull()?.name.orEmpty())) {
+    fun delete(
+        focused: FileInfo,
+        selected: List<FileInfo>,
+        key: String,
+        origin: FileTaskOrigin = FileTaskOrigin.Detached
+    ) {
+        launchTask(
+            key,
+            FileTaskContext(FileOperationKind.DELETE, selected.firstOrNull()?.name.orEmpty(), origin = origin)
+        ) {
             deleteMutex.withLock { startDeleteTask(focused, selected.distinctBy { it.uri }, key) }
         }
     }
@@ -73,16 +81,21 @@ class FileOperateBinder(
         selected: List<FileInfo>,
         focused: FileInfo?,
         deleteOrigin: Boolean,
-        key: String
+        key: String,
+        origin: FileTaskOrigin = FileTaskOrigin.Detached
     ) {
         val operation = if (deleteOrigin) FileOperationKind.MOVE else FileOperationKind.COPY
-        launchTask(key, FileTaskContext(operation, selected.firstOrNull()?.name.orEmpty(), dest.path)) {
+        launchTask(key, FileTaskContext(operation, selected.firstOrNull()?.name.orEmpty(), dest.path, origin)) {
             startCopyTask(dest, focused, deleteOrigin, selected, key)
         }
     }
 
-    fun pluginTask(key: String, block: suspend GiantExplorerService.() -> Boolean) {
-        launchTask(key, FileTaskContext(FileOperationKind.PLUGIN)) {
+    fun pluginTask(
+        key: String,
+        origin: FileTaskOrigin = FileTaskOrigin.Detached,
+        block: suspend GiantExplorerService.() -> Boolean
+    ) {
+        launchTask(key, FileTaskContext(FileOperationKind.PLUGIN, origin = origin)) {
             val service = object : GiantExplorerService {
                 override fun reportRunning() { whenRunning(key, TaskAssessResult.empty, countsKnown = false) }
             }

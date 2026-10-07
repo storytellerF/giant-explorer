@@ -90,6 +90,9 @@ class SharePasteTargetViewModel : ViewModel() {
 class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     FragmentFileListBinding::inflate
 ), FileItemHolderEvent {
+    private val taskOrigin
+        get() = (requireActivity() as MainActivity).taskOrigin
+
     private val fileOperateBinder
         get() = (requireContext() as MainActivity).fileOperateBinder
     private val args by navArgs<FileListFragmentArgs>()
@@ -265,10 +268,10 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         if (defaultSettings?.getBoolean("notify_before_paste", true) == true) {
             shareTarget.replace(uriList, dest)
             request(TaskConfirmDialog::class.java).response(TaskConfirmDialog.Result::class.java) { result ->
-                if (result.confirm) fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
+                if (result.confirm) fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key, taskOrigin)
             }
         } else {
-            fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
+            fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key, taskOrigin)
         }
     }
 
@@ -434,7 +437,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
             }
 
             override fun runInService(block: suspend GiantExplorerService.() -> Boolean) {
-                fileOperateBinder.value?.pluginTask(key, block)
+                fileOperateBinder.value?.pluginTask(key, taskOrigin, block)
             }
         }
 
@@ -452,7 +455,8 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         fileOperateBinder.value?.delete(
             itemHolder.file.item,
             detectSelected(itemHolder),
-            key
+            key,
+            taskOrigin
         )
     }
 
@@ -595,7 +599,8 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
             detectSelected,
             itemHolder.file.item,
             move,
-            key
+            key,
+            taskOrigin
         )
     }
 

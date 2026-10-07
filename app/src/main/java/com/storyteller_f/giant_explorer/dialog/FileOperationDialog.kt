@@ -39,6 +39,7 @@ class FileOperationDialog :
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isCancelable = false
         dialog?.setCanceledOnTouchOutside(false)
         val key = arguments?.getString(TASK_KEY) ?: return dismiss()
         detailsExpanded = savedInstanceState?.getBoolean(DETAILS_EXPANDED) ?: false

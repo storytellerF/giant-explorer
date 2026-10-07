@@ -61,6 +61,9 @@ import com.storyteller_f.giant_explorer.databinding.ActivityMainBinding
 import com.storyteller_f.giant_explorer.dialog.FileOperationDialog
 import com.storyteller_f.giant_explorer.dialog.SortFilterBottomSheet
 import com.storyteller_f.giant_explorer.dialog.VolumeSpaceDialog
+import com.storyteller_f.giant_explorer.service.FileTaskOrigin
+import com.storyteller_f.giant_explorer.service.FileTaskDialogState
+import com.storyteller_f.giant_explorer.service.dialogState
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
 import com.storyteller_f.giant_explorer.service.FileOperateService
 import com.storyteller_f.giant_explorer.service.FileService
@@ -76,6 +79,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Properties
+import java.util.UUID
 
 class FileExplorerSession(application: Application, uri: Uri) : AndroidViewModel(application) {
     val selected = MutableLiveData<List<DataItemHolder>>()
@@ -93,6 +97,9 @@ class FileExplorerSession(application: Application, uri: Uri) : AndroidViewModel
 data class DocumentRequestSession(val authority: String, val tree: String?)
 
 class MainActivity : CommonActivity() {
+
+    var taskOrigin = FileTaskOrigin.Window(UUID.randomUUID().toString())
+        private set
 
     private val binding by viewBinding(ActivityMainBinding::inflate)
     private val filterHiddenFile by vm({}) {
@@ -123,6 +130,7 @@ class MainActivity : CommonActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        taskOrigin = FileTaskOrigin.Window(savedInstanceState?.getString("file-task-window") ?: taskOrigin.id)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -354,17 +362,32 @@ class MainActivity : CommonActivity() {
         fileOperateBinder.observe(this) { binder ->
             binder ?: return@observe
             scope.launch {
-                binder.taskHost.starts.flowWithLifecycle(lifecycle).collectLatest { key ->
-                    if (supportFragmentManager.isStateSaved) return@collectLatest
-                    if (binder.taskHost.tasks.value[key]?.showDialog != true) return@collectLatest
-                    if (supportFragmentManager.findFragmentByTag(FileOperationDialog.DIALOG_TAG) == null) {
-                        FileOperationDialog.forTask(key).show(
-                            supportFragmentManager,
-                            FileOperationDialog.DIALOG_TAG
-                        )
-                    }
+                binder.taskHost.tasks.flowWithLifecycle(lifecycle).collectLatest { tasks ->
+                    presentTaskDialog(tasks.dialogState(taskOrigin))
                 }
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("file-task-window", taskOrigin.id)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        fileOperateBinder.value?.taskHost?.tasks?.value?.let {
+            presentTaskDialog(it.dialogState(taskOrigin))
+        }
+    }
+
+    private fun presentTaskDialog(state: FileTaskDialogState) {
+        if (supportFragmentManager.isStateSaved || state !is FileTaskDialogState.Showing) return
+        if (supportFragmentManager.findFragmentByTag(FileOperationDialog.DIALOG_TAG) == null) {
+            FileOperationDialog.forTask(state.taskKey).showNow(
+                supportFragmentManager,
+                FileOperationDialog.DIALOG_TAG
+            )
         }
     }
 
