@@ -21,6 +21,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -29,9 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.storyteller_f.annotation_defination.BindItemHolder
 import com.storyteller_f.annotation_defination.ItemHolder
 import com.storyteller_f.common_pr.dipToInt
-import com.storyteller_f.common_pr.state
 import com.storyteller_f.common_ui.context
-import com.storyteller_f.common_ui.cycle
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.setVisible
 import com.storyteller_f.common_vm_ktx.VMScope
@@ -72,9 +71,11 @@ import com.storyteller_f.ui_list.event.findFragmentOrNull
 import com.storyteller_f.ui_list.source.SearchHandler
 import com.storyteller_f.ui_list.source.SimpleSearchRepository
 import com.storyteller_f.ui_list.ui.ListWithState
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -113,6 +114,8 @@ class FileListSearchViewModel(
     ) { fileModel: FileModel, sq: FileExplorerSearch ->
         FileItemHolder(fileModel, selected.value.orEmpty(), sq.display)
     }
+
+    fun search(query: FileExplorerSearch) = handler.search(query, viewModelScope)
 }
 
 /**
@@ -177,9 +180,10 @@ class FileListObserver<T>(
         rightSwipe: (FileItemHolder) -> Unit,
         updatePath: (String) -> Unit
     ) {
-        fileListViewModel.displayGrid.state {
+        val viewOwner = if (this is Fragment) viewLifecycleOwner else this
+        fileListViewModel.displayGrid.observe(viewOwner) {
             listWithState.recyclerView.isVisible = false
-            adapter.submitData(cycle, PagingData.empty())
+            adapter.submitData(viewOwner.lifecycle, PagingData.empty())
             listWithState.recyclerView.layoutManager = when {
                 it -> {
                     val spanCount = listWithState.context.run {
@@ -216,8 +220,16 @@ class FileListObserver<T>(
         updatePath: (String) -> Unit
     ) {
         val owner = if (this is Fragment) viewLifecycleOwner else this
+        val presented = CompletableDeferred<Unit>()
+        owner.lifecycleScope.launch {
+            // A real file page always contains the sentinel, including an empty directory.
+            adapter.onPagesUpdatedFlow.first { adapter.itemCount > 0 }
+            presented.complete(Unit)
+        }
         owner.lifecycleScope.launch {
             owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Replay must refresh the submitted PagingData, not an adapter that is still empty.
+                presented.await()
                 FileOperationEventBus.shared.completions.collect {
                     adapter.refresh()
                 }
@@ -243,12 +255,12 @@ class FileListObserver<T>(
                     rightSwipe(itemHolder)
                 }
             }
-            session.fileInstance.state {
+            session.fileInstance.observe(owner) {
                 updatePath(it.path)
             }
             session.fileInstance.map {
                 it.uri
-            }.distinctUntilChanged().state { path ->
+            }.distinctUntilChanged().observe(owner) { path ->
                 // 检查权限
                 owner.lifecycleScope.launch {
                     if (!checkFilePermission(path)) {
@@ -264,7 +276,7 @@ class FileListObserver<T>(
                 currentSortFilterConfig,
                 fileListViewModel.displayGrid
             ).wait4().distinctUntilChanged().debounce(DEFAULT_DEBOUNCE)
-                .state { (fileInstance, filterHiddenFile, sortFilterConfig, d5) ->
+                .observe(owner) { (fileInstance, filterHiddenFile, sortFilterConfig, d5) ->
                     val display = if (d5) "grid" else ""
 
                     val search = FileExplorerSearch(
@@ -276,7 +288,7 @@ class FileListObserver<T>(
                     data.lastJob?.cancel()
                     data.lastJob = owner.lifecycleScope.launch {
                         owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                            data.search(search, owner.lifecycleScope).collectLatest { pagingData ->
+                            dataViewModel.search(search).collectLatest { pagingData ->
                                 adapter.submitData(pagingData)
                             }
                         }
