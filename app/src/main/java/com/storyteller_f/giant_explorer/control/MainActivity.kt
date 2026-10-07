@@ -45,7 +45,6 @@ import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.viewBinding
 import com.storyteller_f.common_vm_ktx.GenericValueModel
 import com.storyteller_f.common_vm_ktx.svm
-import com.storyteller_f.common_vm_ktx.toDiffNoNull
 import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
@@ -354,13 +353,16 @@ class MainActivity : CommonActivity() {
     private fun observeBinder() {
         fileOperateBinder.observe(this) { binder ->
             binder ?: return@observe
-            binder.state.toDiffNoNull { i, i2 ->
-                i == i2
-            }.observe(this@MainActivity) {
-                if (it.first == FileOperateBinder.state_null) {
-                    FileOperationDialog().apply {
-                        this.binder = binder
-                    }.show(supportFragmentManager, FileOperationDialog.DIALOG_TAG)
+            scope.launch {
+                binder.taskHost.starts.flowWithLifecycle(lifecycle).collectLatest { key ->
+                    if (supportFragmentManager.isStateSaved) return@collectLatest
+                    if (!binder.taskHost.tasks.value.containsKey(key)) return@collectLatest
+                    if (supportFragmentManager.findFragmentByTag(FileOperationDialog.DIALOG_TAG) == null) {
+                        FileOperationDialog.forTask(key).show(
+                            supportFragmentManager,
+                            FileOperationDialog.DIALOG_TAG
+                        )
+                    }
                 }
             }
         }

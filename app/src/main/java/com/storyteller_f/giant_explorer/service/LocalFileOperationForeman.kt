@@ -2,19 +2,18 @@ package com.storyteller_f.giant_explorer.service
 
 import android.content.Context
 import android.util.Log
-import androidx.core.net.toUri
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
+import com.storyteller_f.file_system.instance.FileKind
 import com.storyteller_f.file_system.message.Message
 import com.storyteller_f.file_system.model.FileInfo
-import com.storyteller_f.file_system.operate.FileDeleteOp
 import com.storyteller_f.file_system.operate.FileOperationForemanProgressListener
 import com.storyteller_f.file_system.operate.FileOperationListener
 import com.storyteller_f.file_system.operate.ScopeFileCopyOp
 import com.storyteller_f.file_system.operate.ScopeFileMoveOp
 import com.storyteller_f.file_system.operate.ScopeFileMoveOpInShell
 import com.storyteller_f.file_system.operate.SuspendCallable
-import java.io.File
+import com.storyteller_f.giant_explorer.R
 
 class TaskOverview(val fileCount: Int, val folderCount: Int, val size: Long) {
     val sumCount = fileCount + folderCount
@@ -46,20 +45,24 @@ abstract class FileOperationForeman(
         get() {
             val sumCount = overview.sumCount
             val completedCount = sumCount - leftFolderCount - leftFileCount
-            return (completedCount * 1.0 / sumCount * PERCENT_BASE).toInt()
+            return if (sumCount == 0) {
+                PERCENT_BASE
+            } else {
+                (completedCount * 1.0 / sumCount * PERCENT_BASE).toInt().coerceIn(0, PERCENT_BASE)
+            }
         }
 
     override fun onFileDone(fileInstance: FileInstance?, message: Message?, size: Long) {
-        leftFileCount--
-        leftSize -= size
+        leftFileCount = (leftFileCount - 1).coerceAtLeast(0)
+        leftSize = (leftSize - size).coerceAtLeast(0)
         emitCurrentStateMessage()
-        emitStateMessage("file done ${fileInstance?.name}")
+        emitStateMessage(context.getString(R.string.operation_file_done, fileInstance?.name.orEmpty()))
     }
 
     override fun onDirectoryDone(fileInstance: FileInstance?, message: Message?) {
-        leftFolderCount--
+        leftFolderCount = (leftFolderCount - 1).coerceAtLeast(0)
         emitCurrentStateMessage()
-        emitStateMessage("directory done ${fileInstance?.name}")
+        emitStateMessage(context.getString(R.string.operation_directory_done, fileInstance?.name.orEmpty()))
     }
 
     override fun onError(message: Message?) {
@@ -106,7 +109,7 @@ class CopyForemanImpl(
 
     override suspend fun call(): Boolean {
         val isSuccess = !items.any {
-            val fileInstance = getFileInstance(context, File(it.fullPath).toUri())!!
+            val fileInstance = requireNotNull(getFileInstance(context, it.uri))
             emitStateMessage("处理${fileInstance.path}")
             val operationResult =
                 when {
@@ -135,7 +138,11 @@ class CopyForemanImpl(
     override val progress: Int
         get() {
             val doneSize: Long = overview.size - leftSize
-            return (doneSize * PERCENT_BASE / overview.size).toInt()
+            return if (overview.size == 0L) {
+                super.progress
+            } else {
+                (doneSize.toDouble() * PERCENT_BASE / overview.size).toInt().coerceIn(0, PERCENT_BASE)
+            }
         }
 }
 
@@ -158,16 +165,33 @@ class DeleteForemanImpl(
         }
 
     override suspend fun call(): Boolean {
-        val isSuccess = !detectorTasks.any { // 如果有一个失败了，就提前退出
-            emitStateMessage("处理${it.fullPath}")
-            !FileDeleteOp(
-                getFileInstance(context, File(it.fullPath).toUri())!!,
-                context
-            ).apply {
-                fileOperationListener = this@DeleteForemanImpl
-            }.call()
+        val isSuccess = detectorTasks.distinctBy { it.uri }.all { selected ->
+            deleteRecursively(requireNotNull(getFileInstance(context, selected.uri)))
         }
         fileOperationForemanProgressListener?.onComplete(focused?.fullPath, isSuccess, key)
         return isSuccess
+    }
+
+    private suspend fun deleteRecursively(file: FileInstance): Boolean {
+        if (!file.exists()) return true
+        val kind = file.fileKind()
+        emitStateMessage(context.getString(R.string.operation_deleting, file.name))
+        if (kind.isDirectory) {
+            val children = file.list().let { it.files + it.directories }
+            for (child in children) {
+                if (!deleteRecursively(requireNotNull(getFileInstance(context, child.uri)))) return false
+            }
+        }
+        val success = ensureDeleted({ file.exists() }, { file.deleteFileOrEmptyDirectory() })
+        if (success) {
+            if (kind.isDirectory) {
+                onDirectoryDone(file, null)
+            } else {
+                onFileDone(file, null, (kind as? FileKind.File)?.size ?: 0L)
+            }
+        } else {
+            emitDetailMessage(context.getString(R.string.operation_delete_failed), Log.ERROR)
+        }
+        return success
     }
 }

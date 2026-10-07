@@ -1,192 +1,90 @@
 package com.storyteller_f.giant_explorer.dialog
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.lifecycle.distinctUntilChanged
-import com.storyteller_f.common_pr.state
-import com.storyteller_f.common_ui.onVisible
-import com.storyteller_f.common_ui.pp
-import com.storyteller_f.common_ui.repeatOnViewResumed
-import com.storyteller_f.common_ui.setOnClick
-import com.storyteller_f.common_vm_ktx.GenericValueModel
-import com.storyteller_f.common_vm_ktx.avm
-import com.storyteller_f.common_vm_ktx.debounce
-import com.storyteller_f.common_vm_ktx.keyPrefix
-import com.storyteller_f.common_vm_ktx.vm
-import com.storyteller_f.file_system.operate.DefaultForemanProgressAdapter
-import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.storyteller_f.giant_explorer.R
+import com.storyteller_f.giant_explorer.control.MainActivity
 import com.storyteller_f.giant_explorer.databinding.DialogFileOperationBinding
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
-import java.util.UUID
+import com.storyteller_f.giant_explorer.service.FileTaskSnapshot
+import com.storyteller_f.giant_explorer.service.FileTaskStatus
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class FileOperationDialog :
     GiantDialogFragment<DialogFileOperationBinding>(DialogFileOperationBinding::inflate) {
-    lateinit var binder: FileOperateBinder
-
-    private val progressVM by keyPrefix(
-        { "progress" },
-        vm({}) {
-            GenericValueModel<Int>()
-        }
-    )
-    private val leftVM by keyPrefix(
-        "left",
-        vm({}) {
-            GenericValueModel<Triple<Int, Int, Long>>().apply {
-                data.value = Triple(-1, -1, -1L)
-            }
-        }
-    )
-    private val stateVM by keyPrefix(
-        "state",
-        vm({}) {
-            GenericValueModel<String>()
-        }
-    )
-    private val tipVM by keyPrefix(
-        "tip",
-        vm({}) {
-            GenericValueModel<String>()
-        }
-    )
-    private val uuid by keyPrefix(
-        { "uuid" },
-        avm({}) {
-            GenericValueModel<String>().apply {
-                Log.i(TAG, "uuid: new")
-                data.value = UUID.randomUUID().toString()
-            }
-        }
-    )
+    var binder: FileOperateBinder? = null
 
     override fun onBindViewEvent(binding: DialogFileOperationBinding) {
-        binding.closeWhenError.setOnClick {
-            dismiss()
-        }
-        binding.closeWhenDone.setOnClick {
-            dismiss()
-        }
+        binding.closeWhenError.setOnClickListener { closeTask() }
+        binding.closeWhenDone.setOnClickListener { closeTask() }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         dialog?.setCanceledOnTouchOutside(false)
-        val list = listOf(binding.stateProgress, binding.stateRunning, binding.stateDone)
-        if (::binder.isInitialized) {
-            Log.i(TAG, "onBindViewEvent: state ${binder.state.value}")
-            val key = uuid.data.value ?: return
-            if (!binder.map.containsKey(key)) dismiss()
-            bindUi(key, list, binding)
-            bindListener(key, binding)
-        } else {
-            dismiss()
-        }
-    }
-
-    private fun bindListener(key: String, binding: DialogFileOperationBinding) {
-        val orPut = binder.fileOperationProgressListener.getOrPut(key) { mutableListOf() }
-        orPut.add(object : DefaultForemanProgressAdapter() {
-            override fun onProgress(progress: Int, key: String) {
-                progressVM.data.value = progress
-            }
-
-            override fun onState(state: String?, key: String) { stateVM.data.value = state }
-
-            override fun onTip(tip: String?, key: String) { tipVM.data.value = tip }
-
-            override fun onLeft(fileCount: Int, folderCount: Int, size: Long, key: String) {
-                leftVM.data.value = Triple(fileCount, folderCount, size)
-            }
-
-            override fun onComplete(dest: String?, isSuccess: Boolean, key: String) {
-                binding.closeWhenError.pp {
-                    it.isVisible = true
+        val key = arguments?.getString(TASK_KEY) ?: return dismiss()
+        val viewBinding = binding
+        val activity = requireActivity() as MainActivity
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                activity.fileOperateBinder.asFlow().filterNotNull().flatMapLatest { current ->
+                    binder = current
+                    current.taskHost.tasks.map { it[key] }
+                }.distinctUntilChanged().collect { task ->
+                    if (task != null) render(viewBinding, task) else dismiss()
                 }
-            }
-        })
-        val callbackFlow = callbackFlow {
-            val defaultProgressListener = object : DefaultForemanProgressAdapter() {
-                override fun onDetail(detail: String?, level: Int, key: String) {
-                    trySend(detail ?: "null")
-                }
-            }
-            orPut.add(defaultProgressListener)
-            awaitClose { orPut.remove(defaultProgressListener) }
-        }
-        val detail = binding.textViewDetail
-        repeatOnViewResumed {
-            callbackFlow.collect {
-                detail.append(it)
             }
         }
     }
 
-    private fun bindUi(key: String, list: List<View>, binding: DialogFileOperationBinding) {
-        binder.state.distinctUntilChanged().debounce(DEFAULT_DEBOUNCE).state {
-            when (it) {
-                FileOperateBinder.state_running -> {
-                    val task = binder.map[key]?.taskAssessResult
-                    list.onVisible(binding.stateRunning)
-                    Log.i(TAG, "onBindViewEvent: $key $task ${binder.map.keys}")
-                    binding.textViewTask.text = getString(
-                        R.string.operation_task_total,
-                        task?.size ?: 0L,
-                        task?.fileCount ?: 0,
-                        task?.folderCount ?: 0
-                    )
-                }
-
-                FileOperateBinder.state_end -> {
-                    binding.doneText.text = getString(R.string.operation_task_done)
-                    list.onVisible(binding.stateDone)
-                }
-
-                FileOperateBinder.state_error -> {
-                    val task = binder.map[key]
-                    binding.doneText.text = getString(
-                        R.string.operation_task_failed,
-                        task?.message ?: getString(R.string.operation_task_unknown_error)
-                    )
-                    list.onVisible(binding.stateDone)
-                }
-
-                else -> list.onVisible(binding.stateProgress)
-            }
-        }
-        progressVM.data.state {
-            binding.progressBar.progress = it ?: 0
-        }
-        stateVM.data.state {
-            binding.textViewState.text = it
-        }
-        tipVM.data.state {
-            binding.textViewDetail.text = it
-        }
-        leftVM.data.state {
-            Log.i(TAG, "onBindViewEvent: leftVM: $it")
-            it?.let { snapshot -> binding.textViewLeft.text = presentTaskSnapshot(snapshot) }
+    private fun render(binding: DialogFileOperationBinding, task: FileTaskSnapshot) {
+        val running = task.status == FileTaskStatus.RUNNING
+        val computing = task.status == FileTaskStatus.COMPUTING
+        binding.stateProgress.isVisible = computing
+        binding.stateRunning.isVisible = running
+        binding.stateDone.isVisible = !computing && !running
+        binding.closeWhenError.isVisible = false
+        binding.textViewTask.text = getString(
+            R.string.operation_task_total, task.total.bytes, task.total.files, task.total.folders
+        )
+        binding.textViewLeft.text = getString(
+            R.string.operation_task_remaining, task.remaining.bytes, task.remaining.files, task.remaining.folders
+        )
+        binding.progressBar.progress = task.progress
+        binding.textViewState.text = task.message
+        binding.textViewDetail.text = task.details
+        binding.doneText.text = when (task.status) {
+            FileTaskStatus.FAILED -> getString(
+                R.string.operation_task_failed,
+                task.message.ifBlank { getString(R.string.operation_task_unknown_error) }
+            )
+            FileTaskStatus.CANCELLED -> getString(R.string.operation_task_cancelled)
+            else -> getString(R.string.operation_task_done)
         }
     }
 
-    private fun presentTaskSnapshot(it: Triple<Int, Int, Long>) =
-        getString(R.string.operation_task_remaining, it.third, it.first, it.second)
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binder.fileOperationProgressListener.clear()
+    private fun closeTask() {
+        arguments?.getString(TASK_KEY)?.let { binder?.taskHost?.forget(it) }
+        dismiss()
     }
 
     companion object {
-        private const val TAG = "FileOperationDialog"
         const val DIALOG_TAG = "file-operation"
-    }
-
-    interface Handler {
-        fun close()
+        private const val TASK_KEY = "task-key"
+        fun forTask(key: String) = FileOperationDialog().apply {
+            arguments = Bundle().apply { putString(TASK_KEY, key) }
+        }
     }
 }

@@ -44,8 +44,6 @@ import com.storyteller_f.common_ui.owner
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_vm_ktx.activityScope
-import com.storyteller_f.common_vm_ktx.avm
-import com.storyteller_f.common_vm_ktx.genericValueModel
 import com.storyteller_f.common_vm_ktx.keyPrefix
 import com.storyteller_f.common_vm_ktx.pvm
 import com.storyteller_f.file_system.getFileInstance
@@ -94,13 +92,6 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
 ), FileItemHolderEvent {
     private val fileOperateBinder
         get() = (requireContext() as MainActivity).fileOperateBinder
-    private val uuid by keyPrefix(
-        { "uuid" },
-        avm({}) {
-            genericValueModel(UUID.randomUUID().toString())
-        }
-    )
-
     private val args by navArgs<FileListFragmentArgs>()
 
     private val observer = FileListObserver(this, { args }, activityScope)
@@ -208,7 +199,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     }
 
     fun pasteFiles(data: ClipData, destDirectory: Uri? = null) {
-        val key = uuid.data.value ?: return
+        val key = UUID.randomUUID().toString()
         Log.i(TAG, "handleClipData: key $key")
         val context = context ?: return
         viewLifecycleOwner.lifecycleScope.launch {
@@ -345,7 +336,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     fun fileMenu(view: View, viewholder: RecyclerView.ViewHolder) {
         val itemHolder = viewholder.fileItemOrNull() ?: return
         val fullPath = itemHolder.file.fullPath
-        val key = uuid.data.value ?: return
+        val key = UUID.randomUUID().toString()
         // The row owns its URI; the observed directory can already have changed during navigation.
         showMenu(view, fullPath, itemHolder, key, itemHolder.file.item.uri)
     }
@@ -596,7 +587,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         dest: FileInstance,
         move: Boolean,
     ) {
-        val key = uuid.data.value ?: return
+        val key = UUID.randomUUID().toString()
         val detectSelected = detectSelected(itemHolder)
         Log.i(TAG, "moveOrCopy: uuid: $key")
         fileOperateBinder.value?.moveOrCopy(

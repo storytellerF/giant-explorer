@@ -39,14 +39,16 @@ Debug 通知覆盖保留与 LeakCanary 2.14 相同的 `drawable-anydpi-v21` 限�
 
 存储弹窗通过 `StorageSpaceHost` 在 IO 调度器读取容量，视图按 STARTED 生命周期渲染；销毁视图时取消读取。容量统一使用系统本地化格式，明确展示已用、可用和总容量。可用取 `StatFs.availableBytes`，已用为总容量减可用（包含系统和预留空间）；未挂载或无法访问时显示说明，不显示虚假的零容量或原始挂载状态。
 
-后台复制、移动、删除和插件文件任务统一在服务的协程作用域中执行。`FileOperationEventBus.shared` 在任务结束时广播列表失效事件（包括失败和取消，以覆盖部分文件变更）。文件列表按视图的 STARTED 生命周期订阅并调用 Paging 刷新；事件保留最新一次，返回前台或重建视图后也会刷新，不依赖 Activity 的结果回调，也不弹出 Toast。
+后台复制、移动、删除和插件文件任务统一在服务的协程作用域中执行。`FileOperationEventBus.shared` 在任务结束时广播列表失效事件（包括失败和取消，以覆盖部分文件变更）。Paging 缓存属于 `FileListSearchViewModel.viewModelScope`，不能绑定会随导航销毁的视图作用域。文件列表的观察者与收集器均绑定当前视图；按 STARTED 生命周期订阅任务事件并调用 Paging 刷新；事件保留最新一次，返回前台或重建视图后也会刷新，不依赖 Activity 的结果回调，也不弹出 Toast。
+
+`FileOperationHost` 在应用的串行协调调度器上维护按任务编号隔离的不可变快照。每次操作使用新编号，相同编号不会重复执行；弹窗通过参数记录编号，重建后订阅该任务，关闭一个弹窗不会清除其他任务状态。删除保持原始 URI，在服务内串行执行并重新检查存在性、文件类型和目录内容；已不存在的目标按成功处理并明确提示无需重复删除。权限失败且文件仍存在时保留失败结果，零字节文件使用数量进度。
 
 ## 依赖更新
 
 common-ui-list 系列依赖通过 `commonUiList` 统一使用 `0.0.1-alpha2`，包括运行库、注解和 KSP 编译器。点击回调通过 `bindingAdapterPosition` 或 `viewholder` 从当前 adapter 的 `ItemHolderProvider` 获取条目；无效位置返回空时结束回调，不再读取 ViewHolder 上的旧 `itemHolder` 属性。库移除了 `SimpleDialogFragment`，宿主的 `GiantDialogFragment` 直接继承原生 `DialogFragment`，实现结果回传接口并在销毁视图时清理绑定。网格导航回归测试覆盖切换网格、进入子目录、系统返回三次及图标菜单绑定，连接设备后运行：
 
 ```sh
-./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.storyteller_f.giant_explorer.control.FileGridNavigationTest,com.storyteller_f.giant_explorer.service.FileOperationRegressionTest
+./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.storyteller_f.giant_explorer.control.FileGridNavigationTest,com.storyteller_f.giant_explorer.control.FileDeletionNavigationTest,com.storyteller_f.giant_explorer.service.FileOperationRegressionTest
 ```
 
 `.github/dependabot.yml` 每周一检查根 Gradle 多模块工程和 GitHub Actions。Gradle 更新统一合并为一组，GitHub Actions 更新单独合并为另一组；不再按 Gradle artifact 命名空间拆分。不自动合并，也不排除主版本升级。

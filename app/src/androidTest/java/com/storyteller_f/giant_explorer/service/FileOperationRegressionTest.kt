@@ -28,6 +28,38 @@ import java.lang.ref.WeakReference
 
 @RunWith(AndroidJUnit4::class)
 class FileOperationRegressionTest {
+    @Test fun nestedDirectoryDeletionHasAccurateCountsAndIsIdempotent() = runBlocking {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        val root = File(context.cacheDir, "nested-delete-regression").apply { mkdirs() }
+        val folder = File(root, "folder").apply { mkdirs() }
+        File(folder, "empty.txt").writeText("")
+        File(folder, "child").apply { mkdirs() }.resolve("notes.txt").writeText("fixture")
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            val binder = FileOperateBinder(context, scope, FileOperationEventBus())
+            val parent = getFileInstance(context, root.toUri())!!.getFileInfo()
+            val selected = getFileInstance(context, folder.toUri())!!.getFileInfo()
+            for (key in listOf("first", "repeat")) {
+                instrumentation.runOnMainSync { binder.delete(parent, listOf(selected), key) }
+                val result = withTimeout(10_000) {
+                    binder.taskHost.tasks.first {
+                        it[key]?.status in setOf(FileTaskStatus.SUCCEEDED, FileTaskStatus.FAILED)
+                    }
+                }.getValue(key)
+                assertEquals(result.message, FileTaskStatus.SUCCEEDED, result.status)
+                val expected = if (key == "first") FileTaskCounts(2, 2, 7) else FileTaskCounts()
+                assertEquals(expected, result.total)
+                assertEquals(FileTaskCounts(), result.remaining)
+                assertEquals(100, result.progress)
+                assertFalse(folder.exists())
+            }
+        } finally {
+            scope.cancel()
+            root.deleteRecursively()
+        }
+    }
+
     @Test fun deleteCompletionInvalidatesFileListsWithoutActivityCallback() = runBlocking {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
@@ -140,8 +172,8 @@ class FileOperationRegressionTest {
             withTimeout(10_000) { failureFinished.await() }
             assertSame(callback, binder.fileOperateResultContainer.get())
             instrumentation.runOnMainSync {
-                assertEquals(FileOperateBinder.state_error, binder.state.value)
-                assertNotNull(binder.map["invalid-copy"]?.message)
+                assertEquals(FileTaskStatus.FAILED, binder.taskHost.tasks.value["invalid-copy"]?.status)
+                assertNotNull(binder.taskHost.tasks.value["invalid-copy"]?.message)
             }
         } finally {
             scope.cancel()

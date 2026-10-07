@@ -232,4 +232,10 @@
     <string name="storage_status_unformatted">Not formatted</string>
     <string name="storage_status_unmountable">Unable to mount</string>
     <string name="storage_status_unavailable">Unavailable</string>
+    <string name="operation_delete_failed">Deletion did not complete. Check file permissions and try again.</string>
+    <string name="operation_deleting">Deleting: %1$s</string>
+    <string name="operation_file_done">File processed: %1$s</string>
+    <string name="operation_directory_done">Folder processed: %1$s</string>
+    <string name="operation_task_cancelled">File operation cancelled</string>
+    <string name="operation_delete_already_absent">The selected files are already absent. No deletion is needed.</string>
 </resources>
