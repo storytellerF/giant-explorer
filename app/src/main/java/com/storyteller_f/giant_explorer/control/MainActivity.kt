@@ -356,7 +356,7 @@ class MainActivity : CommonActivity() {
             scope.launch {
                 binder.taskHost.starts.flowWithLifecycle(lifecycle).collectLatest { key ->
                     if (supportFragmentManager.isStateSaved) return@collectLatest
-                    if (!binder.taskHost.tasks.value.containsKey(key)) return@collectLatest
+                    if (binder.taskHost.tasks.value[key]?.showDialog != true) return@collectLatest
                     if (supportFragmentManager.findFragmentByTag(FileOperationDialog.DIALOG_TAG) == null) {
                         FileOperationDialog.forTask(key).show(
                             supportFragmentManager,

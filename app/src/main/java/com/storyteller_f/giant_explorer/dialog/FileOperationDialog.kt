@@ -1,5 +1,6 @@
 package com.storyteller_f.giant_explorer.dialog
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
@@ -11,8 +12,6 @@ import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.MainActivity
 import com.storyteller_f.giant_explorer.databinding.DialogFileOperationBinding
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
-import com.storyteller_f.giant_explorer.service.FileTaskSnapshot
-import com.storyteller_f.giant_explorer.service.FileTaskStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,9 +23,16 @@ import kotlinx.coroutines.launch
 class FileOperationDialog :
     GiantDialogFragment<DialogFileOperationBinding>(DialogFileOperationBinding::inflate) {
     var binder: FileOperateBinder? = null
+    private var detailsExpanded = false
 
     override fun onBindViewEvent(binding: DialogFileOperationBinding) {
-        binding.closeWhenError.setOnClickListener { closeTask() }
+        binding.cancelOperation.setOnClickListener {
+            arguments?.getString(TASK_KEY)?.let { binder?.taskHost?.cancel(it) }
+        }
+        binding.taskDetailsToggle.setOnClickListener {
+            detailsExpanded = !detailsExpanded
+            renderDetails()
+        }
         binding.closeWhenDone.setOnClickListener { closeTask() }
     }
 
@@ -35,7 +41,9 @@ class FileOperationDialog :
         super.onViewCreated(view, savedInstanceState)
         dialog?.setCanceledOnTouchOutside(false)
         val key = arguments?.getString(TASK_KEY) ?: return dismiss()
+        detailsExpanded = savedInstanceState?.getBoolean(DETAILS_EXPANDED) ?: false
         val viewBinding = binding
+        val renderer = FileOperationDialogRenderer(requireContext(), viewBinding)
         val activity = requireActivity() as MainActivity
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -43,46 +51,45 @@ class FileOperationDialog :
                     binder = current
                     current.taskHost.tasks.map { it[key] }
                 }.distinctUntilChanged().collect { task ->
-                    if (task != null) render(viewBinding, task) else dismiss()
+                    if (task != null) {
+                        renderer.render(task)
+                        renderDetails()
+                    } else {
+                        dismiss()
+                    }
                 }
             }
         }
     }
 
-    private fun render(binding: DialogFileOperationBinding, task: FileTaskSnapshot) {
-        val running = task.status == FileTaskStatus.RUNNING
-        val computing = task.status == FileTaskStatus.COMPUTING
-        binding.stateProgress.isVisible = computing
-        binding.stateRunning.isVisible = running
-        binding.stateDone.isVisible = !computing && !running
-        binding.closeWhenError.isVisible = false
-        binding.textViewTask.text = getString(
-            R.string.operation_task_total, task.total.bytes, task.total.files, task.total.folders
+    private fun renderDetails() {
+        binding.textViewDetail.isVisible = detailsExpanded && binding.textViewDetail.text.isNotBlank()
+        binding.taskDetailsToggle.setText(
+            if (detailsExpanded) R.string.file_task_hide_details else R.string.file_task_show_details
         )
-        binding.textViewLeft.text = getString(
-            R.string.operation_task_remaining, task.remaining.bytes, task.remaining.files, task.remaining.folders
-        )
-        binding.progressBar.progress = task.progress
-        binding.textViewState.text = task.message
-        binding.textViewDetail.text = task.details
-        binding.doneText.text = when (task.status) {
-            FileTaskStatus.FAILED -> getString(
-                R.string.operation_task_failed,
-                task.message.ifBlank { getString(R.string.operation_task_unknown_error) }
-            )
-            FileTaskStatus.CANCELLED -> getString(R.string.operation_task_cancelled)
-            else -> getString(R.string.operation_task_done)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(DETAILS_EXPANDED, detailsExpanded)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        if (activity?.isChangingConfigurations != true) {
+            arguments?.getString(TASK_KEY)?.let { binder?.taskHost?.dismiss(it) }
         }
+        super.onDismiss(dialog)
     }
 
     private fun closeTask() {
-        arguments?.getString(TASK_KEY)?.let { binder?.taskHost?.forget(it) }
+        arguments?.getString(TASK_KEY)?.let { binder?.taskHost?.dismiss(it) }
         dismiss()
     }
 
     companion object {
         const val DIALOG_TAG = "file-operation"
         private const val TASK_KEY = "task-key"
+        private const val DETAILS_EXPANDED = "details-expanded"
         fun forTask(key: String) = FileOperationDialog().apply {
             arguments = Bundle().apply { putString(TASK_KEY, key) }
         }

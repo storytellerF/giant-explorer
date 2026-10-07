@@ -41,7 +41,17 @@ Debug 通知覆盖保留与 LeakCanary 2.14 相同的 `drawable-anydpi-v21` 限�
 
 后台复制、移动、删除和插件文件任务统一在服务的协程作用域中执行。`FileOperationEventBus.shared` 在任务结束时广播列表失效事件（包括失败和取消，以覆盖部分文件变更）。Paging 缓存属于 `FileListSearchViewModel.viewModelScope`，不能绑定会随导航销毁的视图作用域。文件列表的观察者与收集器均绑定当前视图；按 STARTED 生命周期订阅任务事件并调用 Paging 刷新；事件保留最新一次，返回前台或重建视图后也会刷新，不依赖 Activity 的结果回调，也不弹出 Toast。
 
-`FileOperationHost` 在应用的串行协调调度器上维护按任务编号隔离的不可变快照。每次操作使用新编号，相同编号不会重复执行；弹窗通过参数记录编号，重建后订阅该任务，关闭一个弹窗不会清除其他任务状态。删除保持原始 URI，在服务内串行执行并重新检查存在性、文件类型和目录内容；已不存在的目标按成功处理并明确提示无需重复删除。权限失败且文件仍存在时保留失败结果，零字节文件使用数量进度。
+`FileOperationHost` 在应用的串行协调调度器上维护按任务编号隔离的不可变快照。快照包含操作类型、处理项、目标目录及数量是否已知，插件未报告数量时使用不定进度，不显示虚假的百分比。每次操作使用新编号，相同编号不会重复执行；弹窗通过参数记录编号，重建后订阅该任务，关闭一个弹窗不会清除其他任务状态。删除保持原始 URI，在服务内串行执行并重新检查存在性、文件类型和目录内容；已不存在的目标按成功处理并明确提示无需重复删除。权限失败且文件仍存在时保留失败结果，零字节文件使用数量进度。
+
+文件操作弹窗使用统一布局：状态标题、处理项与目标目录、进度、保留到结束后的数量/容量摘要，以及按需展开的详情。正文可滚动，底部取消和关闭操作固定。取消先进入 CANCELLING，执行线程确认退出后才进入 CANCELLED；已经提交的文件更改不回滚。计算和文件处理回调检查任务取消状态。后台运行保留任务快照，但不会在返回首页时重新弹出。
+
+状态测试覆盖复制、移动、删除和插件的准备、运行、停止中、成功、失败、取消，含无操作、零字节、空目录和混合目录。设备测试覆盖实际文件读写、源文件消失、目标失效、不可删除文件、实际取消，以及浅色/深色、小屏和大字号的弹窗渲染；运行：
+
+```sh
+./gradlew :app:testDebugUnitTest :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.storyteller_f.giant_explorer.service.FileOperationStateMatrixTest,com.storyteller_f.giant_explorer.control.FileOperationDialogStateTest
+```
+
+弹窗状态截图由设备测试写入应用外部图片目录的 `file-task-states/`，属于测试产物，不提交到仓库。
 
 ## 依赖更新
 

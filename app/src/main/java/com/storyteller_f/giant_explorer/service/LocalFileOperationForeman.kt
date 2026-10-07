@@ -24,6 +24,7 @@ abstract class FileOperationForeman(
     val overview: TaskOverview,
     val key: String
 ) : SuspendCallable<Boolean>, FileOperationListener {
+    var cancellationCheck: () -> Unit = {}
     var fileOperationForemanProgressListener: FileOperationForemanProgressListener? = null
     private var leftFileCount = overview.fileCount
     private var leftFolderCount = overview.folderCount
@@ -38,6 +39,7 @@ abstract class FileOperationForeman(
     }
 
     protected fun emitStateMessage(tip: String) {
+        cancellationCheck()
         fileOperationForemanProgressListener?.onState(tip, key)
     }
 
@@ -173,16 +175,16 @@ class DeleteForemanImpl(
     }
 
     private suspend fun deleteRecursively(file: FileInstance): Boolean {
+        cancellationCheck()
         if (!file.exists()) return true
         val kind = file.fileKind()
         emitStateMessage(context.getString(R.string.operation_deleting, file.name))
-        if (kind.isDirectory) {
-            val children = file.list().let { it.files + it.directories }
-            for (child in children) {
-                if (!deleteRecursively(requireNotNull(getFileInstance(context, child.uri)))) return false
+        val childrenDeleted = !kind.isDirectory || file.list().let { listing ->
+            (listing.files + listing.directories).all { child ->
+                deleteRecursively(requireNotNull(getFileInstance(context, child.uri)))
             }
         }
-        val success = ensureDeleted({ file.exists() }, { file.deleteFileOrEmptyDirectory() })
+        val success = childrenDeleted && ensureDeleted({ file.exists() }, { file.deleteFileOrEmptyDirectory() })
         if (success) {
             if (kind.isDirectory) {
                 onDirectoryDone(file, null)
