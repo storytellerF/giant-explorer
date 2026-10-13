@@ -13,6 +13,8 @@
 
 HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base64(...)` 读取。保留 URI 的 scheme 和 authority，不要仅传递路径部分。
 
+文件操作的目标校验按 URI 路径规范化点段和重复斜杠，保留路径字符，并分别比较 scheme、authority 和存储树。不要使用宿主系统的 `java.io.File` 路径分隔符，使 Windows 本地测试与 Android 保持一致。窗口重建回归测试从应用缓存目录启动；真实触摸点击前等待目标状态渲染和按钮位置稳定，避免权限浮层和弹窗移动干扰。
+
 共享 `FileSystemProvider` 通过应用 `Context.classLoader` 显式加载 `FileInstanceFactory`，以支持没有应用上下文类加载器的 Binder 调用线程。保留与文件系统库相同的路径规范化；复制文件描述符后关闭原输入流。设备回归测试覆盖这项类加载边界。
 
 ## 界面规范
