@@ -116,7 +116,12 @@ class FileOperationHost(coordination: CoroutineDispatcher, parent: Job?) {
     private fun update(key: String, reduce: (FileTaskSnapshot) -> FileTaskSnapshot) = scope.launch {
         val current = mutableTasks.value[key] ?: return@launch
         if (current.status in TERMINAL_STATUSES) return@launch
-        mutableTasks.value = mutableTasks.value + (key to reduce(current))
+        val updated = reduce(current)
+        mutableTasks.value = if (!updated.showDialog && updated.status in TERMINAL_STATUSES) {
+            mutableTasks.value - key
+        } else {
+            mutableTasks.value + (key to updated)
+        }
     }
 
     fun dismiss(key: String) = scope.launch {

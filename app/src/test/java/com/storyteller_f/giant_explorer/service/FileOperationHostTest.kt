@@ -23,7 +23,24 @@ class FileOperationHostTest {
             assertEquals(FileTaskStatus.RUNNING, task.status)
             assertEquals(50, task.progress)
             host.finish("background", FileTaskStatus.SUCCEEDED).join()
-            assertFalse(host.tasks.value.getValue("background").showDialog)
+            assertFalse(host.tasks.value.containsKey("background"))
+        } finally { host.close() }
+    }
+
+    @Test(timeout = 10000)
+    fun backgroundCompletionClearsEveryTerminalResultWithoutRemovingActiveTasks() = runBlocking {
+        val host = FileOperationHost(Dispatchers.Default.limitedParallelism(1), null)
+        try {
+            host.start("active").await()
+            for (status in listOf(FileTaskStatus.SUCCEEDED, FileTaskStatus.FAILED, FileTaskStatus.CANCELLED)) {
+                val key = status.name
+                host.start(key).await()
+                host.dismiss(key).join()
+                host.finish(key, status, "fixture result").join()
+                host.progress(key, 50).join()
+                host.report(key, detail = "late callback").join()
+                assertEquals(setOf("active"), host.tasks.value.keys)
+            }
         } finally { host.close() }
     }
 
