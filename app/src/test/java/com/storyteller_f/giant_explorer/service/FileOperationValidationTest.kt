@@ -43,5 +43,17 @@ class FileOperationValidationTest {
         assertFalse(isCopyDestinationValid(local("/"), local("/photos"), true))
     }
 
+    @Test fun uriPathCharactersArePreservedWhileDotSegmentsAreNormalized() {
+        val source = local("/photos #1/旅行%20")
+        assertFalse(isCopyDestinationValid(source, local("/photos #1/旅行%20/./backup"), true))
+        assertTrue(isCopyDestinationValid(source, local("/photos #1/旅行 /backup"), true))
+        assertTrue(isCopyDestinationValid(source, local("/photos #1/旅行%20/../other"), true))
+    }
+
+    @Test fun redundantSlashesDoNotTurnPathSegmentsIntoAnAuthority() {
+        assertFalse(isCopyDestinationValid(local("//photos//album/"), local("/photos/album/child"), true))
+        assertTrue(isCopyDestinationValid(local("//photos/album"), local("/other/album"), true))
+    }
+
     private fun local(path: String) = FileOperationLocation("file", null, null, path)
 }

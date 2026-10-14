@@ -1,5 +1,7 @@
 package com.storyteller_f.giant_explorer.service
 
+import java.net.URI
+
 /** Only directories on the same filesystem can contain the destination. */
 internal fun isCopyDestinationValid(
     source: FileOperationLocation,
@@ -12,7 +14,13 @@ internal fun isCopyDestinationValid(
     ) {
         return true
     }
-    val sourcePath = java.io.File(source.path).normalize().path.trimEnd('/')
-    val destinationPath = java.io.File(destination.path).normalize().path.trimEnd('/')
+    val sourcePath = normalizeOperationPath(source.path)
+    val destinationPath = normalizeOperationPath(destination.path)
     return destinationPath != sourcePath && !destinationPath.startsWith("$sourcePath/")
+}
+
+private fun normalizeOperationPath(path: String): String {
+    // Collapse leading slashes too, so a path is never parsed as a URI authority.
+    val uriPath = path.replace(Regex("/{2,}"), "/")
+    return URI(null, null, uriPath, null).normalize().path.trimEnd('/')
 }

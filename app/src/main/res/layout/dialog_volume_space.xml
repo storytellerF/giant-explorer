@@ -15,6 +15,19 @@
             android:text="@string/storage_heading"
             android:textAppearance="@style/TextAppearance.Giant.DialogTitle"
             android:layout_marginBottom="16dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/storage_capacity_help"
+            android:textAppearance="@style/TextAppearance.Giant.Caption" />
+        <TextView
+            android:id="@+id/storage_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/storage_loading"
+            android:textAppearance="@style/TextAppearance.Giant.Body" />
         <LinearLayout
             android:id="@+id/space_list"
             android:layout_width="match_parent"

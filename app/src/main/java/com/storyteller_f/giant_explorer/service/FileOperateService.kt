@@ -13,6 +13,7 @@ import kotlinx.coroutines.cancel
 
 class FileOperateService : Service() {
     private val taskScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val binder by lazy { FileOperateBinder(applicationContext, taskScope) }
     override fun onCreate() {
         Log.d(TAG, "onCreate() called")
         super.onCreate()
@@ -45,7 +46,7 @@ class FileOperateService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        return FileOperateBinder(applicationContext, taskScope)
+        return binder
     }
 
     interface FileOperateResultContainer {

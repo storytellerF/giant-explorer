@@ -13,29 +13,44 @@
         android:id="@+id/volume_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="XXXX-XXX"
+        tools:text="内部存储"
         android:textAppearance="@style/TextAppearance.Giant.Subtitle" />
 
     <TextView
         android:id="@+id/volume_space"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="000MB"
-        android:textAppearance="@style/TextAppearance.Giant.Caption" />
-
-    <TextView
-        android:id="@+id/volume_total"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="000MB"
-        android:textAppearance="@style/TextAppearance.Giant.Caption" />
+        android:minHeight="48dp"
+        android:gravity="center_vertical"
+        tools:text="已用：32 GB"
+        android:textAppearance="@style/TextAppearance.Giant.Body" />
 
     <TextView
         android:id="@+id/volume_free"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="000MB"
-        android:textAppearance="@style/TextAppearance.Giant.Caption" />
+        android:minHeight="48dp"
+        android:gravity="center_vertical"
+        android:textColor="?attr/colorPrimary"
+        tools:text="可用：96 GB"
+        android:textAppearance="@style/TextAppearance.Giant.Body" />
+
+    <TextView
+        android:id="@+id/volume_total"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:gravity="center_vertical"
+        tools:text="总容量：128 GB"
+        android:textAppearance="@style/TextAppearance.Giant.Body" />
+
+    <TextView
+        android:id="@+id/capacity_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp"
+        android:text="@string/storage_capacity_unavailable"
+        android:textAppearance="@style/TextAppearance.Giant.Body" />
 
     <LinearLayout
         android:id="@+id/info"
@@ -45,7 +60,7 @@
             android:id="@+id/volume_state"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="mounted"
+            tools:text="可用"
             android:textAppearance="@style/TextAppearance.Giant.Caption" />
     </LinearLayout>
 </LinearLayout>

@@ -52,6 +52,8 @@ object WorkCategory {
 }
 
 class App : Application() {
+    val hostCoordinationDispatcher = Dispatchers.Default.limitedParallelism(1)
+
     override fun onCreate() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)

@@ -34,7 +34,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -45,9 +44,7 @@ import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_ui.setOnClick
 import com.storyteller_f.common_ui.viewBinding
 import com.storyteller_f.common_vm_ktx.GenericValueModel
-import com.storyteller_f.common_vm_ktx.debounce
 import com.storyteller_f.common_vm_ktx.svm
-import com.storyteller_f.common_vm_ktx.toDiffNoNull
 import com.storyteller_f.common_vm_ktx.vm
 import com.storyteller_f.file_system.getFileInstance
 import com.storyteller_f.file_system.instance.FileInstance
@@ -55,7 +52,6 @@ import com.storyteller_f.file_system.rawTree
 import com.storyteller_f.file_system_local.FileSystemUriStore
 import com.storyteller_f.file_system_local.getCurrentUserEmulatedPath
 import com.storyteller_f.file_system_local.instance.DocumentLocalFileInstance
-import com.storyteller_f.giant_explorer.DEFAULT_DEBOUNCE
 import com.storyteller_f.giant_explorer.R
 import com.storyteller_f.giant_explorer.control.plugin.PluginManageActivity
 import com.storyteller_f.giant_explorer.control.remote.RemoteManagerActivity
@@ -65,13 +61,15 @@ import com.storyteller_f.giant_explorer.databinding.ActivityMainBinding
 import com.storyteller_f.giant_explorer.dialog.FileOperationDialog
 import com.storyteller_f.giant_explorer.dialog.SortFilterBottomSheet
 import com.storyteller_f.giant_explorer.dialog.VolumeSpaceDialog
+import com.storyteller_f.giant_explorer.service.FileTaskOrigin
+import com.storyteller_f.giant_explorer.service.FileTaskDialogState
+import com.storyteller_f.giant_explorer.service.dialogState
 import com.storyteller_f.giant_explorer.service.FileOperateBinder
 import com.storyteller_f.giant_explorer.service.FileOperateService
 import com.storyteller_f.giant_explorer.service.FileService
 import com.storyteller_f.giant_explorer.view.PathMan
 import com.storyteller_f.giant_explorer.view.flash
 import com.storyteller_f.giant_explorer.view.setup
-import com.storyteller_f.slim_ktx.exceptionMessage
 import com.storyteller_f.ui_list.core.DataItemHolder
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ipc.RootService
@@ -80,8 +78,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
-import java.lang.ref.WeakReference
 import java.util.Properties
+import java.util.UUID
 
 class FileExplorerSession(application: Application, uri: Uri) : AndroidViewModel(application) {
     val selected = MutableLiveData<List<DataItemHolder>>()
@@ -98,7 +96,10 @@ class FileExplorerSession(application: Application, uri: Uri) : AndroidViewModel
 
 data class DocumentRequestSession(val authority: String, val tree: String?)
 
-class MainActivity : CommonActivity(), FileOperateService.FileOperateResultContainer {
+class MainActivity : CommonActivity() {
+
+    var taskOrigin = FileTaskOrigin.Window(UUID.randomUUID().toString())
+        private set
 
     private val binding by viewBinding(ActivityMainBinding::inflate)
     private val filterHiddenFile by vm({}) {
@@ -129,6 +130,7 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        taskOrigin = FileTaskOrigin.Window(savedInstanceState?.getString("file-task-window") ?: taskOrigin.id)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -357,34 +359,35 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
     val fileOperateBinder = MutableLiveData<FileOperateBinder?>()
 
     private fun observeBinder() {
-        fileOperateBinder.switchMap {
-            it?.state?.toDiffNoNull { i, i2 ->
-                i == i2
-            }
-        }.debounce(DEFAULT_DEBOUNCE).observe(this) {
-            if (it == null) {
-                Toast.makeText(this@MainActivity, "服务已关闭", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this@MainActivity, "服务已连接", Toast.LENGTH_SHORT).show()
-            }
-        }
         fileOperateBinder.observe(this) { binder ->
             binder ?: return@observe
-            binder.fileOperateResultContainer = WeakReference(this@MainActivity)
-            binder.state.toDiffNoNull { i, i2 ->
-                i == i2
-            }.observe(this@MainActivity) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "${it.first} ${it.second}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                if (it.first == FileOperateBinder.state_null) {
-                    FileOperationDialog().apply {
-                        this.binder = binder
-                    }.show(supportFragmentManager, FileOperationDialog.DIALOG_TAG)
+            scope.launch {
+                binder.taskHost.tasks.flowWithLifecycle(lifecycle).collectLatest { tasks ->
+                    presentTaskDialog(tasks.dialogState(taskOrigin))
                 }
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("file-task-window", taskOrigin.id)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        fileOperateBinder.value?.taskHost?.tasks?.value?.let {
+            presentTaskDialog(it.dialogState(taskOrigin))
+        }
+    }
+
+    private fun presentTaskDialog(state: FileTaskDialogState) {
+        if (supportFragmentManager.isStateSaved || state !is FileTaskDialogState.Showing) return
+        if (supportFragmentManager.findFragmentByTag(FileOperationDialog.DIALOG_TAG) == null) {
+            FileOperationDialog.forTask(state.taskKey).showNow(
+                supportFragmentManager,
+                FileOperationDialog.DIALOG_TAG
+            )
         }
     }
 
@@ -412,32 +415,12 @@ class MainActivity : CommonActivity(), FileOperateService.FileOperateResultConta
         }
     }
 
-    override fun onSuccess(uri: Uri?, originUri: Uri?) {
-        scope.launch {
-            Toast.makeText(this@MainActivity, "dest $uri origin $originUri", Toast.LENGTH_SHORT)
-                .show()
-        }
-//        adapter.refresh()
-    }
-
-    override fun onError(errorMessage: String?) {
-        scope.launch {
-            Toast.makeText(this@MainActivity, "error: $errorMessage", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    override fun onCancel() {
-        scope.launch {
-            Toast.makeText(this@MainActivity, "cancel", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         try {
             unbindService(connection)
         } catch (e: Exception) {
-            Toast.makeText(this, e.exceptionMessage, Toast.LENGTH_LONG).show()
+            Log.w(TAG, "Unable to unbind file operation service", e)
         }
     }
 

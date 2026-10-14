@@ -44,8 +44,6 @@ import com.storyteller_f.common_ui.owner
 import com.storyteller_f.common_ui.request
 import com.storyteller_f.common_ui.scope
 import com.storyteller_f.common_vm_ktx.activityScope
-import com.storyteller_f.common_vm_ktx.avm
-import com.storyteller_f.common_vm_ktx.genericValueModel
 import com.storyteller_f.common_vm_ktx.keyPrefix
 import com.storyteller_f.common_vm_ktx.pvm
 import com.storyteller_f.file_system.getFileInstance
@@ -92,15 +90,11 @@ class SharePasteTargetViewModel : ViewModel() {
 class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     FragmentFileListBinding::inflate
 ), FileItemHolderEvent {
+    private val taskOrigin
+        get() = (requireActivity() as MainActivity).taskOrigin
+
     private val fileOperateBinder
         get() = (requireContext() as MainActivity).fileOperateBinder
-    private val uuid by keyPrefix(
-        { "uuid" },
-        avm({}) {
-            genericValueModel(UUID.randomUUID().toString())
-        }
-    )
-
     private val args by navArgs<FileListFragmentArgs>()
 
     private val observer = FileListObserver(this, { args }, activityScope)
@@ -208,7 +202,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     }
 
     fun pasteFiles(data: ClipData, destDirectory: Uri? = null) {
-        val key = uuid.data.value ?: return
+        val key = UUID.randomUUID().toString()
         Log.i(TAG, "handleClipData: key $key")
         val context = context ?: return
         viewLifecycleOwner.lifecycleScope.launch {
@@ -274,10 +268,10 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         if (defaultSettings?.getBoolean("notify_before_paste", true) == true) {
             shareTarget.replace(uriList, dest)
             request(TaskConfirmDialog::class.java).response(TaskConfirmDialog.Result::class.java) { result ->
-                if (result.confirm) fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
+                if (result.confirm) fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key, taskOrigin)
             }
         } else {
-            fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key)
+            fileOperateBinderLocal.moveOrCopy(dest, items, null, false, key, taskOrigin)
         }
     }
 
@@ -345,7 +339,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
     fun fileMenu(view: View, viewholder: RecyclerView.ViewHolder) {
         val itemHolder = viewholder.fileItemOrNull() ?: return
         val fullPath = itemHolder.file.fullPath
-        val key = uuid.data.value ?: return
+        val key = UUID.randomUUID().toString()
         // The row owns its URI; the observed directory can already have changed during navigation.
         showMenu(view, fullPath, itemHolder, key, itemHolder.file.item.uri)
     }
@@ -443,7 +437,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
             }
 
             override fun runInService(block: suspend GiantExplorerService.() -> Boolean) {
-                fileOperateBinder.value?.pluginTask(key, block)
+                fileOperateBinder.value?.pluginTask(key, taskOrigin, block)
             }
         }
 
@@ -461,7 +455,8 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         fileOperateBinder.value?.delete(
             itemHolder.file.item,
             detectSelected(itemHolder),
-            key
+            key,
+            taskOrigin
         )
     }
 
@@ -596,7 +591,7 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
         dest: FileInstance,
         move: Boolean,
     ) {
-        val key = uuid.data.value ?: return
+        val key = UUID.randomUUID().toString()
         val detectSelected = detectSelected(itemHolder)
         Log.i(TAG, "moveOrCopy: uuid: $key")
         fileOperateBinder.value?.moveOrCopy(
@@ -604,7 +599,8 @@ class FileListFragment : SimpleFragment<FragmentFileListBinding>(
             detectSelected,
             itemHolder.file.item,
             move,
-            key
+            key,
+            taskOrigin
         )
     }
 
