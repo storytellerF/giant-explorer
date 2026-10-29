@@ -9,6 +9,14 @@
 ./gradlew :app:lintDebug :app:detekt
 ```
 
+普通 `detekt` 检查只读源码，可以与编译或其他只读分析一起运行；发现违规时仍按现有规则和 baseline 报告并失败。需要自动修复时显式执行：
+
+```sh
+./gradlew detekt --auto-correct
+```
+
+自动修复会改写源码，执行时应避免与读取或修改同一源码的编译、分析任务重叠。现有 `excludeCorrectable: false` 会让修复当次仍报告可修复违规并返回失败；修复后检查差异，并重新运行普通 Detekt、编译和测试。CI 使用普通检查，不依赖自动修复；Detekt 内部 AST 并行设置独立于自动修复，无需为此调整。
+
 调试 APK 位于 `app/build/outputs/apk/debug/`。Yue HTML 插件可用 `bash plugins/yue-html/dispatch.sh --package-only` 打包（需要 `zip`）。ZIP 根目录包含 `config`、`index.html` 和 `imgTouchCanvas.js`。省略 `--package-only` 会同时尝试向已连接设备分发。
 
 HTML 插件的 `file.fullPath()` 返回解析后的完整 URI，供 `plugin.base64(...)` 读取。保留 URI 的 scheme 和 authority，不要仅传递路径部分。
