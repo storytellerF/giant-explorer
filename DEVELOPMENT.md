@@ -67,6 +67,14 @@ common-ui-list 系列依赖通过 `commonUiList` 统一使用 `0.0.1-alpha2`，�
 
 这些分组用于常规版本更新；安全更新不受这些分组规则控制。本地维护的 AAR 不由 Dependabot 升级。配置合入默认分支后由 GitHub 执行，升级 PR 仍需通过构建与测试。
 
+## CI 缓存
+
+`.github/workflows/test.yml` 保留静态分析、单元测试、主应用编译与 GEP 内容检查。仅 `main` 的 push 运行允许三个作业写入 Gradle 缓存；PR 始终只读，恢复默认分支的兼容缓存。
+
+三个作业分别覆盖 detekt 及规则插件、JUnit 测试运行时、Li/Yue 插件打包依赖，因此各自保存缓存，避免单一写入者遗漏其他检查的依赖。使用 `setup-gradle` 默认的缓存去重和成功后清理，不额外添加预热作业或重复的缓存 action。Release 的 tag 缓存不作为 PR 的缓存来源。
+
+验证缓存策略时，先运行 main，再创建新的 PR：检查 Gradle 作业摘要中的恢复/保存条目，并通过仓库 Actions 缓存列表确认 `refs/heads/main` 下存在缓存、PR 未写入缓存。记录缓存总大小、各作业冷/热运行耗时和 Setup/Post Setup Gradle 耗时；后者包含恢复、清理及上传成本，不能仅以构建步骤耗时评估收益。
+
 ## 发布流程
 
 推送 `v*` 标签会触发 `.github/workflows/release.yml`：
