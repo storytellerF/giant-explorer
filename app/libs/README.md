@@ -1,9 +1,6 @@
-# Vendored libsu artifacts
+<a id="vendored-libsu-artifacts"></a>
+# 随仓库维护的 libsu 产物
 
-The `libsu` 5.0.3 and `sardine-android` 0.9 AARs are vendored because their
-upstreams publish them through JitPack only, while this project intentionally
-does not use the JitPack repository. They are built from the official
-`topjohnwu/libsu` 5.0.3 and `thegrizzlylabs/sardine-android` 0.9 tags.
+仓库包含 `libsu` 5.0.3 和 `sardine-android` 0.9 的 AAR，因为其上游仅通过 JitPack 发布，而本项目有意不使用 JitPack 仓库。这些产物由官方 `topjohnwu/libsu` 5.0.3 和 `thegrizzlylabs/sardine-android` 0.9 标签构建。
 
-SHA-256 checksums are recorded in `checksums.sha256`. When updating libsu,
-replace the related AARs together and update that file.
+SHA-256 校验和记录在 `checksums.sha256` 中。更新 libsu 时，一起替换相关 AAR 并更新该文件。
