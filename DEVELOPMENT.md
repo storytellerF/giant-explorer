@@ -116,11 +116,4 @@ common-ui-list 系列依赖通过 `commonUiList` 统一使用 `0.0.1-alpha2`，�
 
 本地无签名模式不注册远端发布目标和签名附件，产物写入本地 Maven 仓库；也可使用现有的 `publish-local.sh` 脚本。仓库不再提供 JitPack、GitHub Packages 或 GitHub Releases 发布流程。
 
-File operations submitted by a file-list window retain their UUID task key and carry a sealed
-`FileTaskOrigin.Window` identity. The identity is saved across Activity recreation. The task Host
-atomically rejects another submission from that window while any task still requests its dialog,
-including completed results. `FileTaskDialogState` represents `Idle` or `Showing(taskKey)` without
-nullable state fields. Each Activity derives its dialog from durable task state, so another window
-cannot consume its presentation request. Closing a result or choosing background execution releases
-the window; task completion alone does not. Back and outside taps do not dismiss the task dialog.
-Non-window service callers use the explicit `Detached` origin and do not request an Activity dialog.
+文件列表窗口提交的文件操作保留 UUID 任务键，并携带密封的 `FileTaskOrigin.Window` 身份，Activity 重建后仍保存该身份。只要该窗口仍有任务请求显示弹窗（包括已完成的结果），任务 Host 就会以原子方式拒绝该窗口的再次提交。`FileTaskDialogState` 使用 `Idle` 或 `Showing(taskKey)` 表示状态，不使用可空状态字段。每个 Activity 根据持久任务状态推导自己的弹窗，其他窗口无法消费其显示请求。关闭结果或选择后台运行会释放窗口，任务完成本身不会。返回键和点击外部区域不会关闭任务弹窗。非窗口服务调用方使用显式 `Detached` 来源，不请求 Activity 弹窗。
